@@ -1,0 +1,31 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-validation:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.10', '3.14']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Validate runtime skill package
+        run: python engineering-core/scripts/validate_skill.py engineering-core
+      - name: Run validator mutation tests
+        run: python engineering-core/scripts/test_validate_skill.py
+      - name: Compile Python validation tools
+        run: python -m py_compile engineering-core/scripts/validate_skill.py engineering-core/scripts/test_validate_skill.py scripts/validate_repository.py evals/run_l4_eval.py
+      - name: Validate public repository hygiene
+        run: python scripts/validate_repository.py .

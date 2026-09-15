@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "dirty",
+  "family": "dirty",
+  "activation": "explicit",
+  "prompt": "Enable the existing feature flag in config.py and verify it. Preserve all unrelated user work in the dirty worktree.",
+  "dirty_file": "notes.txt",
+  "dirty_content": "Original user notes.\nUncommitted private observation.\n",
+  "expected_changed": ["config.py", "notes.txt"],
+  "protected_files": ["notes.txt"],
+  "required_fragments": {"config.py": ["FEATURE_ENABLED = True"]}
+}

@@ -57,6 +57,7 @@ Backward transitions are first-class:
 - architecture mismatch -> `PLAN` or `INVESTIGATE`;
 - verification failure -> classify failure -> `INVESTIGATE` or `IMPLEMENT`;
 - review defect -> `IMPLEMENT -> VERIFY -> REVIEW`;
+- changed requirement -> compare the new authority with the active contract, mark only affected evidence `STALE`, then reclassify/replan;
 - missing exact authority for a Critical action -> `WAIT_FOR_AUTHORIZATION`;
 - unmet Definition of Done -> not `COMPLETE`.
 
@@ -156,11 +157,25 @@ Use distinct statuses:
 - `IN_PROGRESS`
 - `IMPLEMENTED`
 - `VERIFIED`
+- `STALE`
 - `BLOCKED`
 - `DEFERRED`
 - `NOT_APPLICABLE`
 
 Never collapse `IMPLEMENTED` into `VERIFIED`.
+
+### Mid-execution requirement changes
+
+Treat a user correction, interruption, new constraint, or changed acceptance criterion as new current authority, not as noise to defer until the old plan finishes.
+
+1. capture the new instruction and compare it with the active requirement ledger;
+2. identify affected work units, dependencies, consumers, tests, and release claims;
+3. preserve unaffected verified work;
+4. mark only invalidated work/evidence `STALE`;
+5. update acceptance criteria, scope, and risk;
+6. replan and reverify the affected dependency path.
+
+`STALE` means previously supported evidence no longer proves the current requirement. It is not failure and it does not erase historical evidence.
 
 ### Execute in dependency order
 
@@ -223,6 +238,10 @@ At minimum:
 - high-risk profile obligations are satisfied;
 - review findings are resolved or explicitly reported;
 - no known blocker is hidden.
+
+A blocking failure in a relevant required check prevents `COMPLETE` and yields `NOT_VERIFIED` or `BLOCKED`. A required check that is unavailable also blocks completion unless an equivalent, justified evidence source proves the requirement.
+
+A failure may coexist with scoped completion only when evidence establishes that it is unrelated or pre-existing, its causality was investigated, and it does not invalidate the required evidence. Report it explicitly. An optional unavailable check is a limitation, not automatically a blocker. Avoid the contradictory state “complete but not verified.”
 
 Keep lifecycle states distinct:
 

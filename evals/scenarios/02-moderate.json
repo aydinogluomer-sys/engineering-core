@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "moderate",
+  "family": "moderate",
+  "activation": "explicit",
+  "prompt": "Add an optional display_name to TeamProfile, include it in serialization, and use it as the member label with name as fallback. Update focused tests and implement the change.",
+  "expected_changed": ["model.py", "api.py", "ui.py", "test_contract.py"],
+  "protected_files": [],
+  "required_fragments": {"model.py": ["display_name"], "api.py": ["display_name"], "ui.py": ["display_name"], "test_contract.py": ["display_name"]}
+}

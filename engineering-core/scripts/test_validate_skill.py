@@ -10,15 +10,15 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
 
-from validate_skill import validate  # noqa: E402
+from validate_skill import classify_import_roots, validate  # noqa: E402
 
 
 class ValidatorTests(unittest.TestCase):
     def copy_skill(self) -> Path:
         tmp = Path(tempfile.mkdtemp(prefix="engineering-core-test-"))
+        self.addCleanup(lambda: shutil.rmtree(tmp, ignore_errors=True))
         dst = tmp / "engineering-core"
         shutil.copytree(ROOT, dst, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-        self.addCleanup(lambda: shutil.rmtree(tmp, ignore_errors=True))
         return dst
 
     def assert_invalid(self, mutator):
@@ -27,8 +27,46 @@ class ValidatorTests(unittest.TestCase):
         errors = validate(root)
         self.assertTrue(errors, "mutated package unexpectedly passed validation")
 
+    def add_validator_import(self, statement: str) -> Path:
+        root = self.copy_skill()
+        path = root / "scripts/validate_skill.py"
+        text = path.read_text(encoding="utf-8")
+        anchor = "from __future__ import annotations\n"
+        path.write_text(text.replace(anchor, anchor + statement + "\n", 1), encoding="utf-8")
+        return root
+
     def test_real_package(self):
         self.assertEqual(validate(ROOT), [])
+
+    def test_stdlib_and_nested_stdlib_imports_are_accepted(self):
+        root = self.add_validator_import("import os\nimport urllib.parse")
+        self.assertEqual(validate(root), [])
+
+    def test_future_and_builtin_imports_are_accepted(self):
+        classifications = classify_import_roots(ROOT / "scripts/validate_skill.py")
+        self.assertEqual(classifications["__future__"], "future/builtin")
+        self.assertEqual(classifications["sys"], "future/builtin")
+
+    def test_local_validator_import_is_accepted(self):
+        classifications = classify_import_roots(ROOT / "scripts/test_validate_skill.py")
+        self.assertEqual(classifications["validate_skill"], "local")
+
+    def test_arbitrary_unknown_external_import_is_rejected(self):
+        root = self.add_validator_import("import some_unlisted_external")
+        errors = validate(root)
+        self.assertTrue(any("some_unlisted_external" in error for error in errors))
+
+    def test_common_external_imports_are_rejected(self):
+        for statement, expected in [
+            ("import numpy", "numpy"),
+            ("import httpx", "httpx"),
+            ("from requests import Session", "requests"),
+            ("from pydantic import BaseModel", "pydantic"),
+        ]:
+            with self.subTest(statement=statement):
+                root = self.add_validator_import(statement)
+                errors = validate(root)
+                self.assertTrue(any(expected in error for error in errors))
 
     def test_missing_reference(self):
         self.assert_invalid(lambda r: (r / "references/operating-model.md").unlink())
@@ -109,20 +147,14 @@ class ValidatorTests(unittest.TestCase):
     def test_critical_route_missing(self):
         def mutate(r):
             p = r / "references/verification-review.md"
-            text = p.read_text(encoding="utf-8").replace(
-                "moderate, high, or critical-risk work",
-                "moderate/high-risk work",
-            )
+            text = p.read_text(encoding="utf-8").replace("moderate, high, or critical-risk work", "moderate/high-risk work")
             p.write_text(text, encoding="utf-8")
         self.assert_invalid(mutate)
 
     def test_redundant_confirmation_rule_missing(self):
         def mutate(r):
             p = r / "references/operating-model.md"
-            text = p.read_text(encoding="utf-8").replace(
-                "proceed without redundant confirmation",
-                "request explicit confirmation again",
-            )
+            text = p.read_text(encoding="utf-8").replace("proceed without redundant confirmation", "request explicit confirmation again")
             p.write_text(text, encoding="utf-8")
         self.assert_invalid(mutate)
 

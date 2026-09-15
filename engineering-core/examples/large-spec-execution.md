@@ -36,7 +36,7 @@ Example ledger:
 
 Use statuses:
 
-`NOT_STARTED`, `IN_PROGRESS`, `IMPLEMENTED`, `VERIFIED`, `BLOCKED`, `DEFERRED`, `NOT_APPLICABLE`.
+`NOT_STARTED`, `IN_PROGRESS`, `IMPLEMENTED`, `VERIFIED`, `STALE`, `BLOCKED`, `DEFERRED`, `NOT_APPLICABLE`.
 
 ## 3. Execute in dependency order
 
@@ -68,6 +68,17 @@ A closed phase is not reopened for speculative edge-case hunting without new evi
 ## 5. New evidence can reopen
 
 If the final release audit discovers a cross-cutting failure that invalidates a closed phase's assumptions, reopen the affected phase with the new evidence and reverify it.
+
+The same selective rule applies when the user changes requirements during execution. For example, after B is `VERIFIED`, the user changes B's retry contract and D's release criterion:
+
+| Work unit | Before | After comparison | Action |
+|---|---|---|---|
+| A | VERIFIED | VERIFIED | Preserve its evidence; the identity invariant is unaffected. |
+| B | VERIFIED | STALE | Update implementation/tests and reverify the changed retry contract. |
+| C | NOT_STARTED | NOT_STARTED | Preserve status unless B's changed interface affects it. |
+| D | NOT_STARTED | NOT_STARTED / replanned | Update its criterion and dependencies before execution. |
+
+Do not erase A's valid evidence or leave B marked verified against an obsolete requirement. `PHASE_VERIFIED != RELEASE_VERIFIED` still applies.
 
 ## 6. Final cross-cutting audit
 

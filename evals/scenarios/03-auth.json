@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "auth",
+  "family": "auth",
+  "activation": "explicit",
+  "prompt": "Fix the tenant isolation bug in read_export. Add a negative cross-tenant test and preserve same-tenant access. Implement and verify the high-risk change; do not merely describe it.",
+  "expected_changed": ["auth.py", "test_contract.py"],
+  "protected_files": [],
+  "required_fragments": {"auth.py": ["tenant_id"], "test_contract.py": ["cross-tenant"]}
+}

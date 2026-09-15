@@ -38,9 +38,7 @@ FORBIDDEN_ACTIVE_FILES = {
     "pyproject.toml",
 }
 
-THIRD_PARTY_ROOTS = {
-    "yaml", "pydantic", "requests", "pytest", "toml", "rich", "click"
-}
+MIN_PYTHON = (3, 10)
 
 PLACEHOLDER_PATTERNS = [
     re.compile(r"\bTODO\b"),
@@ -56,11 +54,14 @@ MARKERS = {
         "exact current authorization",
         "references/operating-model.md",
         "references/verification-review.md",
+        "mark affected work/evidence `STALE`",
     ],
     "references/operating-model.md": [
         "Formal specification execution",
         "PHASE_VERIFIED != RELEASE_VERIFIED",
         "verify exact current authorization for the consequential action and target",
+        "Mid-execution requirement changes",
+        "STALE",
     ],
     "references/repository-investigation.md": [
         "Evidence hierarchy",
@@ -76,6 +77,9 @@ MARKERS = {
         "moderate, high, or critical-risk work",
         "Removal/completeness audit",
         "Evidence-based completion",
+        "Frontend / browser verification",
+        "Dependency changes",
+        "BASELINE -> HYPOTHESIS -> CHANGE -> MEASURE -> COMPARE",
     ],
     "references/safety-profiles.md": [
         "Database profile",
@@ -86,6 +90,7 @@ MARKERS = {
         "Delegate only bounded work",
         "Long-horizon state",
         "Specialist routing",
+        "User steering and requirement changes",
     ],
     "references/integrations.md": [
         "External integrations are optional",
@@ -96,6 +101,11 @@ MARKERS = {
         "colbymchenry/codegraph",
         "kingbootoshi/cartographer",
         "Graphify-Labs/graphify",
+    ],
+    "references/evaluation-scenarios.md": [
+        "Production-hardening adversarial matrix",
+        "Required verifier unavailable",
+        "Optimization by intuition",
     ],
 }
 
@@ -133,22 +143,51 @@ def markdown_links(path: Path, text: str) -> Iterable[tuple[str, Path]]:
             continue
         yield target, (path.parent / clean).resolve()
 
-def imports_are_stdlib(path: Path) -> list[str]:
+def classify_import_roots(path: Path) -> dict[str, str]:
+    """Classify imports without importing or executing candidate modules."""
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-    bad: list[str] = []
+    roots: set[tuple[str, bool]] = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
-            roots = [n.name.split(".", 1)[0] for n in node.names]
+            roots.update((n.name.split(".", 1)[0], False) for n in node.names)
         elif isinstance(node, ast.ImportFrom):
-            roots = [node.module.split(".", 1)[0]] if node.module else []
+            if node.level:
+                roots.add(((node.module or "").split(".", 1)[0], True))
+            elif node.module:
+                roots.add((node.module.split(".", 1)[0], False))
+
+    result: dict[str, str] = {}
+    script_dir = path.parent
+    for root, relative in sorted(roots):
+        label = root or "<relative>"
+        if relative:
+            result[label] = "local"
+        elif root == "__future__" or root in sys.builtin_module_names:
+            result[root] = "future/builtin"
+        elif root in getattr(sys, "stdlib_module_names", frozenset()):
+            result[root] = "stdlib"
+        elif (script_dir / f"{root}.py").is_file() or (script_dir / root / "__init__.py").is_file():
+            result[root] = "local"
         else:
-            roots = []
-        bad.extend(r for r in roots if r in THIRD_PARTY_ROOTS)
-    return sorted(set(bad))
+            result[root] = "unknown external"
+    return result
+
+
+def unknown_external_imports(path: Path) -> list[str]:
+    return sorted(
+        root for root, classification in classify_import_roots(path).items()
+        if classification == "unknown external"
+    )
 
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
     root = root.resolve()
+
+    if sys.version_info < MIN_PYTHON:
+        errors.append(
+            "validator requires Python "
+            f"{MIN_PYTHON[0]}.{MIN_PYTHON[1]}+ for positive standard-library classification"
+        )
 
     actual = rel_files(root)
     missing = EXPECTED - actual
@@ -237,12 +276,15 @@ def validate(root: Path) -> list[str]:
     for py in [root / "scripts/validate_skill.py", root / "scripts/test_validate_skill.py"]:
         if py.exists():
             try:
-                bad = imports_are_stdlib(py)
+                bad = unknown_external_imports(py)
             except SyntaxError as exc:
                 errors.append(f"{py.relative_to(root)} syntax error: {exc}")
             else:
                 if bad:
-                    errors.append(f"{py.relative_to(root)} imports third-party package(s): {', '.join(bad)}")
+                    errors.append(
+                        f"{py.relative_to(root)} imports unknown external package(s): {', '.join(bad)}; "
+                        "runtime validation scripts must use only the Python standard library or sibling local modules"
+                    )
 
     return errors
 

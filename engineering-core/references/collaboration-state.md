@@ -115,7 +115,21 @@ On resume:
 
 Never assume a state record is current merely because it exists.
 
-## 8. Compaction resilience
+## 8. User steering and requirement changes
+
+New user input can replace, constrain, or extend active work. At the next safe message/tool boundary:
+
+- capture it as current authority;
+- compare it with the active ledger and scope;
+- stop obsolete work;
+- preserve unaffected artifacts and verified evidence;
+- mark only impacted evidence/work units `STALE`;
+- identify downstream consumers and gates;
+- reclassify risk and replan the affected path.
+
+Do not discard the entire plan when only one unit changed, and do not finish an obsolete plan before acknowledging current user intent.
+
+## 9. Compaction resilience
 
 Universal invariants belong in the lean `SKILL.md`.
 
@@ -123,7 +137,7 @@ Detailed policy belongs in references.
 
 Before compaction or a major session transition, preserve only continuation-critical state. Do not duplicate full reference content into notes.
 
-## 9. Handoff evidence
+## 10. Handoff evidence
 
 A useful handoff contains:
 

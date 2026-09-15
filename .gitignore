@@ -8,3 +8,5 @@ __pycache__/
 Thumbs.db
 .idea/
 .vscode/
+evals/reports/
+evals/.tmp-l4-*/

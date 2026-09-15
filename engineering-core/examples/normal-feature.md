@@ -47,6 +47,10 @@ Cover:
 - existing profile behavior unchanged;
 - relevant integration/type checks.
 
+### UI/browser slice
+
+Because the value is rendered, use existing component or browser tooling when available to verify present, absent/fallback, and one relevant narrow/interactive state. Do not install browser tooling for this task. If UI behavior is a required acceptance criterion and no equivalent evidence is available, report it as `NOT_VERIFIED` rather than treating model tests as proof of rendering.
+
 ## Scope discipline
 
 Do not:

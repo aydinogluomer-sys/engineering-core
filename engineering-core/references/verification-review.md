@@ -201,7 +201,14 @@ Commands/observations executed after the final relevant edit.
 ### Not verified / limitations
 Anything inferred, blocked, unavailable, flaky, or not run.
 
-Never claim:
+Completion-state rules:
+
+- a relevant required check failure -> `NOT_VERIFIED` or `BLOCKED`;
+- a required unavailable check without equivalent evidence -> `NOT_VERIFIED` or `BLOCKED`;
+- an optional unavailable check -> explicit limitation; completion may remain possible;
+- a proven unrelated/pre-existing failure -> report causality and impact; scoped completion may remain possible only if required evidence is intact.
+
+Never use “complete but not verified.” Never claim:
 
 - all tests pass;
 - fully secure;
@@ -209,3 +216,36 @@ Never claim:
 - complete;
 
 without evidence supporting that exact claim.
+
+## Frontend / browser verification
+
+Use this profile only when the changed behavior depends on rendering, browser APIs, interaction, responsive layout, accessibility, or client/server integration.
+
+- Prefer the repository's existing browser/UI tooling; do not auto-install a browser, driver, plugin, or service.
+- Start with component/unit/static evidence, then use browser evidence when those layers cannot prove the behavior or risk warrants it.
+- Verify task-relevant states: initial/loading, empty, error, disabled/unauthorized, narrow viewport, keyboard/focus, and recovery only as applicable.
+- Inspect console/network behavior and visual output when relevant; a screenshot alone does not prove interaction or accessibility.
+- If browser tooling is unavailable, use the strongest native fallback and classify the missing evidence as optional limitation or required blocker according to the contract.
+
+A one-line styling or copy fix can remain Low risk with a focused render/static check and diff review.
+
+## Dependency changes
+
+Before adding, removing, or upgrading a dependency:
+
+- prove necessity and check for an existing repository/platform primitive;
+- verify supported version, runtime/platform compatibility, lockfile effect, transitive impact, and build/bundle impact;
+- consider provenance, maintenance, known security posture, license, and supply-chain exposure proportionately;
+- identify config, migration, rollback/roll-forward, and deployment implications;
+- read relevant upgrade notes and breaking changes for upgrades;
+- keep manifest and lockfile changes intentional and review their diff.
+
+Do not install tooling merely to improve investigation. A dependency change expands scope and must be authorized by the requested implementation or correctness need.
+
+## Performance work
+
+Use the sequence:
+
+`BASELINE -> HYPOTHESIS -> CHANGE -> MEASURE -> COMPARE`
+
+Define the metric, workload, environment, and correctness invariant before optimizing. Measure baseline and candidate under materially equivalent conditions, account for warmup/noise/variance, and retain raw results when practical. Reject regressions in correctness or important secondary metrics. Report only observed deltas; do not call speculative complexity reduction a measured performance improvement.

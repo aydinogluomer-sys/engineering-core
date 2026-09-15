@@ -59,3 +59,5 @@ Use a fresh reviewer when available. Give the reviewer the request, relevant ins
 ## Completion
 
 “High-risk fix implemented” and “verified” remain separate until current negative-path evidence exists.
+
+If the required cross-tenant denial test fails after the final edit, the security boundary is `NOT_VERIFIED`/`BLOCKED`; the task cannot transition to `COMPLETE`. An unrelated, proven pre-existing lint failure may be reported separately only after confirming that it does not invalidate the authorization evidence.

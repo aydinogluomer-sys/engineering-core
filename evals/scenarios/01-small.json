@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "small",
+  "family": "small",
+  "activation": "explicit",
+  "prompt": "Fix only the obvious documentation typo. Keep this a small task, run the relevant check, and do not modify unrelated files.",
+  "expected_changed": ["README.md"],
+  "protected_files": ["KEEP.md"],
+  "required_fragments": {"README.md": ["the typo"]}
+}

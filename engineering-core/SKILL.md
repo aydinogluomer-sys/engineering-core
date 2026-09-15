@@ -24,8 +24,9 @@ Reclassify when evidence changes the risk or scope. Move backward deliberately: 
 7. Debug by reproduction and falsifiable hypotheses. Do not repeat equivalent failed actions without new evidence.
 8. Test in proportion to risk, including relevant negative paths. Run current checks after the final edit; a stale pass is not evidence.
 9. Inspect final status and diff before completion. Map requirements and exclusions to code and tests; audit removals beyond the deleted file.
-10. Distinguish implemented, verified, phase-verified, release-verified, reviewed, merged, released, and deployed. Claim only the states supported by current observed evidence; an unmet Definition of Done cannot transition to `COMPLETE`.
-11. Treat exact current authorization as sufficient for the exact action and target after required gates. Do not ask redundantly. Broad, implied, stale, ambiguous, or differently scoped intent is not authority for a consequential action.
+10. When requirements change mid-execution, preserve unaffected evidence, mark affected work/evidence `STALE`, reclassify risk, and replan only the impacted dependency path.
+11. Distinguish implemented, verified, phase-verified, release-verified, reviewed, merged, released, and deployed. A blocking required failure or required verification unavailable without equivalent evidence is `NOT_VERIFIED`/`BLOCKED`, never `COMPLETE`.
+12. Treat exact current authorization as sufficient for the exact action and target after required gates. Do not ask redundantly. Broad, implied, stale, ambiguous, or differently scoped intent is not authority for a consequential action.
 
 ## Small-task fast path
 
@@ -59,4 +60,4 @@ Before destructive Git/filesystem actions, production changes, releases, deploym
 
 ## Completion
 
-Complete only when the requested outcome is implemented within scope, current relevant checks have passed or their failures are accurately reported, negative paths match the risk, the final diff is understood, and no known blocker is hidden.
+Complete only when the requested outcome is implemented within scope, current required evidence supports it, negative paths match the risk, the final diff is understood, and no known blocker remains. Proven unrelated failures and optional unavailable checks may be reported as limitations without invalidating scoped completion.

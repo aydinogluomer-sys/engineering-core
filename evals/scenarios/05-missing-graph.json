@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "id": "missing-graph",
+  "family": "missing-graph",
+  "activation": "explicit",
+  "prompt": "Rename legacy_slug to slugify everywhere in this repository and verify callers. No code graph provider is installed; use native repository tools and do not install dependencies.",
+  "expected_changed": ["slug.py", "service.py"],
+  "protected_files": [],
+  "required_fragments": {"slug.py": ["def slugify"], "service.py": ["slugify"]},
+  "forbid_dependency_files": true
+}

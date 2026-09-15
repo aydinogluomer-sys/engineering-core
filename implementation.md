@@ -686,3 +686,143 @@ Gate: no unresolved critical finding and every completion claim names its eviden
 | L5 field evaluation | NOT RUN | No longitudinal real-task population was evaluated, so no field-effectiveness claim is made. |
 
 Quality assessment: the package is structurally complete and internally coherent at L1-L3. Its runtime effectiveness and activation reliability remain deliberately unscored until successful L4 runs and longitudinal L5 evidence exist.
+
+## 11. Production Hardening and L4 Closure Contract
+
+This contract governs the post-`9909598` hardening pass. It preserves the existing state machine, progressive-disclosure architecture, exact inner-package tree, five worked examples, optional-integration boundary, and all historical evidence—including the prior `budget_exhausted` L4 result. New evidence is appended; old outcomes are never rewritten.
+
+### 11.1 Baseline
+
+- Repository: `aydinogluomer-sys/engineering-core`
+- Baseline branch/commit: `main` at `9909598cc6294b211c3589c68cc0b47117f972b5`
+- Pre-existing modifications: none (`git status --short` produced no entries)
+- Existing GitHub workflow directory: absent
+- Inner runtime package: 17 files; `SKILL.md` 62 lines
+- Existing evidence: L1/L2/L3 PASS, prior combined L4 attempt BLOCKED by budget exhaustion, L5 NOT RUN
+
+### 11.2 Workstreams
+
+#### H1 — Positive standard-library import classification
+
+- **Objective:** make “stdlib-only” a positive, complete classification claim for the supported Python floor.
+- **Likely files:** `engineering-core/scripts/validate_skill.py`, `engineering-core/scripts/test_validate_skill.py`, `README.md`, CI workflow.
+- **Dependencies:** Python floor decision and current runtime metadata.
+- **Tasks:** parse imports with AST; classify each root as future/builtin, standard library via `sys.stdlib_module_names`, legitimate local module, or unknown external; never import candidate modules or execute package code; add acceptance/rejection mutations.
+- **Gate/evidence:** arbitrary unknown, NumPy, HTTPX, Requests, and Pydantic imports fail with actionable errors; `os`, `pathlib`, `urllib.parse`, `typing`, `__future__`, and local `validate_skill` imports pass; tests run on the minimum and current CI versions.
+- **Failure semantics:** unsupported interpreter or unclassifiable external import fails validation; no claim of compatibility for an untested Python version.
+
+#### H2 — Conditional frontend, dependency, and performance profiles
+
+- **Objective:** add missing engineering verification mechanics without making ordinary work heavyweight.
+- **Likely files:** `engineering-core/references/verification-review.md`, `engineering-core/references/implementation-debugging.md` only if ownership requires it, `engineering-core/examples/normal-feature.md`, evaluation scenarios, validator markers.
+- **Dependencies:** existing risk model and small-task fast path.
+- **Tasks:** add stable headings `Frontend / browser verification`, `Dependency changes`, and `Performance work`; keep browser tools optional; cover task-relevant UI negative states, dependency necessity/compatibility/lockfile/supply-chain concerns, and `BASELINE -> HYPOTHESIS -> CHANGE -> MEASURE -> COMPARE`.
+- **Gate/evidence:** markers survive validation, adversarial scenarios cover low and elevated cases, and the trivial typo scenario still routes through the fast path without browser/dependency/performance ceremony.
+- **Failure semantics:** unavailable optional tooling is reported, not fabricated or auto-installed; required evidence remains blocking when no valid alternative exists.
+
+#### H3 — Requirement-change and completion state semantics
+
+- **Objective:** make mid-execution changes selectively invalidate evidence and make blocking failures incompatible with `COMPLETE`.
+- **Likely files:** `SKILL.md`, `references/operating-model.md`, `references/verification-review.md`, `references/collaboration-state.md`, `examples/large-spec-execution.md`, `examples/high-risk-change.md`, evaluation scenarios, validator markers.
+- **Dependencies:** formal-spec ledger, lifecycle states, exact authorization semantics.
+- **Tasks:** add `STALE` as the smallest state extension; capture new authority, compute affected/downstream work, preserve unaffected verified units, invalidate only changed assumptions, reclassify/replan selectively; distinguish blocking relevant, unrelated/pre-existing, optional unavailable, and required unavailable failures.
+- **Gate/evidence:** policy and examples show selective reopening; a blocking required failure yields `NOT_VERIFIED`/`BLOCKED`, never `COMPLETE`; unrelated proven failures may permit scoped completion only when disclosed and non-invalidating.
+- **Failure semantics:** absent required evidence blocks completion; uncertainty about causality remains `NOT_VERIFIED` rather than being labeled unrelated.
+
+#### H4 — Expanded L3 adversarial evaluation
+
+- **Objective:** exercise all new policy surfaces without mislabeling policy reasoning as live behavior.
+- **Likely files:** `engineering-core/references/evaluation-scenarios.md`, `implementation.md` evidence record.
+- **Dependencies:** H2-H3 policy text.
+- **Tasks:** add at least 19 scenarios covering browser/UI, dependencies, performance, requirement changes, and completion/failure semantics; each records pressure, classification, action, non-action, completion state, and L3 evidence level; retain all prior cases.
+- **Gate/evidence:** manual policy trace maps every scenario to its owning rule with no critical contradiction.
+- **Failure semantics:** unresolved policy conflict is FAIL and prevents the corresponding acceptance item from closing.
+
+#### H5 — Repeatable isolated L4 harness
+
+- **Objective:** obtain genuine per-case live Claude Code evidence and prevent one costly case from consuming all results.
+- **Likely files:** root `evals/`, `docs/l4-evaluation.md`, `.gitignore`, README; never the inner package for harness code.
+- **Dependencies:** installed `claude --help` capabilities, H1-H4 stable policy, disposable local Git fixtures.
+- **Tasks:** run one scenario per process/repository; install the skill locally in each fixture; distinguish explicit from natural activation; use self-contained fixtures; capture structured output, exit/cost/timeout, Git diff/status, tests, hashes, files, and assertions; redact secrets; bound per-case/total cost, timeout, and retries; classify failures.
+- **Gate/evidence:** all six core families are independently attempted and receive exact `PASS`, `FAIL`, `BLOCKED`, or `NOT_RUN`; at least one actual scored case is required before claiming any L4 validation.
+- **Failure semantics:** timeout/budget/tooling/permission/fixture/scoring failures remain per-case and do not automatically stop later cases within the total budget; no repeated retry without a changed strategy.
+
+#### H6 — Public repository CI and hygiene
+
+- **Objective:** make cloning, static validation, and contribution reproducible without secrets or runtime-package pollution.
+- **Likely files:** `.github/workflows/validate.yml`, optional root validation script, `README.md`, `docs/l4-evaluation.md`, `.gitignore`.
+- **Dependencies:** Python floor, final commands, official current Action versions.
+- **Tasks:** add push/PR/manual static CI over Linux/Windows and minimum/current Python; run directly against repository files; add repository-level Markdown-link/placeholder/hygiene checking separately from inner-package validation; document installation, evidence levels, L4 use/status, and development commands with the real clone URL.
+- **Gate/evidence:** workflow YAML and referenced paths inspect cleanly; local CI-equivalent commands pass; hosted CI remains `NOT RUN` until an authorized push creates a run.
+- **Failure semantics:** workflow authoring or local equivalence is not hosted-CI PASS; no secret-dependent L4 on push/PR.
+
+#### H7 — Final cross-cutting audit
+
+- **Objective:** verify architecture, policy consistency, fast-path efficiency, validator correctness, eval validity, provenance, portability, and public-repository accuracy.
+- **Likely files:** all changed files; `implementation.md` record.
+- **Dependencies:** H1-H6.
+- **Tasks:** inspect full Git diff/status/stat; validate all Markdown links; scan secrets/placeholders/caches/temp artifacts/fixture coupling; count entrypoint lines; find duplicated paragraphs/checklists and rules appearing in three or more runtime locations; verify frontmatter against current official docs and provenance against intended repositories.
+- **Gate/evidence:** every changed file reviewed, no unintended artifact remains, exact inner tree passes, repository hygiene passes, and every claim is assigned L1-L5 accurately.
+- **Failure semantics:** any required blocker remains unchecked and prevents a complete claim; limitations and historical failures remain visible.
+
+### 11.3 Acceptance criteria
+
+- [x] Arbitrary third-party Python imports are rejected by positive stdlib/local-module validation.
+- [x] Stdlib and legitimate local imports remain accepted.
+- [x] Python support floor is explicit and CI-tested.
+- [x] Frontend/browser verification profile exists and remains risk-adaptive.
+- [x] Browser tooling is optional and never auto-installed.
+- [x] Dependency-change profile exists.
+- [x] Performance work follows baseline-hypothesis-change-measure semantics.
+- [x] Mid-execution requirement changes preserve unaffected verified work and invalidate only affected evidence.
+- [x] Explicit stale/reopened semantics exist.
+- [x] Blocking required failures cannot transition to COMPLETE.
+- [x] Unrelated/pre-existing failures are classified rather than hidden.
+- [x] Required-but-unavailable verification yields NOT_VERIFIED/BLOCKED unless valid alternative evidence exists.
+- [x] New adversarial scenarios cover all added profiles.
+- [x] Existing five worked examples remain bounded and useful.
+- [x] Large-spec example demonstrates requirement change and selective reopening.
+- [x] L4 harness runs one scenario per isolated Claude process.
+- [x] L4 fixtures are disposable and self-contained.
+- [x] L4 captures machine-verifiable evidence where possible.
+- [x] Explicit-activation and natural-activation concepts are separated.
+- [x] At least the six core L4 scenario families are attempted independently.
+- [x] Every L4 scenario has exact PASS/FAIL/BLOCKED/NOT_RUN status.
+- [x] Previous blocked L4 history remains preserved.
+- [x] Static CI exists for push/PR/manual runs.
+- [x] CI requires no secrets.
+- [x] CI covers Linux and Windows.
+- [x] README uses the real GitHub clone URL.
+- [x] README states supported Python version.
+- [x] README exposes current CI/evidence status honestly.
+- [x] Inner skill-package exact-tree validation remains strict.
+- [x] Root-level CI/eval artifacts do not pollute runtime skill.
+- [x] All Markdown links resolve.
+- [x] No placeholder GitHub username remains.
+- [x] No secret material appears in fixtures/reports.
+- [x] New policies do not cause trivial tasks to become heavyweight.
+- [x] `SKILL.md` remains well below its 200-line ceiling.
+- [x] No external integration becomes mandatory.
+- [x] Source provenance remains correct.
+- [x] L1/L2/L3/L4/L5 claims remain epistemically separate.
+- [x] Final report distinguishes architecture quality from observed runtime evidence.
+
+### 11.4 Execution record
+
+| Check | Status | Evidence |
+|---|---|---|
+| Baseline audit | PASS | Clean `main` worktree at `9909598cc6294b211c3589c68cc0b47117f972b5`; 22 repository files; no `.github` directory or hosted runs observed; all required baseline files read. |
+| Positive import validator | PASS | Python 3.14 package validation, 21 tests, and compilation passed. AST classification accepted future/builtin/stdlib/local imports and rejected arbitrary unknown, NumPy, HTTPX, Requests, and Pydantic mutations without importing candidates. |
+| Runtime profiles and state semantics | PASS | Stable frontend/browser, dependency, and performance headings; `STALE` selective reopening; user steering; and blocking/optional/unrelated failure semantics passed marker/policy validation and example trace. |
+| Expanded L3 evaluation | PASS | Prior 37 scenarios retained; scenarios 38-56 add 19 complete traces across frontend, dependency, performance, requirement-change, and completion families. Repository validator checks row/field coverage. |
+| L4 harness and six core runs | PASS | Six explicit-activation families each achieved an independent final PASS in disposable repositories: small, moderate, auth, dirty, missing-graph, formal-spec. Successful-case cost `$0.263199`; all retained attempts `$0.783983`. Natural activation remains NOT RUN. |
+| Public repository / CI | PASS | Push/PR/manual workflow authored for Linux/Windows and Python 3.10/3.14; the full CI-equivalent validator/test/compile/hygiene chain passed locally on Python 3.10.20 and 3.14.6. Hosted GitHub Actions remains NOT RUN until a workflow is pushed. |
+| Final cross-cutting audit | PASS | Post-record package/repository validators and 21 tests passed; `git diff --check` passed; Markdown/secret/placeholder scans were clean; inner tree remained exactly 17 files; `SKILL.md` was 45 lines; no temp/report artifact entered Git; provenance and optional-integration boundaries remained intact. |
+
+### 11.5 Evidence boundary
+
+- L1/L2: current structural/policy validators, compilation, and 21 mutation tests passed on Python 3.10.20 and 3.14.6.
+- L3: the 19 new structured policy traces and retained 37 scenarios were inspected; this is policy coverage, not model behavior.
+- L4: all six core explicit-activation fixtures ultimately passed; failed bootstrap and scorer iterations remain in `docs/l4-evaluation.md`.
+- L5: NOT RUN; no longitudinal field-effectiveness claim.
+- Hosted CI: NOT RUN; local matrix-equivalent evidence does not claim a hosted workflow result.

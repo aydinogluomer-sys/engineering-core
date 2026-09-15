@@ -1,5 +1,7 @@
 # engineering-core
 
+[![Validate](https://github.com/aydinogluomer-sys/engineering-core/actions/workflows/validate.yml/badge.svg)](https://github.com/aydinogluomer-sys/engineering-core/actions/workflows/validate.yml)
+
 A risk-adaptive engineering operating policy for Claude Code.
 
 `engineering-core` gives Claude Code a reusable software-engineering discipline for implementation, debugging, refactoring, removal, testing, review, migration, and release work.
@@ -75,8 +77,16 @@ This progressive-disclosure design reduces default context cost, avoids repeatin
 ├── LICENSE
 ├── .gitignore
 ├── implementation.md
+├── .github/workflows/validate.yml
 ├── docs/
-│   └── claude-router.md
+│   ├── claude-router.md
+│   └── l4-evaluation.md
+├── evals/
+│   ├── README.md
+│   ├── run_l4_eval.py
+│   └── scenarios/
+├── scripts/
+│   └── validate_repository.py
 └── engineering-core/
     ├── SKILL.md
     ├── examples/
@@ -107,7 +117,7 @@ This progressive-disclosure design reduces default context cost, avoids repeatin
 Clone this repository:
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/engineering-core.git
+git clone https://github.com/aydinogluomer-sys/engineering-core.git
 ```
 
 macOS / Linux:
@@ -196,6 +206,8 @@ The project distinguishes five evidence levels:
 
 A lower level never claims a higher-level guarantee.
 
+The validation tools require Python 3.10 or newer. Static CI covers Python 3.10 and 3.14 on Linux and Windows.
+
 Current design/validation history is recorded in [`implementation.md`](implementation.md).
 
 ## Validate the package
@@ -205,10 +217,23 @@ From the repository root:
 ```bash
 python engineering-core/scripts/validate_skill.py engineering-core
 python engineering-core/scripts/test_validate_skill.py
-python -m py_compile engineering-core/scripts/validate_skill.py engineering-core/scripts/test_validate_skill.py
+python -m py_compile engineering-core/scripts/validate_skill.py engineering-core/scripts/test_validate_skill.py scripts/validate_repository.py evals/run_l4_eval.py
+python scripts/validate_repository.py .
 ```
 
-The validator checks structural and statically observable policy properties only. It does not prove runtime activation, security, correct root-cause discovery, or absence of scope creep.
+The package validator checks the exact distributable skill tree and statically observable policy properties. The repository validator separately checks public-repository links, fixtures, CI markers, placeholders, and obvious secret material. Neither proves runtime activation, security, correct root-cause discovery, or absence of scope creep.
+
+## Live L4 evaluation
+
+Live evaluation is intentionally local/manual because it invokes Claude Code and has time/cost implications. Each scenario gets a separate disposable Git repository and Claude process; a zero exit code is not enough to pass.
+
+Run a cheap explicit-activation case first:
+
+```bash
+python evals/run_l4_eval.py --case small --model haiku --per-case-budget 0.35 --total-budget 0.35
+```
+
+See [`evals/README.md`](evals/README.md) for all-core execution and [`docs/l4-evaluation.md`](docs/l4-evaluation.md) for the append-only evidence record. Explicit activation and natural activation are reported separately. The optional router is not required by the harness.
 
 ## What engineering-core is not
 
@@ -246,13 +271,15 @@ The design synthesizes principles from:
 
 See [`engineering-core/references/source-synthesis.md`](engineering-core/references/source-synthesis.md) for the adopted / modified / rejected mapping.
 
-## Development status
+## Current evidence status
 
-The policy architecture is structurally mature.
+- L1 structural validation: locally exercised; see the current execution record in [`implementation.md`](implementation.md).
+- L2 policy lint: locally exercised; static heuristics are not behavioral proof.
+- L3 adversarial policy traces: documented and audited; see the execution record for current counts/results.
+- L4 live Claude Code behavior: see [`docs/l4-evaluation.md`](docs/l4-evaluation.md); cases are never implied by a green static validator.
+- L5 longitudinal field evidence: not established.
 
-Before calling the project `v1.0.0`, representative L4 live Claude Code evaluation and subsequent field use are recommended.
-
-A reasonable first public release is `v0.9.0`.
+The workflow is present for push, pull request, and manual dispatch. A local CI-equivalent pass is distinct from a hosted GitHub Actions pass; the badge reflects GitHub only after a pushed workflow runs.
 
 ## License
 

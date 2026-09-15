@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "formal-spec",
+  "family": "formal-spec",
+  "activation": "explicit",
+  "prompt": "Execute implementation.md as the authoritative contract. Implement both phases, run the tests, and create/update STATUS.md with distinct PHASE_VERIFIED and RELEASE_VERIFIED states. Do not stop at planning.",
+  "expected_changed": ["pipeline.py", "STATUS.md"],
+  "protected_files": [],
+  "required_fragments": {"pipeline.py": ["item:"], "STATUS.md": ["PHASE_VERIFIED", "RELEASE_VERIFIED"]}
+}
