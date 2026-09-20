@@ -1053,8 +1053,8 @@ This append-only contract implements `engineering-core` 9.7–9.8 orchestration 
 - [x] CI includes Team Mode harness unit tests but no costly live run.
 - [x] Repository links, paths, placeholders, secrets, and report ignores validate.
 - [x] No runnable pseudo-security guard is added.
-- [ ] Hosted CI passes Linux/Windows × Python 3.10/3.14.
-- [ ] Local/remote `main` SHA equality is verified after push.
+- [x] Hosted CI passes Linux/Windows × Python 3.10/3.14.
+- [x] Local/remote `main` SHA equality is verified after push.
 
 ### 13.8 Execution record
 
@@ -1065,5 +1065,5 @@ This append-only contract implements `engineering-core` 9.7–9.8 orchestration 
 | Three-mode runtime and Team Mode policy | PASS | `SKILL.md` is 80 lines and dispatches exactly Adaptive Fast-Exit, Standard Engineering Mode, or conditional Formal Spec Team Mode. The 134-line detailed owner implements Spec Compiler, ledgers, locks, dependencies, independent QA, conditional specialists, Two-Key closure, selective STALE, resume, and fresh audit under stable policy IDs. |
 | Team Mode deterministic harness | PASS | Five realistic fixtures/scenarios, redacted isolated runner, independent repository/test/hash/Git scorer, and 12 harness/mutation tests pass. Fixture baselines fail as designed; large-spec contains 18 requirements across five phases. |
 | Team Mode live L4 | PASS WITH RETAINED FAILURES | Final machine-scored PASS runs: Sonnet large-spec $0.947329 / three processes; requirement-change $0.221538; cross-session $0.276508 / two processes; Two-Key $0.324171 / two processes; release auditor $0.176946. Earlier scorer-defect and incomplete-evidence FAIL reports remain documented and ignored rather than rewritten. |
-| Static/hosted release audit | LOCAL PASS / HOSTED PENDING | All required local validators, 28 runtime mutation tests, 14 completion tests, 4 L4 scorer tests, 12 activation tests, 12 Team harness tests, compilation, repository validation, and `git diff --check` passed after the final Team evidence refinement. Hosted evidence for the new commit is pending. |
-| Publication | PENDING | Earlier commits were published successfully; final Team-evidence refinement awaits commit, push, hosted CI, and remote equality verification. |
+| Static/hosted release audit | PASS | All required local validators, 28 runtime mutation tests, 14 completion tests, 4 L4 scorer tests, 12 activation tests, 12 Team harness tests, compilation, repository validation, and `git diff --check` passed. Hosted run `35524061605` passed Ubuntu/Windows × Python 3.10/3.14 for final Team-evidence commit `7716b3ab8cb542677e6c6a4ac09bc8e62e01db14`. |
+| Publication | PASS | Final Team-evidence commit `7716b3ab8cb542677e6c6a4ac09bc8e62e01db14` was pushed to `origin/main`; local HEAD and `refs/heads/main` were equal before this separate publication-record commit. Final record-commit equality is verified externally after its push. |
