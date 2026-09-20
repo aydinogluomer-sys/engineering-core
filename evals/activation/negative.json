@@ -1,0 +1,10 @@
+[
+  {"id":"n01-concept","category":"generic-explanation","profiles":["smoke","full"],"prompt":"Explain what a database index is to a beginner. Do not inspect or modify a repository."},
+  {"id":"n02-language","category":"generic-explanation","profiles":["smoke","full"],"prompt":"What is the difference between a process and a thread? Give a short conceptual answer."},
+  {"id":"n03-summary","category":"generic-explanation","profiles":["full"],"prompt":"Summarize the general benefits of code review without applying them to a repository."},
+  {"id":"n04-writing","category":"non-engineering-writing","profiles":["smoke","full"],"prompt":"Rewrite this sentence to sound warmer: Thanks for sending the update."},
+  {"id":"n05-poem","category":"non-engineering-writing","profiles":["full"],"prompt":"Write a four-line poem about rain on a quiet street."},
+  {"id":"n06-brainstorm","category":"generic-brainstorming","profiles":["smoke","full"],"prompt":"Brainstorm five names for a fictional coffee shop."},
+  {"id":"n07-math","category":"generic-explanation","profiles":["full"],"prompt":"Explain why the derivative of x squared is two x."},
+  {"id":"n08-email","category":"non-engineering-writing","profiles":["full"],"prompt":"Draft a polite email declining a meeting invitation."}
+]

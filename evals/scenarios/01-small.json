@@ -3,6 +3,7 @@
   "id": "small",
   "family": "small",
   "activation": "explicit",
+  "expected_risk": "Low",
   "prompt": "Fix only the obvious documentation typo. Keep this a small task, run the relevant check, and do not modify unrelated files.",
   "expected_changed": ["README.md"],
   "protected_files": ["KEEP.md"],

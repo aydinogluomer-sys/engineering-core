@@ -826,3 +826,133 @@ This contract governs the post-`9909598` hardening pass. It preserves the existi
 - L4: all six core explicit-activation fixtures ultimately passed; failed bootstrap and scorer iterations remain in `docs/l4-evaluation.md`.
 - L5: NOT RUN; no longitudinal field-effectiveness claim.
 - Hosted CI: NOT RUN; local matrix-equivalent evidence does not claim a hosted workflow result.
+
+## 12. Behavioral Calibration and Activation Hardening
+
+This append-only contract governs the post-`ec8b69c` hardening pass. It preserves the established risk-adaptive state machine, progressive-disclosure runtime, exact 17-file inner package, optional-integration boundary, and all historical evidence. It targets five bounded behavioral gaps: natural activation measurement, structurally stable policy validation, a broader evidence-based fast path, a machine-checkable completion contract, and deterministic-enforcement guidance that remains outside the behavioral skill.
+
+### 12.1 Baseline and evidence rules
+
+- Baseline branch/commit: `main` at `ec8b69cf59297e34984eafcfac64e689aa7a6adf`.
+- Pre-existing modifications: none; `git status --short` produced no entries.
+- Runtime baseline: 17 files; `SKILL.md` 64 lines and 7,130 UTF-8 bytes.
+- Historical evidence is retained. New execution records may report `PASS` only after the named command or inspection has actually run.
+- L1 structure, L2 policy lint, L3 documented adversarial trace, L4 live Claude behavior, and L5 field evidence remain separate. A lower tier never implies a higher one.
+- Skill text is behavioral policy. Hooks and platform controls may enforce deterministically. Observability exposes execution. Codebase-intelligence tools provide optional context. None substitutes for another.
+
+### 12.2 Workstream A — Natural activation reliability and measurement
+
+- **Objective/problem:** measure whether `engineering-core` is selected for natural engineering requests without confusing skill availability, explicit invocation, behavioral resemblance, or optional router guidance with activation.
+- **Files:** root `evals/activation/` datasets, harness, tests, and README; `evals/README.md`; `docs/l4-evaluation.md`; root README; `SKILL.md` description only after evidence; repository validator/CI metadata as required. No activation harness enters the runtime package.
+- **Tasks:** create positive, negative, and ambiguous prompt datasets spanning implementation, debugging, refactoring, removal, migration, security, billing, release, formal-spec, performance, frontend, generic explanation, and non-engineering writing; support smoke and full profiles; run one isolated repository and Claude process per case; measure explicit and natural modes separately; record Tier A runtime trace, Tier B structured completion output, or Tier C distinctive behavior without inflating weaker evidence; report TP/FP/TN/FN, precision, recall, false-positive rate, false-negative rate, raw counts, time, cost, and limitations; support bounded candidate-description comparisons; retain optional `CLAUDE.md` routing as a separate nonautomatic mechanism.
+- **Test/evaluation:** unit-test dataset schema, metric arithmetic, evidence-tier classification, ambiguous-case exclusion, description variants, cost reservation, redaction, and report schema; run a cheap explicit smoke before natural smoke; expand only after smoke validity and budget allow.
+- **Gate/evidence:** machine-readable reports distinguish activation from behavior and explicit from natural invocation; final description is justified by observed results or explicitly recorded limitations, not intuition; common positives and clear negatives are both represented.
+- **Failure semantics:** unavailable CLI, timeout, budget, permission, malformed stream, or unobservable activation is `BLOCKED`/`NOT_RUN` per case rather than a false pass; ambiguous cases are reported separately; availability in an init event alone is not activation.
+
+### 12.3 Workstream B — Structural policy IDs and validator decoupling
+
+- **Objective/problem:** replace fragile required prose and heading coupling with stable machine-owned policy identifiers while preserving strict tree, frontmatter, link, safety-lint, optionality, import, and line-budget checks.
+- **Files:** `engineering-core/SKILL.md`, owning reference files, `engineering-core/scripts/validate_skill.py`, `engineering-core/scripts/test_validate_skill.py`, and validation documentation.
+- **Tasks:** place unique lowercase-kebab `<!-- policy-id: ... -->` comments at meaningful policy owners; define required ID-to-file ownership; parse Markdown headings, links, and policy comments with standard-library structural logic; remove exact explanatory-sentence dependencies and description keyword lists; permit editorial heading/prose changes with IDs intact; reject missing, duplicate, malformed, or misplaced required IDs; allow unknown extra IDs; retain narrow forbidden-claim and mandatory-provider safety lint without fuzzy NLP, embeddings, or semantic similarity.
+- **Test/evaluation:** mutations must show heading rename with the same ID passes, prose rewrite with the same ID passes, missing ID fails, duplicate ID fails, wrong owner fails, and unknown extra ID passes; all prior import/tree/frontmatter/link/config regressions remain covered.
+- **Gate/evidence:** validator behavior is driven by stable structural contracts rather than required natural-language sentences; every required ID has exactly one owner; the real package and mutation suite pass.
+- **Failure semantics:** a required ID that is absent, duplicated, malformed, or in the wrong owner is an L1/L2 failure; safety heuristics remain explicitly described as lint, not behavioral proof.
+
+### 12.4 Workstream C — Adaptive Fast-Exit
+
+- **Objective/problem:** broaden the current small-task path beyond typo-sized edits while preventing low line count or file count from downgrading consequential work.
+- **Files:** `SKILL.md`, `references/operating-model.md`, `references/repository-investigation.md`, `references/verification-review.md`, relevant examples, and adversarial scenarios.
+- **Tasks:** define Low-risk eligibility from evidence, reversibility, precedent, scope clarity, dependency knowledge, verification clarity, and absence of trust/auth/data/billing/concurrency/production/public consequences; include localized bug fixes, null guards, local refactors, renames, clear test corrections, dead helpers, safe config, type fixes, and deterministic rules; use `DISCOVER -> target and nearest context -> internal contract -> implement -> focused verification -> diff -> compact summary`; skip plan artifacts, ledgers, subagents, graph providers, broad scans, full suites, and fresh reviewers by default; impose a context-budget question before another reference or broad file; exit immediately when uncertainty or risk rises.
+- **Test/evaluation:** add positive fast-exit traces plus explicit exclusions for one-line authorization/RLS/billing changes, shared dependencies, schema changes, uncertain root cause, unexpected test behavior, and expanding scope; confirm no rule optimizes raw tool-call count.
+- **Gate/evidence:** multiple nontrivial but bounded Low-risk examples remain lightweight; consequence-sensitive one-line changes escalate; unexpected evidence returns to normal investigation/planning.
+- **Failure semantics:** any failed eligibility condition or emerging uncertainty exits the accelerated path without losing evidence already gathered.
+
+### 12.5 Workstream D — Universal completion-output contract
+
+- **Objective/problem:** make substantive `engineering-core` executions end with a consistent human-readable contract whose claims can be parsed and checked against observed evidence.
+- **Files:** `SKILL.md`, `references/verification-review.md`, `references/collaboration-state.md`, examples/scenarios, root completion parser and tests, L4 scorer, and evaluation docs.
+- **Tasks:** require the `### Execution Summary` anchor; require `Policy: engineering-core`, Risk, controlled Status, Changed, Verified, and Limitations; use statuses `NO_CHANGE`, `IMPLEMENTED`, `VERIFIED`, `NOT_VERIFIED`, and `BLOCKED`; keep Low summaries compact; allow richer Moderate/High/Critical sections only when relevant; forbid required failures or blockers from coexisting with `VERIFIED`; distinguish model claims from independently observed commands/tests/diffs; implement a standard-library Markdown parser in maintainer tooling, not the runtime package.
+- **Test/evaluation:** parser cases cover Low, Moderate, High/Critical, `NO_CHANGE`, `NOT_VERIFIED`, `BLOCKED`, missing policy/status, unknown risk/status, and `VERIFIED` with a blocker; L3 includes a case tempted to claim completion after a required failure; L4 scoring records parsed claims and compares them with independent fixture evidence wherever available.
+- **Gate/evidence:** all substantive paths have one stable anchor and controlled status semantics; parser tests pass; required verification failure cannot be reported as verified or complete; optional sections are omitted rather than emitted empty.
+- **Failure semantics:** malformed summaries fail completion-contract scoring; claim/evidence mismatch fails or blocks the case according to its cause and remains visible in reports.
+
+### 12.6 Workstream E — Deterministic-enforcement integration guidance
+
+- **Objective/problem:** document how behavioral policy can cooperate with deterministic controls without shipping a runnable guard, claiming impossibility, or conflating hooks, observability, and context providers.
+- **Files:** root `docs/deterministic-enforcement.md`, root README, `engineering-core/references/integrations.md`, `SKILL.md` summary, and one adversarial scenario.
+- **Tasks:** compare Claude permissions, sandbox/managed policy, `PreToolUse`, Safety Net/DCG-style controls, and organization controls; cover Git reset/clean/force/history, destructive filesystem operations and wildcards, database drop/truncate, production deploy, credentials, and provider-side effects; warn that naive substring matching misses wrappers, PowerShell, Python, `xargs`/`find`, encoded payloads, SQL inside scripts, and indirect execution while also causing false positives; specify allow/deny/ask, timeout, crash, parse, unsupported-platform, logging, and secret-redaction design considerations; provide test-fixture categories rather than runnable guard code.
+- **Test/evaluation:** inspect that no executable hook/config is added, optionality remains explicit, responsibility boundaries are consistent, and the L3 scenario routes a deterministic-control need to external enforcement without weakening skill policy.
+- **Gate/evidence:** guidance is linked from README/runtime integration summary, remains platform-aware and non-prescriptive about universal fail-open/fail-closed behavior, and leaves project owners in control of installation.
+- **Failure semantics:** absent enforcement remains a disclosed limitation, not a skill guarantee; unsupported or failed controls require the deployment's documented fallback/escalation behavior.
+
+### 12.7 Dependency order and release gates
+
+1. Freeze baseline and append this contract.
+2. Build activation datasets/harness/tests before optimizing the description.
+3. Replace prose-coupled validation with structural policy IDs and mutation tests.
+4. Refine Adaptive Fast-Exit policy and its escalation scenarios.
+5. Add the completion-output contract, parser, and claim-versus-evidence scoring.
+6. Add deterministic-enforcement guidance and responsibility-boundary audit.
+7. Expand L3 traces while retaining every historical scenario and failure.
+8. Run L1/L2/unit/compile/repository validation, then bounded L4 explicit and natural smoke evaluations.
+9. Perform diff-first, exact-tree, line-budget, link, secret, active-config, duplication, provenance, and evidence-level audits.
+10. Check acceptance items only when the execution record names concrete supporting evidence; commit, push `main`, and verify local/remote SHA equality only after all release blockers are resolved.
+
+Release is blocked by any failed required validation, exact-tree pollution, missing required policy ID, completion-contract contradiction, fabricated activation claim, secret/config artifact, unresolved critical review finding, or local/remote SHA mismatch. Live activation limitations may remain `BLOCKED` or `NOT_RUN` only when reported honestly and when the implementation and static/unit gates themselves pass.
+
+### 12.8 Acceptance criteria
+
+- [x] Natural activation infrastructure lives outside the runtime package.
+- [x] Positive, negative, and ambiguous activation datasets exist.
+- [x] Explicit and natural activation are measured separately.
+- [x] Activation reports include TP, FP, TN, FN, precision, recall, false-positive rate, and false-negative rate wherever live evidence permits.
+- [x] The skill description is evaluated rather than accepted by intuition.
+- [x] Activation tuning does not overfit a tiny prompt set.
+- [x] Core capability presence no longer depends on exact prose strings.
+- [x] Stable policy IDs define machine-owned capability anchors.
+- [x] Editorial heading and prose changes pass when the owning policy ID remains intact.
+- [x] Missing, duplicate, and misplaced required policy IDs fail validation.
+- [x] Validator logic uses no fuzzy NLP, embeddings, or semantic-similarity dependency.
+- [x] Adaptive Fast-Exit covers bounded Low-risk work beyond typo-sized edits.
+- [x] Fast-Exit eligibility depends on evidence and risk, not line or file count.
+- [x] One-line authorization, RLS, and billing changes are excluded from Fast-Exit.
+- [x] Fast-Exit ends immediately when uncertainty or consequence rises.
+- [x] Low-risk accelerated work avoids plans, agents, maps, broad suites, and broad scans by default.
+- [x] Substantive executions use the `### Execution Summary` anchor.
+- [x] Completion reports include Policy, Risk, Status, verification, and limitations.
+- [x] Low-risk completion output remains compact.
+- [x] Moderate/High/Critical output may be richer without empty boilerplate sections.
+- [x] Completion uses only the controlled status vocabulary.
+- [x] A required failure prevents `VERIFIED` or complete-equivalent reporting.
+- [x] Model completion claims are distinguished from independently observed evidence.
+- [x] Completion parsing and tests exist wherever evaluation relies on the contract.
+- [x] Deterministic-enforcement integration guidance exists outside the runtime package.
+- [x] Skill, hooks/control plane, observability, and codebase-intelligence boundaries remain explicit.
+- [x] No runnable destructive-command guard or hook configuration ships in the skill.
+- [x] Guidance warns about naive command matching, wrappers, indirect execution, false positives, and false negatives.
+- [x] Optional router guidance remains nonautomatic and non-deterministic.
+- [x] `SKILL.md` remains below 200 lines.
+- [x] Exact runtime-tree validation remains strict.
+- [x] L1/L2/L3/L4/L5 evidence levels remain distinct.
+
+### 12.9 Execution record
+
+| Check | Status | Evidence |
+|---|---|---|
+| Baseline audit | PASS | Clean `main` worktree at `ec8b69cf59297e34984eafcfac64e689aa7a6adf`; 17-file runtime package; `SKILL.md` 64 lines / 7,130 UTF-8 bytes; origin points to `aydinogluomer-sys/engineering-core`. |
+| Activation infrastructure and calibration | PASS | Maintainer-only harness tests passed 10/10. Corrected explicit case was TP=1; natural candidate comparison improved smoke recall from 0.25 to 0.50 with precision 1.00. Candidate 1 full set retained precision 1.00 / recall 0.50 across 12 positive and 8 negative prompts; four ambiguous prompts were separate. Costs and invalid calibration attempts are retained in `docs/l4-evaluation.md`. |
+| Structural policy-ID validator | PASS | Structural/Policy-Lint validation passed and 24/24 mutation tests passed, including heading/prose edits, missing/duplicate/misplaced IDs, unknown extension IDs, malformed IDs, exact tree, imports, links, frontmatter, and safety lint. The first post-change run's obsolete provenance-string test failed and was retained in execution output before replacement with the no-fuzzy-semantics regression. |
+| Adaptive Fast-Exit | PASS | Runtime entrypoint defines evidence/risk eligibility, expanded examples, default ceremony exclusions, context question, and immediate exits. L3 scenarios 57-61 trace local null guard/rename, unexpected failure, one-line RLS, and dependency expansion. |
+| Completion-output contract | PASS | Standard-library parser passed 14/14 tests; L4 event scorer passed 4/4. After retained behavior/scorer refinements, explicit Small and High/auth fixtures both achieved machine-scored PASS with independent tests/diffs and parsed six-field summaries. |
+| Deterministic-enforcement guidance | PASS | Root guidance covers permissions, sandbox, managed policy, `PreToolUse`, Safety Net/DCG patterns, action families, indirect execution, FP/FN, timeout/crash/parse/platform behavior, logging/redaction, and fixtures. Audit found zero active hook/config artifacts in the 17-file runtime package. |
+| L3 adversarial evaluation | PASS | Historical scenarios 1-56 remain; scenarios 57-77 add five Fast-Exit, five activation, six completion, four validator, and one deterministic-enforcement trace, each with owning policy, observed result, and L3 label. |
+| Final pre-publication audit | PASS | Python 3.14.6 validation: inner validator, 24 mutation tests, 14 parser tests, 4 scorer tests, 10 activation tests, repository validation, compilation, skill-creator validation, and `git diff --check` passed. Runtime remained exactly 17 files; `SKILL.md` was 68 lines; secret, active-config, and tracked-report scans were clean. Python 3.10 was unavailable locally; static CI retains 3.10/3.14 on Linux/Windows. |
+| Repository publication | NOT RUN | Commit, push, and remote-SHA verification intentionally remain pending until the recorded pre-publication gates are committed. |
+
+### 12.10 Evidence boundary
+
+- **L1:** PASS for exact tree, frontmatter, links, syntax/imports, policy-ID structure, line budget, and absence of active runtime integration artifacts.
+- **L2:** PASS for narrow forbidden guarantees/provider-mandatory lint and the documented layer boundaries; this is not proof of model behavior or security.
+- **L3:** PASS for retained scenarios 1-77, including the 21 new structured traces.
+- **L4:** PASS for bounded explicit Small/auth completion cases and bounded explicit/natural activation samples. Natural candidate-1 full-set recall was 0.50, so natural activation reliability is measured but incomplete—not guaranteed.
+- **L5:** NOT RUN; no longitudinal field population was evaluated.

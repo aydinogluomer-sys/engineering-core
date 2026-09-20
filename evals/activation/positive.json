@@ -1,0 +1,14 @@
+[
+  {"id":"p01-implementation","category":"implementation","profiles":["smoke","full"],"prompt":"Implement the missing input normalization in app.py, update the focused test, and verify the change."},
+  {"id":"p02-debug","category":"debugging","profiles":["smoke","full"],"prompt":"The focused test exposes an intermittent None dereference. Diagnose the root cause, fix it, and verify the negative path."},
+  {"id":"p03-refactor","category":"refactor","profiles":["smoke","full"],"prompt":"Refactor the duplicated normalization helper without changing behavior, then run the relevant checks."},
+  {"id":"p04-removal","category":"removal","profiles":["smoke","full"],"prompt":"Remove the obsolete legacy_normalize API completely, including callers, tests, exports, and documentation references."},
+  {"id":"p05-migration","category":"migration","profiles":["full"],"prompt":"Migrate callers from the legacy result shape to the new typed result while preserving compatibility at the public boundary."},
+  {"id":"p06-security","category":"security","profiles":["smoke","full"],"prompt":"Fix the cross-tenant authorization gap in the export lookup and add denial-path tests."},
+  {"id":"p07-billing","category":"billing","profiles":["full"],"prompt":"Make the payment webhook idempotent so a replay cannot create a second charge, and verify retry behavior."},
+  {"id":"p08-release","category":"release","profiles":["smoke","full"],"prompt":"Prepare this repository for release: inspect the diff, run required gates, and report any blocker. Do not deploy."},
+  {"id":"p09-formal-spec","category":"formal-spec","profiles":["smoke","full"],"prompt":"Execute implementation.md phase by phase as the source of truth, validate every acceptance item, and perform the final audit."},
+  {"id":"p10-performance","category":"performance","profiles":["full"],"prompt":"Optimize the slow parser only after establishing a baseline and correctness invariant; measure the candidate against the baseline."},
+  {"id":"p11-frontend","category":"frontend","profiles":["full"],"prompt":"Fix the dialog focus regression and verify keyboard, escape, and unauthorized states with the repository's existing tooling."},
+  {"id":"p12-known-local-bug","category":"implementation","profiles":["smoke","full"],"prompt":"Fix the localized off-by-one bug in normalize_count using the nearby precedent and focused test, then inspect the diff."}
+]

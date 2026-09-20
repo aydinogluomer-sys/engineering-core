@@ -10,3 +10,5 @@ Thumbs.db
 .vscode/
 evals/reports/
 evals/.tmp-l4-*/
+evals/activation/reports/
+evals/activation/.tmp-activation-*/

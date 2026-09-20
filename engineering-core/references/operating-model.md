@@ -19,6 +19,7 @@ Classify the user's request before changing files:
 Classification determines whether implementation is authorized, not only which workflow to use.
 
 ## 2. Risk model
+<!-- policy-id: risk-model -->
 
 Use the highest applicable risk dimension. Diff size is not a risk proxy.
 
@@ -61,7 +62,7 @@ Backward transitions are first-class:
 - missing exact authority for a Critical action -> `WAIT_FOR_AUTHORIZATION`;
 - unmet Definition of Done -> not `COMPLETE`.
 
-The fast path compresses states; it does not erase repository instructions, scope control, meaningful verification, diff review, or evidence-based reporting.
+Adaptive Fast-Exit compresses states; it does not erase repository instructions, scope control, meaningful verification, diff review, or evidence-based reporting. Eligibility comes from observed risk and clarity, never diff size. See the entrypoint for the exit conditions.
 
 ## 4. Planning by risk
 
@@ -126,6 +127,7 @@ Do not opportunistically rename unrelated APIs, reformat unrelated files, replac
 If adjacent debt blocks correctness, fix only the blocking portion and state why.
 
 ## 6. Formal specification execution
+<!-- policy-id: formal-spec-execution -->
 
 Use this mode when the user provides a formal `implementation.md`, remediation plan, audit plan, hardening plan, migration contract, or phased roadmap.
 
@@ -165,6 +167,7 @@ Use distinct statuses:
 Never collapse `IMPLEMENTED` into `VERIFIED`.
 
 ### Mid-execution requirement changes
+<!-- policy-id: requirement-change -->
 
 Treat a user correction, interruption, new constraint, or changed acceptance criterion as new current authority, not as noise to defer until the old plan finishes.
 
@@ -207,6 +210,7 @@ After all phases, perform a cross-cutting release audit for:
 - unresolved findings.
 
 ## 7. Authorization semantics
+<!-- policy-id: authorization-semantics -->
 
 Authorization is action-and-target specific.
 

@@ -95,18 +95,54 @@ class ValidatorTests(unittest.TestCase):
             p.write_text(p.read_text(encoding="utf-8") + "\nThis skill guarantees prevention of unsafe actions.\n", encoding="utf-8")
         self.assert_invalid(mutate)
 
-    def test_missing_fast_path(self):
+    def test_heading_rename_with_policy_id_passes(self):
         def mutate(r):
             p = r / "SKILL.md"
-            text = p.read_text(encoding="utf-8").replace("## Small-task fast path", "## Tiny workflow")
+            text = p.read_text(encoding="utf-8").replace("## Adaptive Fast-Exit", "## Accelerated local workflow")
             p.write_text(text, encoding="utf-8")
+        root = self.copy_skill()
+        mutate(root)
+        self.assertEqual(validate(root), [])
+
+    def test_prose_rewrite_with_policy_id_passes(self):
+        def mutate(r):
+            p = r / "references/operating-model.md"
+            text = p.read_text(encoding="utf-8").replace("Diff size is not a risk proxy.", "Never infer consequence from patch dimensions.")
+            p.write_text(text, encoding="utf-8")
+        root = self.copy_skill()
+        mutate(root)
+        self.assertEqual(validate(root), [])
+
+    def test_missing_policy_id_fails(self):
+        def mutate(r):
+            p = r / "SKILL.md"
+            p.write_text(p.read_text(encoding="utf-8").replace("<!-- policy-id: fast-path -->", ""), encoding="utf-8")
         self.assert_invalid(mutate)
 
-    def test_missing_high_risk_profile(self):
+    def test_duplicate_policy_id_fails(self):
         def mutate(r):
-            p = r / "references/safety-profiles.md"
-            text = p.read_text(encoding="utf-8").replace("## 3. Authentication / authorization profile", "## 3. Identity notes")
-            p.write_text(text, encoding="utf-8")
+            p = r / "SKILL.md"
+            p.write_text(p.read_text(encoding="utf-8") + "\n<!-- policy-id: fast-path -->\n", encoding="utf-8")
+        self.assert_invalid(mutate)
+
+    def test_wrong_policy_owner_fails(self):
+        def mutate(r):
+            source = r / "SKILL.md"
+            target = r / "references/operating-model.md"
+            source.write_text(source.read_text(encoding="utf-8").replace("<!-- policy-id: fast-path -->", ""), encoding="utf-8")
+            target.write_text(target.read_text(encoding="utf-8") + "\n<!-- policy-id: fast-path -->\n", encoding="utf-8")
+        self.assert_invalid(mutate)
+
+    def test_unknown_extra_policy_id_is_allowed(self):
+        root = self.copy_skill()
+        p = root / "references/operating-model.md"
+        p.write_text(p.read_text(encoding="utf-8") + "\n<!-- policy-id: future-extension -->\n", encoding="utf-8")
+        self.assertEqual(validate(root), [])
+
+    def test_malformed_policy_id_fails(self):
+        def mutate(r):
+            p = r / "SKILL.md"
+            p.write_text(p.read_text(encoding="utf-8") + "\n<!-- policy-id: Bad ID -->\n", encoding="utf-8")
         self.assert_invalid(mutate)
 
     def test_active_mcp_config(self):
@@ -131,31 +167,16 @@ class ValidatorTests(unittest.TestCase):
     def test_missing_example(self):
         self.assert_invalid(lambda r: (r / "examples/large-spec-execution.md").unlink())
 
-    def test_stale_provenance(self):
-        def mutate(r):
-            p = r / "references/source-synthesis.md"
-            text = p.read_text(encoding="utf-8").replace("kingbootoshi/cartographer", "miltonian/cartographer")
-            p.write_text(text, encoding="utf-8")
-        self.assert_invalid(mutate)
+    def test_validator_uses_no_fuzzy_semantics(self):
+        text = (ROOT / "scripts/validate_skill.py").read_text(encoding="utf-8").lower()
+        for forbidden in ("difflib", "tfidf", "tf-idf", "embedding", "sentence_transformer", "sklearn"):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, text)
 
     def test_activation_guarantee(self):
         def mutate(r):
             p = r / "references/integrations.md"
             p.write_text(p.read_text(encoding="utf-8") + "\nThis guarantees model behavior.\n", encoding="utf-8")
-        self.assert_invalid(mutate)
-
-    def test_critical_route_missing(self):
-        def mutate(r):
-            p = r / "references/verification-review.md"
-            text = p.read_text(encoding="utf-8").replace("moderate, high, or critical-risk work", "moderate/high-risk work")
-            p.write_text(text, encoding="utf-8")
-        self.assert_invalid(mutate)
-
-    def test_redundant_confirmation_rule_missing(self):
-        def mutate(r):
-            p = r / "references/operating-model.md"
-            text = p.read_text(encoding="utf-8").replace("proceed without redundant confirmation", "request explicit confirmation again")
-            p.write_text(text, encoding="utf-8")
         self.assert_invalid(mutate)
 
 

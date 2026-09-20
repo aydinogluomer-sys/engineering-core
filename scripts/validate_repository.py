@@ -9,9 +9,19 @@ MIN_PYTHON = (3, 10)
 REQUIRED = {
     ".github/workflows/validate.yml",
     "README.md",
+    "docs/deterministic-enforcement.md",
     "docs/l4-evaluation.md",
     "evals/README.md",
+    "evals/activation/README.md",
+    "evals/activation/ambiguous.json",
+    "evals/activation/negative.json",
+    "evals/activation/positive.json",
+    "evals/activation/run_activation_eval.py",
+    "evals/activation/test_activation_eval.py",
+    "evals/completion_summary.py",
     "evals/run_l4_eval.py",
+    "evals/test_completion_summary.py",
+    "evals/test_l4_eval.py",
     "engineering-core/SKILL.md",
 }
 CORE_FAMILIES = {"small", "moderate", "auth", "dirty", "missing-graph", "formal-spec"}
@@ -78,12 +88,37 @@ def validate(root: Path) -> list[str]:
             match = re.match(r"\|\s*(\d+)\s*\|", line)
             if match:
                 rows[int(match.group(1))] = line
-        expected_ids = set(range(38, 57))
+        expected_ids = set(range(38, 78))
         if expected_ids - rows.keys():
-            errors.append("production-hardening L3 matrix must contain scenarios 38-56")
+            errors.append("adversarial L3 matrices must contain scenarios 38-77")
         for number in expected_ids.intersection(rows):
             if len(rows[number].split("|")) < 10 or "L3" not in rows[number]:
                 errors.append(f"L3 scenario {number} lacks required trace fields/evidence level")
+
+    activation_dir = root / "evals/activation"
+    activation_ids: set[str] = set()
+    expected_counts = {"positive": 12, "negative": 8, "ambiguous": 4}
+    for label, minimum in expected_counts.items():
+        path = activation_dir / f"{label}.json"
+        if not path.exists():
+            continue
+        try:
+            rows = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid activation dataset {path.name}: {exc}")
+            continue
+        if not isinstance(rows, list) or len(rows) < minimum:
+            errors.append(f"activation dataset {label} requires at least {minimum} cases")
+            continue
+        for row in rows:
+            if not isinstance(row, dict) or not {"id", "category", "profiles", "prompt"} <= set(row):
+                errors.append(f"activation dataset {label} has an invalid row")
+                continue
+            if row["id"] in activation_ids:
+                errors.append(f"duplicate activation case id: {row['id']}")
+            activation_ids.add(row["id"])
+            if "full" not in row["profiles"]:
+                errors.append(f"activation case {row['id']} is missing full profile")
 
     for path in (root / "evals").rglob("*"):
         if path.is_file() and "reports" not in path.parts:

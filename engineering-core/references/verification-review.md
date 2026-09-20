@@ -69,6 +69,7 @@ Consider:
 Do not create meaningless combinatorial explosion.
 
 ## 3. Stale evidence rule
+<!-- policy-id: blocking-verification -->
 
 A test pass is evidence only for the code/state it actually tested.
 
@@ -189,6 +190,7 @@ For explicit merge/release/deploy/hardening work, evaluate:
 “Locally verified” does not mean “deployed.”
 
 ## 9. Evidence-based completion
+<!-- policy-id: completion-output -->
 
 Report separately:
 
@@ -208,7 +210,7 @@ Completion-state rules:
 - an optional unavailable check -> explicit limitation; completion may remain possible;
 - a proven unrelated/pre-existing failure -> report causality and impact; scoped completion may remain possible only if required evidence is intact.
 
-Never use “complete but not verified.” Never claim:
+Never use “complete but not verified.” A completion report is a claim, not the evidence itself; record commands and observations separately, and let independent evaluators compare those claims with actual diff/test evidence. Never claim:
 
 - all tests pass;
 - fully secure;
@@ -217,7 +219,23 @@ Never use “complete but not verified.” Never claim:
 
 without evidence supporting that exact claim.
 
+### Execution Summary contract
+
+Every substantive `engineering-core` execution ends at a level-three heading named `Execution Summary`. Use Markdown fields, not custom JSON/YAML:
+
+- `Policy: engineering-core`
+- `Risk: Low|Moderate|High|Critical`
+- `Status: NO_CHANGE|IMPLEMENTED|VERIFIED|NOT_VERIFIED|BLOCKED`
+- `Changed:` concise outcome or `None`
+- `Verified:` commands/observations actually executed, or `Not run`
+- `Limitations:` known gaps, optional unavailable evidence, or `None`
+
+For Low work, these fields are normally enough. For Moderate, High, or Critical work, add only relevant sections such as Files Changed, Negative Paths, Unverified, Blockers, or Security. Do not emit empty boilerplate. `VERIFIED` means all required scoped evidence passed after the final relevant edit and no blocker remains. `IMPLEMENTED` means the change exists but required verification is incomplete. `NO_CHANGE` means no repository mutation was needed or authorized. `NOT_VERIFIED` means required evidence failed or is unavailable without equivalent proof. `BLOCKED` means progress cannot safely continue within current authority/capability. A required failure or nonempty blocker cannot coexist with `VERIFIED`.
+
+Before sending, confirm that all six required fields are present; use `Limitations: None` rather than omitting the field. Use only the controlled risk labels—never substitutes such as “Medium.” Do not describe a command, test, stage, commit, release, or deployment as observed unless it actually occurred.
+
 ## Frontend / browser verification
+<!-- policy-id: frontend-verification -->
 
 Use this profile only when the changed behavior depends on rendering, browser APIs, interaction, responsive layout, accessibility, or client/server integration.
 
@@ -230,6 +248,7 @@ Use this profile only when the changed behavior depends on rendering, browser AP
 A one-line styling or copy fix can remain Low risk with a focused render/static check and diff review.
 
 ## Dependency changes
+<!-- policy-id: dependency-change -->
 
 Before adding, removing, or upgrading a dependency:
 
@@ -243,6 +262,7 @@ Before adding, removing, or upgrading a dependency:
 Do not install tooling merely to improve investigation. A dependency change expands scope and must be authorized by the requested implementation or correctness need.
 
 ## Performance work
+<!-- policy-id: performance-work -->
 
 Use the sequence:
 

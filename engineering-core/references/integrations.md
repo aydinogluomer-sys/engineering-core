@@ -5,6 +5,7 @@ Read this reference only when an integration is present, requested, or materiall
 External integrations are optional. The base skill must work without them.
 
 ## 1. Four-layer separation
+<!-- policy-id: optional-integrations -->
 
 | Layer | Responsibility |
 |---|---|
@@ -53,6 +54,7 @@ If a provider is unavailable, stale, fails, or lacks coverage:
 Do not install a provider solely because the skill mentions it.
 
 ## 4. Hooks / deterministic enforcement
+<!-- policy-id: deterministic-enforcement -->
 
 Hooks may enforce policies that prompt text cannot guarantee, such as:
 
@@ -64,7 +66,11 @@ Hooks may enforce policies that prompt text cannot guarantee, such as:
 
 Design hooks with explicit event scope, allow/deny/ask semantics, timeout/failure behavior, and test fixtures.
 
+Command-string matching alone is fragile: wrappers, shell aliases, PowerShell, interpreter calls, pipelines, encoded payloads, SQL inside scripts, and indirect provider actions can evade naive patterns, while broad substrings can block benign work. Threat-model false positives and false negatives, supported platforms, parse errors, crashes, timeout posture, audit logging, and secret redaction. There is no universal fail-open/fail-closed choice; select it by consequence.
+
 Do not install/enable hooks without explicit user intent.
+
+The public repository's maintainer guidance in `docs/deterministic-enforcement.md` expands this boundary without shipping executable hook configuration in the runtime skill.
 
 ## 5. Observability
 
@@ -86,6 +92,7 @@ Redact secrets and sensitive payloads.
 Do not turn missing telemetry into a release blocker unless repository policy explicitly requires it.
 
 ## 6. Optional CLAUDE.md routing
+<!-- policy-id: activation-guidance -->
 
 Skill activation is model-driven and should not be treated as deterministic.
 

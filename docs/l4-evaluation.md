@@ -46,3 +46,35 @@ For every passing case, the init event exposed `engineering-core` as both an ava
 - Hosted GitHub Actions evidence remains separate from this local live evaluation.
 
 The exact per-case results, cost, timeout, and limitations will be appended only after execution. See [`../evals/README.md`](../evals/README.md) for the local command and evidence model.
+
+## Behavioral calibration and natural activation — 2026-09-19
+
+Claude Code `2.1.272` with Haiku ran one process per case in disposable repositories. Activation required Tier A structured `Skill` tool use, Tier B a named `engineering-core` Execution Summary, or weaker Tier C distinctive behavior; init-event availability alone was excluded. Explicit and natural results remain separate.
+
+Retained calibration failures:
+
+- the first two-case explicit run produced recognizable Execution Summaries but the initial detector incorrectly coupled activation to full completion-contract validity (`TP=0`, cost `$0.232943`); both summaries also omitted required `Limitations` and therefore remain completion-contract failures;
+- the first natural smoke (`TP=0`, `FN=8`, `TN=4`, `FP=0`, cost `$0.691617`) was invalid for description comparison because the harness's tool allowlist omitted `Skill`;
+- an intervening natural attempt was interrupted after Windows CP1254 decoding failed on UTF-8 model output; no complete report or activation claim was produced. The harness now reads UTF-8 with replacement and permits only the project-scoped `engineering-core` skill.
+
+Corrected results:
+
+| Mode / description | Dataset | TP | FP | TN | FN | Precision | Recall | FPR | FNR | Cost |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Explicit / then-current | 1 positive smoke case | 1 | 0 | 0 | 0 | 1.00 | 1.00 | n/a | 0.00 | `$0.064986` |
+| Natural / candidate 2 | 8 positive, 4 negative, 2 ambiguous | 2 | 0 | 4 | 6 | 1.00 | 0.25 | 0.00 | 0.75 | `$0.808631` |
+| Natural / candidate 1 | same smoke set | 4 | 0 | 4 | 4 | 1.00 | 0.50 | 0.00 | 0.50 | `$0.823061` |
+| Natural / candidate 1 | 12 positive, 8 negative, 4 ambiguous | 6 | 0 | 8 | 6 | 1.00 | 0.50 | 0.00 | 0.50 | `$1.153025` |
+
+All six activations in the candidate-1 full run were Tier A and their final outputs passed completion-summary parsing. The four ambiguous full cases were reported separately. Candidate 1 became the runtime description because it doubled smoke recall without a measured false positive and retained the same precision/recall on the larger set. This is bounded one-session evidence, not an activation guarantee or L5 reliability claim; half of full-set positives were still false negatives.
+
+### Completion-contract calibration
+
+Low and High/auth explicit fixtures were rerun with completion claims compared against independent tests, diffs, risk expectations, command results, and Git index state.
+
+- First paired run: code and independent tests passed, but both summaries omitted `Limitations`; Small was `FAIL` and auth was `BLOCKED`. Auth also used invalid `Medium` risk and made an unsupported staging claim. Neither was promoted.
+- Second paired run after policy refinement: Small `PASS` at `$0.033129`. Auth emitted a valid High/VERIFIED six-field summary and passed its independent test, but the scorer incorrectly treated an earlier denied wrapped test command as blocking after an exact test command succeeded; retained as `BLOCKED`.
+- Third auth run: output used a Markdown table containing all six fields; the parser lacked table support, so the case remained `BLOCKED` despite valid evidence. Parser fixtures now cover both field lines and tables.
+- Final auth run: `PASS` at `$0.058669`; parsed risk `High`, parsed status `VERIFIED`, independent positive/negative test passed, intended two files changed, and no score failure or permission denial remained.
+
+These are L4 examples, not universal compliance rates. The failed behavioral outputs and scorer defects are retained to distinguish model-policy failures from evaluation-infrastructure failures.

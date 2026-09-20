@@ -80,10 +80,15 @@ This progressive-disclosure design reduces default context cost, avoids repeatin
 ├── .github/workflows/validate.yml
 ├── docs/
 │   ├── claude-router.md
+│   ├── deterministic-enforcement.md
 │   └── l4-evaluation.md
 ├── evals/
 │   ├── README.md
+│   ├── activation/
+│   ├── completion_summary.py
 │   ├── run_l4_eval.py
+│   ├── test_completion_summary.py
+│   ├── test_l4_eval.py
 │   └── scenarios/
 ├── scripts/
 │   └── validate_repository.py
@@ -171,6 +176,10 @@ If you want stronger project-level guidance so `engineering-core` is consistentl
 
 The router is optional and is not deterministic enforcement.
 
+Natural selection is measured separately from explicit `/engineering-core` invocation. See [`evals/activation/README.md`](evals/activation/README.md) for positive, negative, and ambiguous datasets plus bounded candidate-description evaluation.
+
+The latest bounded Haiku run observed candidate-description natural precision `1.00` and recall `0.50` across 12 positive and 8 negative prompts; four ambiguous prompts were reported separately. This is L4 sample evidence, not a routing guarantee. The retained runs and limitations are in [`docs/l4-evaluation.md`](docs/l4-evaluation.md).
+
 ## Optional integrations
 
 External tooling is never required.
@@ -191,6 +200,8 @@ Similarly:
 - specialist skills provide domain expertise.
 
 Those responsibilities remain separate.
+
+For deployment-oriented control design, see [`docs/deterministic-enforcement.md`](docs/deterministic-enforcement.md). It covers permissions, sandboxes, hooks, command-guard failure modes, and test fixtures without installing or shipping a runnable guard.
 
 ## Validation model
 
@@ -217,7 +228,10 @@ From the repository root:
 ```bash
 python engineering-core/scripts/validate_skill.py engineering-core
 python engineering-core/scripts/test_validate_skill.py
-python -m py_compile engineering-core/scripts/validate_skill.py engineering-core/scripts/test_validate_skill.py scripts/validate_repository.py evals/run_l4_eval.py
+python evals/test_completion_summary.py
+python evals/test_l4_eval.py
+python evals/activation/test_activation_eval.py
+python -m py_compile engineering-core/scripts/validate_skill.py engineering-core/scripts/test_validate_skill.py scripts/validate_repository.py evals/completion_summary.py evals/test_completion_summary.py evals/run_l4_eval.py evals/test_l4_eval.py evals/activation/run_activation_eval.py evals/activation/test_activation_eval.py
 python scripts/validate_repository.py .
 ```
 

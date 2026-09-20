@@ -43,6 +43,7 @@ The reviewer should be unprimed by the builder's conclusions and receive the act
 Do not require a second agent for trivial Low-risk work.
 
 ## 4. Specialist routing
+<!-- policy-id: specialist-routing -->
 
 `engineering-core` owns cross-cutting process:
 

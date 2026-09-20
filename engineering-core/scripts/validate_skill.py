@@ -47,67 +47,28 @@ PLACEHOLDER_PATTERNS = [
     re.compile(r"\bPLACEHOLDER\b", re.I),
 ]
 
-MARKERS = {
-    "SKILL.md": [
-        "CLASSIFY -> DISCOVER -> INVESTIGATE -> PLAN -> IMPLEMENT -> VERIFY -> REVIEW -> COMPLETE",
-        "Small-task fast path",
-        "exact current authorization",
-        "references/operating-model.md",
-        "references/verification-review.md",
-        "mark affected work/evidence `STALE`",
-    ],
-    "references/operating-model.md": [
-        "Formal specification execution",
-        "PHASE_VERIFIED != RELEASE_VERIFIED",
-        "verify exact current authorization for the consequential action and target",
-        "Mid-execution requirement changes",
-        "STALE",
-    ],
-    "references/repository-investigation.md": [
-        "Evidence hierarchy",
-        "Optional codebase-intelligence providers",
-        "Native fallback",
-    ],
-    "references/implementation-debugging.md": [
-        "Bug-fix protocol",
-        "Failure classification",
-        "Never test-cheat",
-    ],
-    "references/verification-review.md": [
-        "moderate, high, or critical-risk work",
-        "Removal/completeness audit",
-        "Evidence-based completion",
-        "Frontend / browser verification",
-        "Dependency changes",
-        "BASELINE -> HYPOTHESIS -> CHANGE -> MEASURE -> COMPARE",
-    ],
-    "references/safety-profiles.md": [
-        "Database profile",
-        "Authentication / authorization profile",
-        "Billing / payments / side-effect profile",
-    ],
-    "references/collaboration-state.md": [
-        "Delegate only bounded work",
-        "Long-horizon state",
-        "Specialist routing",
-        "User steering and requirement changes",
-    ],
-    "references/integrations.md": [
-        "External integrations are optional",
-        "Native fallback",
-        "Optional CLAUDE.md routing",
-    ],
-    "references/source-synthesis.md": [
-        "colbymchenry/codegraph",
-        "kingbootoshi/cartographer",
-        "Graphify-Labs/graphify",
-    ],
-    "references/evaluation-scenarios.md": [
-        "Production-hardening adversarial matrix",
-        "Required verifier unavailable",
-        "Optimization by intuition",
-    ],
+REQUIRED_POLICY_OWNERS = {
+    "operating-loop": "SKILL.md",
+    "risk-model": "references/operating-model.md",
+    "fast-path": "SKILL.md",
+    "formal-spec-execution": "references/operating-model.md",
+    "authorization-semantics": "references/operating-model.md",
+    "requirement-change": "references/operating-model.md",
+    "blocking-verification": "references/verification-review.md",
+    "frontend-verification": "references/verification-review.md",
+    "dependency-change": "references/verification-review.md",
+    "performance-work": "references/verification-review.md",
+    "completion-contract": "SKILL.md",
+    "completion-output": "references/verification-review.md",
+    "specialist-routing": "references/collaboration-state.md",
+    "optional-integrations": "references/integrations.md",
+    "deterministic-enforcement": "references/integrations.md",
+    "activation-guidance": "references/integrations.md",
 }
+
+POLICY_ID_RE = re.compile(r"<!--\s*policy-id:\s*([a-z0-9]+(?:-[a-z0-9]+)*)\s*-->")
+POLICY_COMMENT_RE = re.compile(r"<!--\s*policy-id:\s*([^>]*?)\s*-->")
+HEADING_RE = re.compile(r"^(#{1,6})\s+\S", re.MULTILINE)
 
 def rel_files(root: Path) -> set[str]:
     return {
@@ -142,6 +103,15 @@ def markdown_links(path: Path, text: str) -> Iterable[tuple[str, Path]]:
         if not clean:
             continue
         yield target, (path.parent / clean).resolve()
+
+
+def parse_markdown_structure(text: str) -> tuple[list[int], list[str], list[str]]:
+    """Return heading levels, valid policy IDs, and malformed policy comments."""
+    headings = [len(match.group(1)) for match in HEADING_RE.finditer(text)]
+    raw_ids = [match.group(1).strip() for match in POLICY_COMMENT_RE.finditer(text)]
+    valid_ids = POLICY_ID_RE.findall(text)
+    malformed = [raw for raw in raw_ids if raw not in valid_ids]
+    return headings, valid_ids, malformed
 
 def classify_import_roots(path: Path) -> dict[str, str]:
     """Classify imports without importing or executing candidate modules."""
@@ -214,9 +184,8 @@ def validate(root: Path) -> list[str]:
             if fm.get("name") != "engineering-core":
                 errors.append("frontmatter name must be engineering-core")
             desc = fm.get("description", "")
-            for word in ["implement", "debug", "refactor", "review", "release"]:
-                if word not in desc.lower():
-                    errors.append(f"description should discriminate engineering usage; missing concept: {word}")
+            if not desc or len(desc) > 1024:
+                errors.append("frontmatter description must be present and at most 1024 characters")
             if "disable-model-invocation" in fm:
                 errors.append("engineering-core must remain model-invocable")
         if len(text.splitlines()) > 200:
@@ -237,14 +206,25 @@ def validate(root: Path) -> list[str]:
             if pat.search(text):
                 errors.append(f"{path.relative_to(root)} contains unfinished scaffold marker matching {pat.pattern}")
 
-    for rel, markers in MARKERS.items():
-        path = root / rel
-        if not path.exists():
-            continue
-        text = path.read_text(encoding="utf-8")
-        for marker in markers:
-            if marker.lower() not in text.lower():
-                errors.append(f"{rel} missing required policy marker: {marker}")
+    policy_locations: dict[str, list[str]] = {}
+    for path in all_md:
+        rel = path.relative_to(root).as_posix()
+        headings, policy_ids, malformed = parse_markdown_structure(path.read_text(encoding="utf-8"))
+        if not headings:
+            errors.append(f"{rel} has no Markdown heading")
+        for raw in malformed:
+            errors.append(f"{rel} has malformed policy-id: {raw}")
+        for policy_id in policy_ids:
+            policy_locations.setdefault(policy_id, []).append(rel)
+
+    for policy_id, owner in REQUIRED_POLICY_OWNERS.items():
+        locations = policy_locations.get(policy_id, [])
+        if not locations:
+            errors.append(f"missing required policy-id: {policy_id} (owner: {owner})")
+        elif len(locations) > 1:
+            errors.append(f"duplicate policy-id: {policy_id} in {', '.join(locations)}")
+        elif locations[0] != owner:
+            errors.append(f"misplaced policy-id: {policy_id} belongs in {owner}, found in {locations[0]}")
 
     # Narrow policy-lint checks. These are heuristic/static only.
     combined = "\n".join(p.read_text(encoding="utf-8") for p in all_md)
@@ -259,19 +239,6 @@ def validate(root: Path) -> list[str]:
 
     if re.search(r"\b(CodeGraph|Cartographer|Graphify)\b.{0,100}\b(required|mandatory prerequisite)\b", combined, re.I | re.S):
         errors.append("external code-intelligence provider appears mandatory")
-
-    # Ambiguous active routing in runtime docs: explicit canonical wording required.
-    vr = (root / "references/verification-review.md")
-    if vr.exists():
-        text = vr.read_text(encoding="utf-8").lower()
-        if "moderate, high, or critical-risk work" not in text:
-            errors.append("verification-review must explicitly cover Moderate, High, and Critical work")
-
-    op = root / "references/operating-model.md"
-    if op.exists():
-        text = op.read_text(encoding="utf-8").lower()
-        if "proceed without redundant confirmation" not in text:
-            errors.append("operating-model missing exact-authorization/no-redundant-confirmation rule")
 
     for py in [root / "scripts/validate_skill.py", root / "scripts/test_validate_skill.py"]:
         if py.exists():

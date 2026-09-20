@@ -25,7 +25,13 @@ jobs:
         run: python engineering-core/scripts/validate_skill.py engineering-core
       - name: Run validator mutation tests
         run: python engineering-core/scripts/test_validate_skill.py
+      - name: Run completion-contract parser tests
+        run: python evals/test_completion_summary.py
+      - name: Run L4 scorer event tests
+        run: python evals/test_l4_eval.py
+      - name: Run activation-harness tests
+        run: python evals/activation/test_activation_eval.py
       - name: Compile Python validation tools
-        run: python -m py_compile engineering-core/scripts/validate_skill.py engineering-core/scripts/test_validate_skill.py scripts/validate_repository.py evals/run_l4_eval.py
+        run: python -m py_compile engineering-core/scripts/validate_skill.py engineering-core/scripts/test_validate_skill.py scripts/validate_repository.py evals/completion_summary.py evals/test_completion_summary.py evals/run_l4_eval.py evals/test_l4_eval.py evals/activation/run_activation_eval.py evals/activation/test_activation_eval.py
       - name: Validate public repository hygiene
         run: python scripts/validate_repository.py .
