@@ -1053,8 +1053,8 @@ This append-only contract implements `engineering-core` 9.7–9.8 orchestration 
 - [x] CI includes Team Mode harness unit tests but no costly live run.
 - [x] Repository links, paths, placeholders, secrets, and report ignores validate.
 - [x] No runnable pseudo-security guard is added.
-- [ ] Hosted CI passes Linux/Windows × Python 3.10/3.14.
-- [ ] Local/remote `main` SHA equality is verified after push.
+- [x] Hosted CI passes Linux/Windows × Python 3.10/3.14.
+- [x] Local/remote `main` SHA equality is verified after push.
 
 ### 13.8 Execution record
 
@@ -1065,5 +1065,5 @@ This append-only contract implements `engineering-core` 9.7–9.8 orchestration 
 | Three-mode runtime and Team Mode policy | PASS | `SKILL.md` is 80 lines and dispatches exactly Adaptive Fast-Exit, Standard Engineering Mode, or conditional Formal Spec Team Mode. The 134-line detailed owner implements Spec Compiler, ledgers, locks, dependencies, independent QA, conditional specialists, Two-Key closure, selective STALE, resume, and fresh audit under stable policy IDs. |
 | Team Mode deterministic harness | PASS | Five realistic fixtures/scenarios, redacted isolated runner, independent repository/test/hash/Git scorer, and 12 harness/mutation tests pass. Fixture baselines fail as designed; large-spec contains 18 requirements across five phases. |
 | Team Mode live L4 | MIXED | Sonnet large-spec PASS at $0.947329 across three processes and release-auditor PASS at $0.176946. Requirement-change and cross-session retained FAIL because then-current scorers rejected equivalent structured evidence; aliases now have unit coverage but statuses were not rewritten. Final Haiku Two-Key attempt retained FAIL because the verified-finding/transition evidence contract was incomplete. Earlier scorer-defect failures also remain recorded. |
-| Static/hosted release audit | LOCAL PASS / HOSTED NOT RUN | All required local validators, 28 runtime mutation tests, 14 completion tests, 4 L4 scorer tests, 12 activation tests, 12 Team harness tests, compilation, repository validation, and `git diff --check` passed before final publication audit. Hosted matrix awaits push. |
-| Publication | NOT RUN | Commit/push/remote verification pending. |
+| Static/hosted release audit | PASS | All required local validators, 28 runtime mutation tests, 14 completion tests, 4 L4 scorer tests, 12 activation tests, 12 Team harness tests, compilation, repository validation, and `git diff --check` passed. Hosted run `35509503463` passed Ubuntu/Windows × Python 3.10/3.14 for evidence commit `20536c77231ec5c065f38d8758bb0c49ec378d5a`. |
+| Publication | PASS | Evidence commit `20536c77231ec5c065f38d8758bb0c49ec378d5a` was pushed to `origin/main`; local HEAD and `refs/heads/main` were equal before this separate publication-record commit. Final record-commit equality is verified externally after its push. |
