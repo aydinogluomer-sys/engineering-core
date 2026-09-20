@@ -947,7 +947,7 @@ Release is blocked by any failed required validation, exact-tree pollution, miss
 | Deterministic-enforcement guidance | PASS | Root guidance covers permissions, sandbox, managed policy, `PreToolUse`, Safety Net/DCG patterns, action families, indirect execution, FP/FN, timeout/crash/parse/platform behavior, logging/redaction, and fixtures. Audit found zero active hook/config artifacts in the 17-file runtime package. |
 | L3 adversarial evaluation | PASS | Historical scenarios 1-56 remain; scenarios 57-77 add five Fast-Exit, five activation, six completion, four validator, and one deterministic-enforcement trace, each with owning policy, observed result, and L3 label. |
 | Final pre-publication audit | PASS | Python 3.14.6 validation: inner validator, 24 mutation tests, 14 parser tests, 4 scorer tests, 10 activation tests, repository validation, compilation, skill-creator validation, and `git diff --check` passed. Runtime remained exactly 17 files; `SKILL.md` was 68 lines; secret, active-config, and tracked-report scans were clean. Python 3.10 was unavailable locally; static CI retains 3.10/3.14 on Linux/Windows. |
-| Repository publication | NOT RUN | Commit, push, and remote-SHA verification intentionally remain pending until the recorded pre-publication gates are committed. |
+| Repository publication | PASS | Evidence commit `6ddfb42d8ee10e0d8f244caecf21ae0c177790e6` was pushed to `origin/main`; `git rev-parse HEAD` and `git ls-remote origin refs/heads/main` returned the same SHA. This publication record is committed separately so it does not claim success before the push occurred. |
 
 ### 12.10 Evidence boundary
 
