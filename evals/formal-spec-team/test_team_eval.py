@@ -102,7 +102,7 @@ class TeamEvalTests(unittest.TestCase):
         fixture = self.copy_fixture("cross-session-resume")
         (fixture / "pipeline.py").write_text("def normalize(value):\n    return value.strip().lower()\n\ndef render(value):\n    return 'item:' + normalize(value)\n", encoding="utf-8")
         (fixture / "continuation-state.json").write_text(json.dumps({"mode":"Formal Spec Team Mode"}), encoding="utf-8")
-        (fixture / "resume-evidence.json").write_text(json.dumps({"mode":"Formal Spec Team Mode","detected_drift":{"detection_method":"git diff","prior_evidence_marked_stale":["REQ-001"]},"integration_rerun":{"result":"pass"}}), encoding="utf-8")
+        (fixture / "resume-evidence.json").write_text(json.dumps({"mode":"Formal Spec Team Mode","source_change_detected_after_prior_session":True,"stale_marked":["REQ-001"],"integration_rerun":True}), encoding="utf-8")
         baseline = __import__("subprocess").run(["git", "rev-parse", "HEAD"], cwd=fixture, text=True, capture_output=True).stdout.strip()
         result = score_fixture(scenario, fixture, {}, baseline, 2)
         self.assertNotIn("resume evidence does not prove stale-state handling", result["failures"])

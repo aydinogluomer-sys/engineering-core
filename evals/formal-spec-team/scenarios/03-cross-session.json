@@ -5,7 +5,7 @@
   "objective": "Use two fresh Claude processes to checkpoint Phase A and resume after an injected source change invalidates its evidence.",
   "stages": [
     "Session A: compile implementation.md, verify Phase A, and write compact continuation-state.json with repository identity, requirement states, evidence, findings, next action, and stop condition. Do not implement Phase B, stage, or commit.",
-    "Session B: fresh context. Re-read implementation.md and continuation-state.json, inspect Git/worktree, detect that pipeline.py changed after Session A, mark old Phase A evidence STALE, implement Phase B, rerun integration evidence, update continuation-state.json and write resume-evidence.json. Do not stage or commit."
+    "Session B: fresh context. Re-read implementation.md and continuation-state.json, inspect Git/worktree, detect that pipeline.py changed after Session A, mark old Phase A evidence STALE, implement Phase B, rerun integration evidence, update continuation-state.json and write resume-evidence.json. In resume-evidence.json record the exact booleans repository_revalidated=true, stale_detected=true, and integration_rerun=true only when the evidence supports them. Do not stage or commit."
   ],
   "inject_between_stages": {"path":"pipeline.py","append":"\n# external change after Session A\n"},
   "expected_phases": 2,

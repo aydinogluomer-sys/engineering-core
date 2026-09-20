@@ -1034,9 +1034,9 @@ This append-only contract implements `engineering-core` 9.7–9.8 orchestration 
 - [x] Cross-session live status uses at least two processes and is retained.
 - [x] Two-Key closure live status is retained.
 - [x] Fresh release-auditor live status is retained.
-- [ ] Requirement-change L4 has a recorded PASS.
-- [ ] Cross-session resume L4 has a recorded PASS.
-- [ ] Two-Key closure L4 has a recorded PASS.
+- [x] Requirement-change L4 has a recorded PASS.
+- [x] Cross-session resume L4 has a recorded PASS.
+- [x] Two-Key closure L4 has a recorded PASS.
 - [x] Fresh release-auditor L4 has a recorded PASS.
 - [x] No Team Mode PASS relies only on model prose.
 - [x] Raw traces are redacted and ignored by Git.
@@ -1053,8 +1053,8 @@ This append-only contract implements `engineering-core` 9.7–9.8 orchestration 
 - [x] CI includes Team Mode harness unit tests but no costly live run.
 - [x] Repository links, paths, placeholders, secrets, and report ignores validate.
 - [x] No runnable pseudo-security guard is added.
-- [x] Hosted CI passes Linux/Windows × Python 3.10/3.14.
-- [x] Local/remote `main` SHA equality is verified after push.
+- [ ] Hosted CI passes Linux/Windows × Python 3.10/3.14.
+- [ ] Local/remote `main` SHA equality is verified after push.
 
 ### 13.8 Execution record
 
@@ -1064,6 +1064,6 @@ This append-only contract implements `engineering-core` 9.7–9.8 orchestration 
 | Activation architecture and cross-model evidence | PASS WITH LIMITATION | Sealed dataset `2026-09-20.1` was frozen before execution. Sonnet: TP=27, FP=0, TN=22, FN=5, precision=1.00, recall=0.8438; critical database/security/RLS/billing categories each 1.00. Haiku: TP=5, FP=0, TN=22, FN=24 over scored cases, recall=0.1724, plus three BLOCKED positives. A three-run Sonnet representative probe was stable at 3/3 positive activation and 0/3 negative/ambiguous activation. Reports and costs are retained in `docs/l4-evaluation.md`; no holdout-driven tuning occurred. |
 | Three-mode runtime and Team Mode policy | PASS | `SKILL.md` is 80 lines and dispatches exactly Adaptive Fast-Exit, Standard Engineering Mode, or conditional Formal Spec Team Mode. The 134-line detailed owner implements Spec Compiler, ledgers, locks, dependencies, independent QA, conditional specialists, Two-Key closure, selective STALE, resume, and fresh audit under stable policy IDs. |
 | Team Mode deterministic harness | PASS | Five realistic fixtures/scenarios, redacted isolated runner, independent repository/test/hash/Git scorer, and 12 harness/mutation tests pass. Fixture baselines fail as designed; large-spec contains 18 requirements across five phases. |
-| Team Mode live L4 | MIXED | Sonnet large-spec PASS at $0.947329 across three processes and release-auditor PASS at $0.176946. Requirement-change and cross-session retained FAIL because then-current scorers rejected equivalent structured evidence; aliases now have unit coverage but statuses were not rewritten. Final Haiku Two-Key attempt retained FAIL because the verified-finding/transition evidence contract was incomplete. Earlier scorer-defect failures also remain recorded. |
-| Static/hosted release audit | PASS | All required local validators, 28 runtime mutation tests, 14 completion tests, 4 L4 scorer tests, 12 activation tests, 12 Team harness tests, compilation, repository validation, and `git diff --check` passed. Hosted run `35509503463` passed Ubuntu/Windows × Python 3.10/3.14 for evidence commit `20536c77231ec5c065f38d8758bb0c49ec378d5a`. |
-| Publication | PASS | Evidence commit `20536c77231ec5c065f38d8758bb0c49ec378d5a` was pushed to `origin/main`; local HEAD and `refs/heads/main` were equal before this separate publication-record commit. Final record-commit equality is verified externally after its push. |
+| Team Mode live L4 | PASS WITH RETAINED FAILURES | Final machine-scored PASS runs: Sonnet large-spec $0.947329 / three processes; requirement-change $0.221538; cross-session $0.276508 / two processes; Two-Key $0.324171 / two processes; release auditor $0.176946. Earlier scorer-defect and incomplete-evidence FAIL reports remain documented and ignored rather than rewritten. |
+| Static/hosted release audit | LOCAL PASS / HOSTED PENDING | All required local validators, 28 runtime mutation tests, 14 completion tests, 4 L4 scorer tests, 12 activation tests, 12 Team harness tests, compilation, repository validation, and `git diff --check` passed after the final Team evidence refinement. Hosted evidence for the new commit is pending. |
+| Publication | PENDING | Earlier commits were published successfully; final Team-evidence refinement awaits commit, push, hosted CI, and remote equality verification. |

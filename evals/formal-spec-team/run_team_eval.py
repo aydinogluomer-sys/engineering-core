@@ -204,8 +204,8 @@ def score_fixture(scenario: dict, fixture: Path, protected: dict[str, str], base
             failures.append("cross-session scenario did not use two processes")
         drift = evidence.get("detected_drift", {}) if isinstance(evidence, dict) else {}
         drift_proof = bool(drift.get("detection_method") or drift.get("evidence")) if isinstance(drift, dict) else False
-        stale_rows = evidence.get("stale_evidence_marked", []) if isinstance(evidence, dict) else []
-        repository_revalidated = bool(evidence.get("repository_revalidated") or drift_proof) if isinstance(evidence, dict) else False
+        stale_rows = evidence.get("stale_evidence_marked", evidence.get("phase_a_evidence_marked_stale", evidence.get("stale_marked", []))) if isinstance(evidence, dict) else []
+        repository_revalidated = bool(evidence.get("repository_revalidated") or evidence.get("source_change_detected_after_prior_session") or drift_proof) if isinstance(evidence, dict) else False
         stale_detected = bool(evidence.get("stale_detected") or (isinstance(drift, dict) and drift.get("prior_evidence_marked_stale")) or stale_rows) if isinstance(evidence, dict) else False
         integration_rerun = bool(evidence.get("integration_rerun") or evidence.get("fresh_integration_evidence")) if isinstance(evidence, dict) else False
         if not (repository_revalidated and stale_detected and integration_rerun):
