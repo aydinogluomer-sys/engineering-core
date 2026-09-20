@@ -64,6 +64,15 @@ Backward transitions are first-class:
 
 Adaptive Fast-Exit compresses states; it does not erase repository instructions, scope control, meaningful verification, diff review, or evidence-based reporting. Eligibility comes from observed risk and clarity, never diff size. See the entrypoint for the exit conditions.
 
+### Standard Engineering Mode
+<!-- policy-id: standard-engineering-mode -->
+
+Use the ordinary lifecycle proportionately for work that is not eligible for Fast-Exit and does not justify Team Mode. Planning may be internal or explicit according to risk. If investigation reveals a large formal requirement surface, dependency graph, multiple domains, High/Critical work units, phase/release gates, or resume risk, transition to Formal Spec Team Mode. If compilation proves the work small and tightly coupled, Team Mode may return here without discarding valid evidence.
+
+### Formal Spec Team Mode
+
+Formal specification execution remains the generic state model below. When orchestration complexity materially applies, load `formal-spec-team-mode.md` for Spec Compiler, work units, independent QA, Two-Key closure, cross-session state, and fresh release audit. Do not infer Team Mode only from requirement count, file count, or diff size.
+
 ## 4. Planning by risk
 
 ### Low

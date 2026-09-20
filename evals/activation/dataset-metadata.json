@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "dataset_version": "2026-09-20.1",
+  "tuning_files": ["positive.json", "negative.json", "ambiguous.json"],
+  "sealed_holdout_files": ["holdout-positive.json", "holdout-negative.json", "holdout-ambiguous.json"],
+  "holdout_authored_before_execution": true,
+  "holdout_must_not_select_or_edit_description": true,
+  "frozen_description": "Risk-adaptive workflow for repository implementation, debugging, refactoring, removal, migration, testing, review, and release preparation. Use for substantive codebase work that requires evidence, scoped changes, verification, or safety escalation; exclude generic explanations and unrelated writing.",
+  "frozen_description_sha256": "f7a652e5c1819319c305a8e06185b8f6bbceb03f5c790f44b4307d09bf1c1bc4",
+  "frozen_at_commit": "953962f2228f4f962bfc9aadddbb9fa0cae4b735",
+  "holdout_opened_for_scoring": "2026-09-20T07:24:46Z",
+  "notes": "Candidate was selected using the earlier tuning/validation corpus. Holdout prompts use different contexts and phrasing and are not a future tuning set."
+}

@@ -145,6 +145,34 @@ class ValidatorTests(unittest.TestCase):
             p.write_text(p.read_text(encoding="utf-8") + "\n<!-- policy-id: Bad ID -->\n", encoding="utf-8")
         self.assert_invalid(mutate)
 
+    def test_missing_team_mode_policy_id_fails(self):
+        def mutate(r):
+            p = r / "references/formal-spec-team-mode.md"
+            p.write_text(p.read_text(encoding="utf-8").replace("<!-- policy-id: spec-compiler -->", ""), encoding="utf-8")
+        self.assert_invalid(mutate)
+
+    def test_team_mode_policy_id_wrong_owner_fails(self):
+        def mutate(r):
+            source = r / "references/formal-spec-team-mode.md"
+            target = r / "references/operating-model.md"
+            source.write_text(source.read_text(encoding="utf-8").replace("<!-- policy-id: two-key-closure -->", ""), encoding="utf-8")
+            target.write_text(target.read_text(encoding="utf-8") + "\n<!-- policy-id: two-key-closure -->\n", encoding="utf-8")
+        self.assert_invalid(mutate)
+
+    def test_team_mode_heading_and_prose_rewrite_passes(self):
+        root = self.copy_skill()
+        p = root / "references/formal-spec-team-mode.md"
+        text = p.read_text(encoding="utf-8").replace("## 6. Finding Ledger", "## 6. Findings lifecycle").replace("Plain rejection", "Unsupported rejection")
+        p.write_text(text, encoding="utf-8")
+        self.assertEqual(validate(root), [])
+
+    def test_eval_tree_cannot_enter_runtime_package(self):
+        def mutate(r):
+            path = r / "evals/team.json"
+            path.parent.mkdir()
+            path.write_text("{}", encoding="utf-8")
+        self.assert_invalid(mutate)
+
     def test_active_mcp_config(self):
         def mutate(r):
             (r / ".mcp.json").write_text("{}", encoding="utf-8")

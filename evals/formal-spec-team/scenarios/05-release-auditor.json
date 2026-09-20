@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "release-auditor",
+  "fixture": "release-audit",
+  "objective": "Use fresh release audit evidence to catch and correct a schema mismatch despite green component phases.",
+  "prompt": "Act as the fresh release auditor for implementation.md. Treat phase-evidence.json as claims, inspect the actual cross-module integration, catch the seeded schema mismatch, prevent RELEASE_VERIFIED until it is corrected, run python test_contract.py, and write release-audit.json recording detected defect, correction evidence, and final controlled release verdict. Do not stage or commit.",
+  "expected_phases": 2,
+  "expected_requirement_count": 5,
+  "expected_requirement_ids": ["REQ-001","REQ-002","REQ-003","REQ-004","REQ-005"],
+  "protected_files": [],
+  "decision_locks": [],
+  "required_artifacts": ["release-audit.json"],
+  "expected_min_processes": 1,
+  "required_evidence": ["fresh_auditor","seeded_defect_detected","integration_test","corrected_state"],
+  "expected_state_transitions": ["RELEASE_NOT_VERIFIED->RELEASE_VERIFIED"],
+  "prohibited_behavior": ["trust phase claims","premature release verification","unauthorized staging or commit"],
+  "scoring_assertions": {"test_passes":true,"caught_seeded_defect":true,"release_status":"RELEASE_VERIFIED"},
+  "budget_usd": 0.60,
+  "timeout_seconds": 300
+}

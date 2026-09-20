@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import hashlib
 import json
 import os
+import platform
 import re
 import shutil
 import subprocess
@@ -43,27 +45,46 @@ def claude_executable() -> str | None:
     return located if located and Path(located).suffix.lower() == ".exe" else None
 
 
-def load_dataset(profile: str) -> list[dict]:
+def load_dataset(profile: str, dataset: str = "tuning") -> list[dict]:
     cases: list[dict] = []
+    prefix = "holdout-" if dataset == "holdout" else ""
     for label in ("positive", "negative", "ambiguous"):
-        rows = json.loads((HERE / f"{label}.json").read_text(encoding="utf-8"))
+        rows = json.loads((HERE / f"{prefix}{label}.json").read_text(encoding="utf-8"))
         for row in rows:
-            if profile in row["profiles"]:
+            if dataset == "holdout" or profile in row["profiles"]:
                 cases.append({**row, "expected": label})
     return cases
 
 
 def metrics(results: list[dict]) -> dict:
     binary = [row for row in results if row["expected"] in {"positive", "negative"} and row["status"] == "SCORED"]
-    tp = sum(row["expected"] == "positive" and row["activated"] for row in binary)
-    fn = sum(row["expected"] == "positive" and not row["activated"] for row in binary)
-    fp = sum(row["expected"] == "negative" and row["activated"] for row in binary)
-    tn = sum(row["expected"] == "negative" and not row["activated"] for row in binary)
+    confirmed = lambda row: row.get("evidence_tier") == "A"
+    named = lambda row: row.get("evidence_tier") in {"A", "B"}
+    policy_like = lambda row: row.get("evidence_tier") in {"A", "B", "C"}
+    tp = sum(row["expected"] == "positive" and confirmed(row) for row in binary)
+    fn = sum(row["expected"] == "positive" and not confirmed(row) for row in binary)
+    fp = sum(row["expected"] == "negative" and confirmed(row) for row in binary)
+    tn = sum(row["expected"] == "negative" and not confirmed(row) for row in binary)
     ratio = lambda numerator, denominator: round(numerator / denominator, 4) if denominator else None
+    category: dict[str, dict[str, int | float | None]] = {}
+    for row in binary:
+        if row["expected"] != "positive":
+            continue
+        item = category.setdefault(row.get("category", "uncategorized"), {"confirmed": 0, "total": 0, "recall": None})
+        item["total"] += 1
+        item["confirmed"] += int(confirmed(row))
+    for item in category.values():
+        item["recall"] = ratio(item["confirmed"], item["total"])
     return {
         "tp": tp, "fp": fp, "tn": tn, "fn": fn,
-        "precision": ratio(tp, tp + fp), "recall": ratio(tp, tp + fn),
+        "confirmed_precision": ratio(tp, tp + fp), "confirmed_recall": ratio(tp, tp + fn),
         "false_positive_rate": ratio(fp, fp + tn), "false_negative_rate": ratio(fn, fn + tp),
+        "tier_a_count": sum(confirmed(row) for row in binary),
+        "tier_b_count": sum(row.get("evidence_tier") == "B" for row in binary),
+        "tier_c_count": sum(row.get("evidence_tier") == "C" for row in binary),
+        "named_policy_recall": ratio(sum(row["expected"] == "positive" and named(row) for row in binary), sum(row["expected"] == "positive" for row in binary)),
+        "policy_like_rate": ratio(sum(policy_like(row) for row in binary), len(binary)),
+        "category_recall": category,
         "ambiguous_scored_separately": sum(row["expected"] == "ambiguous" and row["status"] == "SCORED" for row in results),
     }
 
@@ -108,7 +129,7 @@ def set_description(skill_file: Path, variant: str) -> None:
 
 
 def make_fixture(case: dict, base: Path, description: str) -> Path:
-    fixture = base / case["id"]
+    fixture = base / f"{case['id']}-r{case.get('run_index', 1)}"
     fixture.mkdir()
     (fixture / "README.md").write_text("# Activation fixture\n\nA tiny repository for isolated routing evaluation.\n", encoding="utf-8")
     (fixture / "app.py").write_text("def normalize(value):\n    return value.strip() if value is not None else None\n\ndef normalize_count(items):\n    return len(items) - 1\n", encoding="utf-8")
@@ -163,6 +184,7 @@ def evaluate(case: dict, fixture: Path, args) -> dict:
         status, failure = "SCORED", None
     return {
         "id": case["id"], "category": case["category"], "expected": case["expected"],
+        "run_index": case.get("run_index", 1),
         "mode": args.mode, "description": args.description, "status": status, "failure_class": failure,
         "activated": activated, "evidence_tier": tier, "completion_summary": completion,
         "completion_errors": completion_errors, "exit_code": exit_code, "timed_out": timed_out,
@@ -177,6 +199,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Measure explicit or natural engineering-core activation")
     parser.add_argument("--mode", choices=["explicit", "natural"], required=True)
     parser.add_argument("--profile", choices=["smoke", "full"], default="smoke")
+    parser.add_argument("--dataset", choices=["tuning", "holdout"], default="tuning")
     parser.add_argument("--description", choices=["baseline", "candidate1", "candidate2", "current"], default="current")
     parser.add_argument("--model", default="haiku")
     parser.add_argument("--effort", choices=["low", "medium", "high", "xhigh", "max"], default="low")
@@ -184,18 +207,35 @@ def main() -> int:
     parser.add_argument("--total-budget", type=float, default=2.80)
     parser.add_argument("--timeout", type=int, default=180)
     parser.add_argument("--limit", type=int)
+    parser.add_argument("--case", action="append", dest="cases", help="Run only the named case ID; repeatable")
     parser.add_argument("--workers", type=int, choices=range(1, 5), default=1)
+    parser.add_argument("--repetitions", type=int, choices=range(1, 6), default=1)
     args = parser.parse_args()
     args.claude_executable = claude_executable()
     if not args.claude_executable:
         print("BLOCKED: Claude Code CLI is unavailable", file=sys.stderr)
         return 2
-    cases = load_dataset(args.profile)
+    if args.dataset == "holdout" and args.description != "current":
+        parser.error("sealed holdout may run only against the frozen current description")
+    metadata = json.loads((HERE / "dataset-metadata.json").read_text(encoding="utf-8"))
+    current_description = next(line[13:] for line in (ROOT / "engineering-core/SKILL.md").read_text(encoding="utf-8").splitlines() if line.startswith("description: "))
+    description_hash = hashlib.sha256(current_description.encode()).hexdigest()
+    if args.dataset == "holdout" and description_hash != metadata["frozen_description_sha256"]:
+        print("BLOCKED: current description differs from sealed holdout freeze", file=sys.stderr)
+        return 2
+    source_cases = load_dataset(args.profile, args.dataset)
+    if args.cases:
+        requested = set(args.cases)
+        source_cases = [case for case in source_cases if case["id"] in requested]
+        missing = requested - {case["id"] for case in source_cases}
+        if missing:
+            parser.error("unknown case ID(s): " + ", ".join(sorted(missing)))
+    cases = [{**case, "run_index": index} for case in source_cases for index in range(1, args.repetitions + 1)]
     if args.limit is not None:
         cases = cases[:args.limit]
     REPORTS.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    summary = {"schema_version": 1, "started_at": stamp, "mode": args.mode, "profile": args.profile, "description": args.description, "cases": []}
+    summary = {"schema_version": 2, "dataset_version": metadata["dataset_version"], "dataset": args.dataset, "started_at": stamp, "mode": args.mode, "profile": args.profile, "description": args.description, "description_sha256": description_hash, "frozen_at_commit": metadata["frozen_at_commit"], "repository_base_commit": run(["git", "rev-parse", "HEAD"], ROOT).stdout.strip(), "model": args.model, "claude_version": run([args.claude_executable, "--version"], ROOT).stdout.strip(), "os": platform.platform(), "repetitions": args.repetitions, "cases": []}
     capacity = int((args.total_budget + 1e-9) // args.per_case_budget)
     runnable, deferred = cases[:capacity], cases[capacity:]
     with tempfile.TemporaryDirectory(prefix=".tmp-activation-", dir=HERE) as raw:
@@ -203,12 +243,12 @@ def main() -> int:
         fixtures: dict[str, Path] = {}
         for case in runnable:
             try:
-                fixtures[case["id"]] = make_fixture(case, base, args.description)
+                fixtures[f"{case['id']}:{case['run_index']}"] = make_fixture(case, base, args.description)
             except Exception as exc:
                 summary["cases"].append({**case, "mode": args.mode, "description": args.description, "status": "BLOCKED", "failure_class": "fixture", "activated": False, "reason": repr(exc)})
-        ready = [case for case in runnable if case["id"] in fixtures]
+        ready = [case for case in runnable if f"{case['id']}:{case['run_index']}" in fixtures]
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
-            futures = {pool.submit(evaluate, case, fixtures[case["id"]], args): case for case in ready}
+            futures = {pool.submit(evaluate, case, fixtures[f"{case['id']}:{case['run_index']}"], args): case for case in ready}
             for future in as_completed(futures):
                 case = futures[future]
                 try:
@@ -216,10 +256,10 @@ def main() -> int:
                 except Exception as exc:
                     result = {**case, "mode": args.mode, "description": args.description, "status": "BLOCKED", "failure_class": "harness", "activated": False, "reason": repr(exc)}
                 summary["cases"].append(result)
-                print(f"{case['id']}: {result['status']} activation={result.get('activated')} tier={result.get('evidence_tier')}", flush=True)
+                print(f"{case['id']}[r{case['run_index']}]: {result['status']} tier={result.get('evidence_tier')}", flush=True)
     summary["cases"].extend({**case, "status": "NOT_RUN", "failure_class": "budget", "activated": False} for case in deferred)
-    order = {case["id"]: index for index, case in enumerate(cases)}
-    summary["cases"].sort(key=lambda row: order[row["id"]])
+    order = {(case["id"], case["run_index"]): index for index, case in enumerate(cases)}
+    summary["cases"].sort(key=lambda row: order[(row["id"], row.get("run_index", 1))])
     summary["metrics"] = metrics(summary["cases"])
     summary["recorded_cost_usd"] = round(sum(row.get("cost_usd") or 0 for row in summary["cases"]), 6)
     summary["accounted_budget_usd"] = round(sum(row.get("cost_usd") if isinstance(row.get("cost_usd"), (int, float)) else args.per_case_budget for row in summary["cases"] if row["status"] != "NOT_RUN"), 6)

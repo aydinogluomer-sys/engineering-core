@@ -78,3 +78,33 @@ Low and High/auth explicit fixtures were rerun with completion claims compared a
 - Final auth run: `PASS` at `$0.058669`; parsed risk `High`, parsed status `VERIFIED`, independent positive/negative test passed, intended two files changed, and no score failure or permission denial remained.
 
 These are L4 examples, not universal compliance rates. The failed behavioral outputs and scorer defects are retained to distinguish model-policy failures from evaluation-infrastructure failures.
+
+## Sealed activation and Formal Spec Team Mode — 2026-09-20
+
+The description was frozen at baseline commit `953962f2228f4f962bfc9aadddbb9fa0cae4b735` with SHA-256 `f7a652e5c1819319c305a8e06185b8f6bbceb03f5c790f44b4307d09bf1c1bc4` before the holdout was opened. Dataset version `2026-09-20.1` contains 32 positive, 22 negative, and 12 ambiguous cases. Claude Code was `2.1.272` on Windows. Tier A alone controls the confusion matrix; Tier B and Tier C were zero in these runs and did not inflate confirmed activation.
+
+| Model alias | Dataset | Scored positive | Blocked positive | TP | FP | TN | FN | Precision | Recall | Recorded cost |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `sonnet` | sealed holdout | 32 | 0 | 27 | 0 | 22 | 5 | 1.0000 | 0.8438 | `$4.335969` |
+| `haiku` | sealed holdout | 29 | 3 | 5 | 0 | 22 | 24 | 1.0000 | 0.1724 | `$3.555201` |
+| `sonnet` | representative holdout, 3 repetitions each | 3 positive / 3 negative | 0 | 3 | 0 | 3 | 0 | 1.0000 | 1.0000 | `$0.559815` |
+
+For Sonnet, database, security, RLS/permissions, and billing/idempotency each achieved 2/2 Tier-A activation. Formal-spec was 0/2, long-horizon 0/1, frontend 1/2, and refactor 1/2; these are retained weaknesses despite the aggregate gate passing. The repeated Sonnet probe selected one security positive (`hp13`), one negative (`hn01`), and one ambiguous case (`ha01`): activation rates were 3/3, 0/3, and 0/3 respectively.
+
+Haiku did not meet the recall gate. One database case timed out; one billing case and one hardening case invoked the skill but ended with CLI/model failure, so all three are `BLOCKED`, not forced into TP/FN. Among scored Haiku positives, only debugging reached 2/2; most high-consequence categories were 0. The holdout was not used to revise the description.
+
+### Formal Spec Team Mode
+
+Every scenario used a disposable Git repository, explicit `/engineering-core`, project-only settings, strict empty MCP configuration, bounded cost/time, no automatic retry, independent fixture tests, protected hashes, and Git index/HEAD checks. Raw reports are redacted and Git-ignored.
+
+| Scenario | Model | Final recorded status | Processes | Cost | Key evidence / limitation |
+|---|---|---|---:|---:|---|
+| Large specification | `sonnet` | PASS | 3 | `$0.947329` | 18 requirements / five phases reconciled; dirty file, locks, deferral, unrelated failure, seeded cross-module defect, independent QA, and fresh release audit all passed machine scoring. |
+| Requirement change | `sonnet` | FAIL | 1 | `$0.140508` | Phase A remained VERIFIED, affected requirements were selectively marked stale, code/test passed, but the then-current scorer rejected the model's `stale_marked` alias. Status is not rewritten; scorer now accepts tested equivalent structured evidence. |
+| Cross-session resume | `sonnet` | FAIL | 2 | `$0.346663` | Fresh Session B detected drift, marked prior evidence stale, implemented Phase B, and reran integration successfully, but the then-current scorer rejected structured drift/fresh-integration objects. Status is retained; equivalent forms now have unit coverage. |
+| Two-Key closure | `haiku` | FAIL | 2 | `$0.229088` | Independent test passed and QA ran, but the final attempt did not record the seeded builder finding as `VERIFIED_FIXED` or an accepted transition proof. This is retained as an evidence/policy failure. |
+| Fresh release auditor | `sonnet` | PASS | 1 | `$0.176946` | Fresh auditor caught and corrected the seeded producer/consumer schema mismatch before `RELEASE_VERIFIED`; independent contract test passed. |
+
+Two earlier Two-Key attempts (`$0.307547`, `$0.315626`) are retained as FAIL after valid behavior exposed overly narrow transition scoring; mutation tests were added before further execution. Earlier requirement-change/cross-session reports (`$0.150897`, `$0.320563`) likewise exposed initial alias assumptions. The scorer was improved rather than the skill policy being tuned to a scorer defect.
+
+These results establish one realistic large-spec PASS and one fresh-auditor PASS, but not a full Team Mode quality gate: requirement-change, cross-session, and Two-Key have no final recorded PASS. They are L4 observations, not L5 reliability, and they do not justify a 9.7 overall claim by this contract's own gate.

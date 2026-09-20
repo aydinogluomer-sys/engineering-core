@@ -59,6 +59,16 @@ Key behaviors include:
 - optional codebase-intelligence integrations with native fallbacks;
 - evidence-based Definition of Done.
 
+## Three runtime modes
+
+The dispatcher selects exactly one mode from consequence, uncertainty, specification depth, and coordination need—not diff size or file count:
+
+- **Adaptive Fast-Exit** for genuinely local, low-risk work with an obvious verification path;
+- **Standard Engineering Mode** for ordinary implementation, debugging, refactoring, migration, and review;
+- **Formal Spec Team Mode** for multi-phase specification execution where requirement traceability, independent QA, resumable state, or fresh release audit is necessary.
+
+Formal Spec Team Mode is conditional. The original specification remains authoritative, builders cannot self-certify Moderate-or-higher phases, and a fresh auditor controls release closure. See [`formal-spec-team-mode.md`](engineering-core/references/formal-spec-team-mode.md).
+
 ## Why the runtime entrypoint is intentionally small
 
 `SKILL.md` is the runtime dispatcher, not the full handbook.
@@ -85,6 +95,7 @@ This progressive-disclosure design reduces default context cost, avoids repeatin
 ├── evals/
 │   ├── README.md
 │   ├── activation/
+│   ├── formal-spec-team/
 │   ├── completion_summary.py
 │   ├── run_l4_eval.py
 │   ├── test_completion_summary.py
@@ -101,6 +112,7 @@ This progressive-disclosure design reduces default context cost, avoids repeatin
     │   ├── removal-task.md
     │   └── large-spec-execution.md
     ├── references/
+    │   ├── formal-spec-team-mode.md
     │   ├── operating-model.md
     │   ├── repository-investigation.md
     │   ├── implementation-debugging.md
@@ -178,7 +190,9 @@ The router is optional and is not deterministic enforcement.
 
 Natural selection is measured separately from explicit `/engineering-core` invocation. See [`evals/activation/README.md`](evals/activation/README.md) for positive, negative, and ambiguous datasets plus bounded candidate-description evaluation.
 
-The latest bounded Haiku run observed candidate-description natural precision `1.00` and recall `0.50` across 12 positive and 8 negative prompts; four ambiguous prompts were reported separately. This is L4 sample evidence, not a routing guarantee. The retained runs and limitations are in [`docs/l4-evaluation.md`](docs/l4-evaluation.md).
+The 2026-09-20 sealed holdout observed Sonnet Tier-A precision `1.00` and recall `0.8438` across 32 positive and 22 negative prompts; 12 ambiguous prompts were separate. Haiku retained precision `1.00` but reached only `0.1724` recall on 29 scored positives, with three additional positive cases blocked. These per-model results are not averaged and are not routing guarantees. Retained runs and limitations are in [`docs/l4-evaluation.md`](docs/l4-evaluation.md).
+
+The activation harness also contains a sealed holdout that was frozen before scoring. Holdout results use only Tier-A runtime traces for confusion metrics; named summaries and behavioral resemblance are reported separately and cannot inflate activation precision or recall. Cross-model results must be reported model by model.
 
 ## Optional integrations
 
@@ -231,7 +245,8 @@ python engineering-core/scripts/test_validate_skill.py
 python evals/test_completion_summary.py
 python evals/test_l4_eval.py
 python evals/activation/test_activation_eval.py
-python -m py_compile engineering-core/scripts/validate_skill.py engineering-core/scripts/test_validate_skill.py scripts/validate_repository.py evals/completion_summary.py evals/test_completion_summary.py evals/run_l4_eval.py evals/test_l4_eval.py evals/activation/run_activation_eval.py evals/activation/test_activation_eval.py
+python evals/formal-spec-team/test_team_eval.py
+python -m py_compile engineering-core/scripts/validate_skill.py engineering-core/scripts/test_validate_skill.py scripts/validate_repository.py evals/completion_summary.py evals/test_completion_summary.py evals/run_l4_eval.py evals/test_l4_eval.py evals/activation/run_activation_eval.py evals/activation/test_activation_eval.py evals/formal-spec-team/run_team_eval.py evals/formal-spec-team/test_team_eval.py
 python scripts/validate_repository.py .
 ```
 
@@ -248,6 +263,15 @@ python evals/run_l4_eval.py --case small --model haiku --per-case-budget 0.35 --
 ```
 
 See [`evals/README.md`](evals/README.md) for all-core execution and [`docs/l4-evaluation.md`](docs/l4-evaluation.md) for the append-only evidence record. Explicit activation and natural activation are reported separately. The optional router is not required by the harness.
+
+Formal Spec Team Mode has a separate five-scenario harness. Start with the cheaper Two-Key case, then expand only after the scorer and artifact contract are sound:
+
+```bash
+python evals/formal-spec-team/run_team_eval.py --case two-key-closure --model haiku --per-process-budget 0.60
+python evals/formal-spec-team/run_team_eval.py --model sonnet --per-process-budget 1.00
+```
+
+These commands invoke Claude Code and are intentionally manual rather than part of static CI.
 
 ## What engineering-core is not
 

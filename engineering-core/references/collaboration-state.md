@@ -150,3 +150,7 @@ A useful handoff contains:
 - checks still required.
 
 A handoff must not turn inference into fact.
+
+## 11. Formal Spec Team coordination
+
+In Team Mode, the orchestrator owns derived requirement/work-unit/finding state and reconciles it to the original spec. Each work unit has one active writer; parallel writers require non-overlapping ownership and isolation. Independent QA evaluates current artifacts against original acceptance rather than builder conclusions. Specialists are conditional. The fresh release auditor is separate from builder self-review and receives claims as claims. Handoffs name requirements, locks, scope, authority, current evidence, findings, and stop conditions; detailed mechanics stay in `formal-spec-team-mode.md`.

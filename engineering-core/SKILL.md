@@ -14,6 +14,17 @@ Use `CLASSIFY -> DISCOVER -> INVESTIGATE -> PLAN -> IMPLEMENT -> VERIFY -> REVIE
 
 Reclassify when evidence changes the risk or scope. Move backward deliberately: new evidence returns to `CLASSIFY`; insufficient understanding to `INVESTIGATE`; architectural mismatch to `PLAN` or `INVESTIGATE`; verification failure to failure classification and then `INVESTIGATE` or `IMPLEMENT`; and a review defect to `IMPLEMENT -> VERIFY -> REVIEW`. For a Low-risk, well-specified local change, compress investigation and planning through Adaptive Fast-Exit below. Compression never erases applicable repository instructions, scope control, meaningful verification, final diff review, or evidence-based reporting.
 
+## Three-mode dispatcher
+<!-- policy-id: team-mode-routing -->
+
+Choose exactly one starting mode from evidence, then transition when scope or risk changes:
+
+- **Adaptive Fast-Exit:** bounded Low-risk work meeting the eligibility below.
+- **Standard Engineering Mode:** ordinary implementation, debugging, refactoring, review/fix, or release preparation using the operating loop proportionately.
+- **Formal Spec Team Mode:** a large or consequential formal specification, multi-phase/long-horizon execution, dependency-rich work, several specialist domains, High/Critical units, explicit phase/release gates, or likely resume/compaction risk. No numeric threshold decides alone.
+
+For Team Mode, load [references/formal-spec-team-mode.md](references/formal-spec-team-mode.md). Keep the original specification authoritative; use bounded roles only where useful. A builder cannot self-close a Moderate/High/Critical phase: `PHASE_VERIFIED` requires current implementation evidence and independent evidence. Do not spawn a team for trivial work.
+
 ## Universal invariants
 
 1. Classify the request before acting: read-only explanation/review, diagnosis, implementation, refactor/removal/migration, test/build/release, or security-sensitive/external mutation. Diagnosis alone does not authorize a fix; review alone does not authorize edits.
@@ -45,6 +56,7 @@ By default, do not create a plan artifact or ledger, delegate to a subagent, inv
 ## Route to detail
 
 - For task/risk classification, formal specification execution, proportional planning, authorization, scope, and Definition of Done, read [references/operating-model.md](references/operating-model.md).
+- For a qualifying large/multi-phase formal specification, read [references/formal-spec-team-mode.md](references/formal-spec-team-mode.md) before implementation.
 - For unfamiliar repositories, instruction discovery, evidence acquisition, impact tracing, or optional graph/map tools, read [references/repository-investigation.md](references/repository-investigation.md).
 - For bugs, failing tests, uncertain causes, implementation tactics, repeated failures, or failure classification, read [references/implementation-debugging.md](references/implementation-debugging.md).
 - For any moderate, high, or critical-risk change, removal, review, test strategy, release preparation, or completion claim, read [references/verification-review.md](references/verification-review.md).

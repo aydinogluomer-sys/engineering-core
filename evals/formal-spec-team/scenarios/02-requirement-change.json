@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "requirement-change",
+  "fixture": "requirement-change",
+  "objective": "Apply a mid-execution retry change while preserving unaffected verified Phase A and selectively reopening downstream evidence.",
+  "prompt": "The current user requirement changes REQ-003: delivery must make at most three total attempts rather than two. Reconcile implementation.md and existing team-state.json, preserve verified Phase A, mark only REQ-003/REQ-004 and dependent REQ-005 evidence STALE before reimplementation, then verify the affected path. Write requirement-change-evidence.json and updated team-state.json, run python test_contract.py, and do not commit or stage.",
+  "expected_phases": 3,
+  "expected_requirement_count": 5,
+  "expected_requirement_ids": ["REQ-001","REQ-002","REQ-003","REQ-004","REQ-005"],
+  "protected_files": [],
+  "decision_locks": ["LOCK-001"],
+  "required_artifacts": ["team-state.json","requirement-change-evidence.json"],
+  "expected_min_processes": 1,
+  "required_evidence": ["phase_a_preserved","affected_stale_recorded","downstream_reverified"],
+  "expected_state_transitions": ["REQ-003:IMPLEMENTED->STALE->VERIFIED","REQ-005:NOT_STARTED->STALE->VERIFIED"],
+  "prohibited_behavior": ["Phase A reopening","whole-project restart","obsolete evidence retained","unauthorized staging or commit"],
+  "scoring_assertions": {"test_passes":true,"phase_a":"VERIFIED","selective_stale":true},
+  "budget_usd": 0.75,
+  "timeout_seconds": 360
+}

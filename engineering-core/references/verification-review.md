@@ -113,6 +113,8 @@ Do not silently omit requirements.
 
 Phase verification does not imply release verification. See `operating-model.md`.
 
+For Formal Spec Team Mode, maintain the full requirement coverage matrix and scan both directions before closure: an executable requirement without work/evidence is an orphan requirement; a meaningful diff without requirement/correctness justification is an orphan change. Moderate/High/Critical phase closure requires implementation plus independent evidence. A fresh release audit must reconcile all phases, locks, findings, deferrals, and cross-cutting gates before `RELEASE_VERIFIED`.
+
 ## 6. Removal/completeness audit
 
 Deleting a primary file is not enough.

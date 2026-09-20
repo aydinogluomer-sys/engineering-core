@@ -14,6 +14,7 @@ EXPECTED = {
     "examples/removal-task.md",
     "examples/large-spec-execution.md",
     "references/operating-model.md",
+    "references/formal-spec-team-mode.md",
     "references/repository-investigation.md",
     "references/implementation-debugging.md",
     "references/verification-review.md",
@@ -64,6 +65,14 @@ REQUIRED_POLICY_OWNERS = {
     "optional-integrations": "references/integrations.md",
     "deterministic-enforcement": "references/integrations.md",
     "activation-guidance": "references/integrations.md",
+    "team-mode-routing": "SKILL.md",
+    "standard-engineering-mode": "references/operating-model.md",
+    "formal-spec-team-mode": "references/formal-spec-team-mode.md",
+    "spec-compiler": "references/formal-spec-team-mode.md",
+    "finding-ledger": "references/formal-spec-team-mode.md",
+    "two-key-closure": "references/formal-spec-team-mode.md",
+    "cross-session-state": "references/formal-spec-team-mode.md",
+    "fresh-release-auditor": "references/formal-spec-team-mode.md",
 }
 
 POLICY_ID_RE = re.compile(r"<!--\s*policy-id:\s*([a-z0-9]+(?:-[a-z0-9]+)*)\s*-->")

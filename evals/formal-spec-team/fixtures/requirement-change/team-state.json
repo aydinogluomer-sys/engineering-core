@@ -1,0 +1,1 @@
+{"phases":{"A":"VERIFIED","B":"IMPLEMENTED","C":"NOT_STARTED"},"requirements":{"REQ-001":"VERIFIED","REQ-002":"VERIFIED","REQ-003":"IMPLEMENTED","REQ-004":"IMPLEMENTED","REQ-005":"NOT_STARTED"},"change":"retry failed delivery three times instead of twice"}

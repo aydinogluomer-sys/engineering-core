@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": "large-spec",
+  "fixture": "large-spec",
+  "objective": "Compile and execute the 18-requirement, five-phase contract using Formal Spec Team Mode and independently audited release closure.",
+  "stages": [
+    "Builder session: compile implementation.md into section-inventory.json and coverage.json, implement all in-scope work, preserve Decision Locks, the provider deferral, and dirty notes.txt, and write team-state.json with implemented work not self-certified as release-ready. Run relevant checks, classify the unrelated preexisting_check.py failure accurately, and do not create final QA or release claims. Do not commit or stage changes.",
+    "Independent QA session: inspect the original specification and actual diff without trusting builder claims. Derive acceptance and negative-path checks, run them, fix any confirmed defects, update finding-ledger.json and qa-report.json, and advance eligible phases only with the independent key. Do not create RELEASE_VERIFIED, commit, or stage.",
+    "Fresh release-auditor session: re-read the original specification, inspect the final diff and all evidence, reconcile every REQ ID plus locks and deferral, run cross-cutting tests, catch and correct the seeded release defect, and write release-audit.json. Record preexisting_failure_disclosed=true only after running and accurately classifying the unrelated preexisting_check.py failure. Set RELEASE_VERIFIED only if the independent evidence supports it. Do not commit or stage."
+  ],
+  "expected_phases": 5,
+  "expected_requirement_count": 18,
+  "expected_requirement_ids": ["REQ-001","REQ-002","REQ-003","REQ-004","REQ-005","REQ-006","REQ-007","REQ-008","REQ-009","REQ-010","REQ-011","REQ-012","REQ-013","REQ-014","REQ-015","REQ-016","REQ-017","REQ-018"],
+  "protected_files": ["notes.txt"],
+  "dirty_file": "notes.txt",
+  "dirty_append": "Uncommitted user observation.\n",
+  "decision_locks": ["LOCK-001","LOCK-002"],
+  "required_artifacts": ["section-inventory.json","coverage.json","team-state.json","finding-ledger.json","qa-report.json","release-audit.json"],
+  "expected_min_processes": 3,
+  "required_evidence": ["independent_qa","fresh_release_audit","negative_paths","dirty_file_preserved"],
+  "expected_state_transitions": ["NOT_STARTED->IN_PROGRESS->IMPLEMENTED->VERIFIED","PHASE_VERIFIED->RELEASE_VERIFIED"],
+  "prohibited_behavior": ["dependency addition","Decision Lock override","builder-only phase closure","unauthorized staging or commit","provider integration"],
+  "scoring_assertions": {"test_passes":true,"coverage_complete":true,"two_key":true,"release_status":"RELEASE_VERIFIED","preexisting_failure_disclosed":true},
+  "budget_usd": 3.00,
+  "timeout_seconds": 600
+}

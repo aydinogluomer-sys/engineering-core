@@ -14,11 +14,18 @@ REQUIRED = {
     "evals/README.md",
     "evals/activation/README.md",
     "evals/activation/ambiguous.json",
+    "evals/activation/dataset-metadata.json",
+    "evals/activation/holdout-ambiguous.json",
+    "evals/activation/holdout-negative.json",
+    "evals/activation/holdout-positive.json",
     "evals/activation/negative.json",
     "evals/activation/positive.json",
     "evals/activation/run_activation_eval.py",
     "evals/activation/test_activation_eval.py",
     "evals/completion_summary.py",
+    "evals/formal-spec-team/README.md",
+    "evals/formal-spec-team/run_team_eval.py",
+    "evals/formal-spec-team/test_team_eval.py",
     "evals/run_l4_eval.py",
     "evals/test_completion_summary.py",
     "evals/test_l4_eval.py",
@@ -66,6 +73,8 @@ def validate(root: Path) -> list[str]:
                 errors.append(f"CI workflow missing marker: {marker}")
         if "secrets." in text:
             errors.append("static CI must not depend on repository secrets")
+        if "evals/formal-spec-team/test_team_eval.py" not in text:
+            errors.append("CI workflow does not run Formal Spec Team Mode harness tests")
 
     found: set[str] = set()
     for path in sorted((root / "evals/scenarios").glob("*.json")):
@@ -88,9 +97,9 @@ def validate(root: Path) -> list[str]:
             match = re.match(r"\|\s*(\d+)\s*\|", line)
             if match:
                 rows[int(match.group(1))] = line
-        expected_ids = set(range(38, 78))
+        expected_ids = set(range(38, 94))
         if expected_ids - rows.keys():
-            errors.append("adversarial L3 matrices must contain scenarios 38-77")
+            errors.append("adversarial L3 matrices must contain scenarios 38-93")
         for number in expected_ids.intersection(rows):
             if len(rows[number].split("|")) < 10 or "L3" not in rows[number]:
                 errors.append(f"L3 scenario {number} lacks required trace fields/evidence level")
@@ -119,6 +128,36 @@ def validate(root: Path) -> list[str]:
             activation_ids.add(row["id"])
             if "full" not in row["profiles"]:
                 errors.append(f"activation case {row['id']} is missing full profile")
+
+    holdout_minimums = {"holdout-positive": 30, "holdout-negative": 20, "holdout-ambiguous": 10}
+    for name, minimum in holdout_minimums.items():
+        path = activation_dir / f"{name}.json"
+        if not path.exists():
+            continue
+        try:
+            rows = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as exc:
+            errors.append(f"invalid sealed activation dataset {path.name}: {exc}")
+            continue
+        if not isinstance(rows, list) or len(rows) < minimum:
+            errors.append(f"sealed activation dataset {name} requires at least {minimum} cases")
+        elif not all(isinstance(row, dict) and {"id", "category", "prompt"} <= set(row) for row in rows):
+            errors.append(f"sealed activation dataset {name} has an invalid row")
+
+    team_root = root / "evals/formal-spec-team"
+    expected_team_scenarios = {"01-large-spec.json", "02-requirement-change.json", "03-cross-session.json", "04-two-key-closure.json", "05-release-auditor.json"}
+    found_team_scenarios = {path.name for path in (team_root / "scenarios").glob("*.json")}
+    if found_team_scenarios != expected_team_scenarios:
+        errors.append("Formal Spec Team Mode scenarios do not match the required five-file set")
+    required_fixtures = {"large-spec", "requirement-change", "cross-session-resume", "independent-qa", "release-audit"}
+    found_fixtures = {path.name for path in (team_root / "fixtures").iterdir() if path.is_dir()} if (team_root / "fixtures").exists() else set()
+    if found_fixtures != required_fixtures:
+        errors.append("Formal Spec Team Mode fixtures do not match the required set")
+
+    gitignore = (root / ".gitignore").read_text(encoding="utf-8") if (root / ".gitignore").exists() else ""
+    for marker in ("evals/activation/reports/", "evals/formal-spec-team/reports/"):
+        if marker not in gitignore:
+            errors.append(f"raw report directory is not ignored: {marker}")
 
     for path in (root / "evals").rglob("*"):
         if path.is_file() and "reports" not in path.parts:

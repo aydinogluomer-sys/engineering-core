@@ -30,6 +30,8 @@ class ActivationEvalTests(unittest.TestCase):
             {"expected":"negative","activated":False,"status":"SCORED"},
             {"expected":"ambiguous","activated":True,"status":"SCORED"},
         ]
+        for row, tier in zip(rows, ("A", None, "A", None, "C")):
+            row["evidence_tier"] = tier
         result = metrics(rows)
         self.assertEqual((result["tp"], result["fp"], result["tn"], result["fn"]), (1, 1, 1, 1))
         self.assertEqual(result["ambiguous_scored_separately"], 1)
@@ -70,6 +72,28 @@ class ActivationEvalTests(unittest.TestCase):
             rows = json.loads((Path(__file__).parent / f"{name}.json").read_text(encoding="utf-8"))
             self.assertTrue(rows)
             self.assertTrue(all({"id", "category", "profiles", "prompt"} <= set(row) for row in rows))
+
+    def test_holdout_size_uniqueness_and_metadata(self):
+        cases = load_dataset("full", "holdout")
+        counts = {kind: sum(row["expected"] == kind for row in cases) for kind in ("positive", "negative", "ambiguous")}
+        self.assertGreaterEqual(counts["positive"], 30)
+        self.assertGreaterEqual(counts["negative"], 20)
+        self.assertGreaterEqual(counts["ambiguous"], 10)
+        self.assertEqual(len(cases), len({row["id"] for row in cases}))
+        metadata = json.loads((Path(__file__).parent / "dataset-metadata.json").read_text(encoding="utf-8"))
+        self.assertEqual(metadata["schema_version"], 2)
+        self.assertTrue(metadata["holdout_must_not_select_or_edit_description"])
+
+    def test_tier_b_and_c_do_not_inflate_confirmed_recall(self):
+        rows = [
+            {"expected":"positive","category":"implementation","status":"SCORED","evidence_tier":"A"},
+            {"expected":"positive","category":"implementation","status":"SCORED","evidence_tier":"B"},
+            {"expected":"positive","category":"security","status":"SCORED","evidence_tier":"C"},
+        ]
+        result = metrics(rows)
+        self.assertEqual(result["confirmed_recall"], 0.3333)
+        self.assertEqual(result["named_policy_recall"], 0.6667)
+        self.assertEqual((result["tier_a_count"], result["tier_b_count"], result["tier_c_count"]), (1, 1, 1))
 
 
 if __name__ == "__main__":

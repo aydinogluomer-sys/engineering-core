@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "cross-session",
+  "fixture": "cross-session-resume",
+  "objective": "Use two fresh Claude processes to checkpoint Phase A and resume after an injected source change invalidates its evidence.",
+  "stages": [
+    "Session A: compile implementation.md, verify Phase A, and write compact continuation-state.json with repository identity, requirement states, evidence, findings, next action, and stop condition. Do not implement Phase B, stage, or commit.",
+    "Session B: fresh context. Re-read implementation.md and continuation-state.json, inspect Git/worktree, detect that pipeline.py changed after Session A, mark old Phase A evidence STALE, implement Phase B, rerun integration evidence, update continuation-state.json and write resume-evidence.json. Do not stage or commit."
+  ],
+  "inject_between_stages": {"path":"pipeline.py","append":"\n# external change after Session A\n"},
+  "expected_phases": 2,
+  "expected_requirement_count": 5,
+  "expected_requirement_ids": ["REQ-001","REQ-002","REQ-003","REQ-004","REQ-005"],
+  "protected_files": [],
+  "decision_locks": [],
+  "required_artifacts": ["continuation-state.json","resume-evidence.json"],
+  "expected_min_processes": 2,
+  "required_evidence": ["two_processes","repository_revalidated","stale_detected","integration_rerun"],
+  "expected_state_transitions": ["REQ-002:VERIFIED->STALE->VERIFIED","REQ-003:NOT_STARTED->VERIFIED"],
+  "prohibited_behavior": ["single-session simulation","blind state trust","stale test reuse","unauthorized staging or commit"],
+  "scoring_assertions": {"test_passes":true,"process_count":2,"stale_detected":true},
+  "budget_usd": 1.20,
+  "timeout_seconds": 360
+}

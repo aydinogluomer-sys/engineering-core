@@ -166,3 +166,7 @@ For Critical actions, verify exact current authorization. If the user's current 
 External messages, deployments, destructive API calls, production writes, credential rotations, and irreversible provider actions are distinct from local preparation.
 
 Authorization to draft, review, validate, or stage does not imply authorization to send, deploy, mutate, rotate, or delete.
+
+## 9. Team Mode specialist routing
+
+Team Mode uses these profiles rather than copying domain manuals: auth/tenant/RLS loads security and, when persistence policy is involved, database expertise; billing/webhook/idempotency loads security plus state-transition expertise; migrations load database expertise; external irreversible actions remain Critical and require exact authority. A specialist may challenge implementation with evidence but cannot supersede current user Decision Locks or the core's authorization/completion rules.

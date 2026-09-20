@@ -956,3 +956,114 @@ Release is blocked by any failed required validation, exact-tree pollution, miss
 - **L3:** PASS for retained scenarios 1-77, including the 21 new structured traces.
 - **L4:** PASS for bounded explicit Small/auth completion cases and bounded explicit/natural activation samples. Natural candidate-1 full-set recall was 0.50, so natural activation reliability is measured but incomplete—not guaranteed.
 - **L5:** NOT RUN; no longitudinal field population was evaluated.
+
+## 13. Formal Spec Team Mode and Sealed-Evidence Contract
+
+This append-only contract implements `engineering-core` 9.7–9.8 orchestration against clean `main` at `953962f2228f4f962bfc9aadddbb9fa0cae4b735`. It preserves the existing risk model, Adaptive Fast-Exit, structural validator, completion protocol, optional-integration boundaries, historical L4 failures, and evidence-level separation. The only new runtime file authorized by this pass is `references/formal-spec-team-mode.md`; all datasets, fixtures, scorers, and raw reports remain maintainer-only.
+
+### 13.1 Baseline
+
+- Branch/HEAD: `main` / `953962f2228f4f962bfc9aadddbb9fa0cae4b735`.
+- Origin: `https://github.com/aydinogluomer-sys/engineering-core.git`.
+- Worktree: clean; `git status --short` produced no entries.
+- Runtime package: 17 files; `SKILL.md` 68 lines.
+- Hosted baseline CI: run `35493413228` completed successfully for Linux/Windows and Python 3.10/3.14.
+- Existing activation evidence: candidate-1 full tuning/validation set TP=6, FP=0, TN=8, FN=6; precision 1.00, recall 0.50. No sealed holdout or cross-model claim exists yet.
+
+### 13.2 Phases, dependencies, and gates
+
+1. **Activation evidence architecture:** add versioned tuning/validation metadata and sealed positive/negative/ambiguous holdout; freeze the baseline description text/hash/commit before first holdout execution; split Tier A/B/C and category/repetition metrics. Gate: unit/schema tests pass and no holdout result has influenced the frozen candidate.
+2. **Cross-model harness:** support Haiku, Sonnet, and Opus aliases, repeated runs, per-model reports, strict process isolation, cost/time limits, and exact unavailable status. Gate: unit tests pass; no live claim yet.
+3. **Three-mode runtime dispatcher:** make Adaptive Fast-Exit, Standard Engineering Mode, and conditional Formal Spec Team Mode explicit without replacing the lifecycle or using numeric/file-count risk gates. Gate: entrypoint remains below 200 lines and trivial/auth traces route correctly.
+4. **Formal Spec Team Mode reference:** implement Spec Compiler, Section Inventory, Requirement/Acceptance extraction, Decision Locks, dependency/work-unit graph, coverage reconciliation, Orchestrator, one-writer ownership, independent QA, conditional specialists, Finding Ledger, loop adjudication, Two-Key closure, cross-session state, selective `STALE`, coverage matrix, and Fresh Release Auditor. Gate: structural IDs and L3 traces pass.
+5. **Reference/example integration:** connect operating, collaboration, verification, safety, completion, and the existing large-spec example without duplicating the full Team Mode manual. Gate: ownership/duplication audit passes.
+6. **Team Mode evaluation infrastructure:** build five scenario definitions, self-contained fixtures, redacted isolated runner, deterministic scorer, and unit tests. Gate: seeded baseline defects are caught without Claude.
+7. **Live evidence:** execute cheap harness smoke, then Two-Key, requirement-change, cross-session, large-spec, and release-auditor scenarios; execute sealed activation on the frozen description for the primary model and a bounded second-model sample/full set where available. Gate: every attempted case has an exact retained status, cost, failure class, and independent evidence.
+8. **Static/release audit:** update repository validation, CI, README, links, ignored reports, compile commands, tree budget, secrets, full diff, and evidence claims. Gate: all required static commands and hosted matrix pass.
+9. **Publication:** commit only after gates, push `main`, verify `git rev-parse HEAD == git ls-remote origin refs/heads/main`, then record publication evidence without pre-claiming success.
+
+### 13.3 Failure semantics
+
+- Holdout thresholds that miss remain failed gates; the sealed set is not retuned or rewritten.
+- Tier B is named-policy inference and Tier C is resemblance; neither inflates confirmed Tier-A activation.
+- A builder report is never a phase key. Moderate/High/Critical `PHASE_VERIFIED` requires current implementation evidence plus independent evidence.
+- Missing Section Inventory coverage, orphan requirement, unresolved Decision Lock, orphan diff, open blocking finding, stale evidence, or missing fresh release audit forbids the corresponding verification state.
+- A harness/scorer/fixture defect is repaired before additional expensive execution and its failed history is retained.
+- Model unavailable, budget, timeout, permission, or capability failures are exact `NOT_RUN`/`BLOCKED`/`FAIL`, never synthetic PASS.
+- `RELEASE_VERIFIED` is distinct from execution `Status` and from phase verification.
+
+### 13.4 Acceptance criteria — activation
+
+- [x] Holdout positive/negative/ambiguous datasets exist.
+- [x] Holdout is not used for candidate authoring.
+- [x] Dataset metadata/version is recorded.
+- [x] Tier-A activation is the primary confirmed metric.
+- [x] Tier-B is reported separately.
+- [x] Tier-C is never called confirmed activation.
+- [x] Category-level recall exists.
+- [x] Cross-model runs support Haiku and Sonnet when available.
+- [x] Opus is supported when available.
+- [x] Primary-model sealed holdout precision is at least 0.95, or failure is retained.
+- [x] Primary-model sealed holdout recall is at least 0.80, or failure is retained.
+- [x] Critical-category recall is at least 0.75, or failure is retained.
+- [x] Failed activation gates are reported rather than massaged.
+
+### 13.5 Acceptance criteria — Team Mode runtime
+
+- [x] Exactly three runtime modes are explicit and Team Mode is conditional.
+- [x] `formal-spec-team-mode.md` exists as the detailed owner.
+- [x] Spec Compiler covers Section Inventory, requirements, acceptance, locks, dependencies, and reconciliation.
+- [x] Orphan requirement and orphan diff detection exist.
+- [x] Orchestrator owns source-of-truth reconciliation.
+- [x] One active writer per work unit exists.
+- [x] Independent QA is first-class and cannot silently rewrite acceptance.
+- [x] Specialists are conditional and respect Decision Locks.
+- [x] Finding Ledger includes `REJECTED_WITH_EVIDENCE` and no plain rejection.
+- [x] Two-Key Phase Closure prevents builder self-certification.
+- [x] Cross-session state/resume validates stale evidence.
+- [x] Fresh Release Auditor is unprimed by builder conclusions.
+- [x] `PHASE_VERIFIED != RELEASE_VERIFIED` remains explicit.
+
+### 13.6 Acceptance criteria — evaluation
+
+- [x] Large-spec fixture contains 15–25 requirements and at least four phases.
+- [x] Large-spec fixture contains High-risk work, a Decision Lock, a deferral, dependency chains, dirty user work, an unrelated pre-existing failure, and a cross-cutting release defect.
+- [x] Five required Team Mode scenarios exist with budgets, timeouts, transitions, evidence, and prohibited behavior.
+- [x] Large-spec live status and exact evidence/failure are retained.
+- [x] Requirement-change live status and selective invalidation evidence are retained.
+- [x] Cross-session live status uses at least two processes and is retained.
+- [x] Two-Key closure live status is retained.
+- [x] Fresh release-auditor live status is retained.
+- [ ] Requirement-change L4 has a recorded PASS.
+- [ ] Cross-session resume L4 has a recorded PASS.
+- [ ] Two-Key closure L4 has a recorded PASS.
+- [x] Fresh release-auditor L4 has a recorded PASS.
+- [x] No Team Mode PASS relies only on model prose.
+- [x] Raw traces are redacted and ignored by Git.
+- [x] Historical activation and L4 failures remain preserved.
+
+### 13.7 Acceptance criteria — static quality and release
+
+- [x] `SKILL.md` remains below 200 lines.
+- [x] Runtime exact tree is intentionally updated to 18 files.
+- [x] Team Mode structural policy IDs have correct owners.
+- [x] Heading/prose rewrites remain validator-safe; missing/misplaced/duplicate IDs fail.
+- [x] Runtime validation remains standard-library-only.
+- [x] Eval-only files stay outside the runtime package.
+- [x] CI includes Team Mode harness unit tests but no costly live run.
+- [x] Repository links, paths, placeholders, secrets, and report ignores validate.
+- [x] No runnable pseudo-security guard is added.
+- [ ] Hosted CI passes Linux/Windows × Python 3.10/3.14.
+- [ ] Local/remote `main` SHA equality is verified after push.
+
+### 13.8 Execution record
+
+| Gate | Status | Evidence |
+|---|---|---|
+| Baseline | PASS | Clean `main` at `953962f2228f4f962bfc9aadddbb9fa0cae4b735`; origin and hosted baseline CI verified. |
+| Activation architecture and cross-model evidence | PASS WITH LIMITATION | Sealed dataset `2026-09-20.1` was frozen before execution. Sonnet: TP=27, FP=0, TN=22, FN=5, precision=1.00, recall=0.8438; critical database/security/RLS/billing categories each 1.00. Haiku: TP=5, FP=0, TN=22, FN=24 over scored cases, recall=0.1724, plus three BLOCKED positives. A three-run Sonnet representative probe was stable at 3/3 positive activation and 0/3 negative/ambiguous activation. Reports and costs are retained in `docs/l4-evaluation.md`; no holdout-driven tuning occurred. |
+| Three-mode runtime and Team Mode policy | PASS | `SKILL.md` is 80 lines and dispatches exactly Adaptive Fast-Exit, Standard Engineering Mode, or conditional Formal Spec Team Mode. The 134-line detailed owner implements Spec Compiler, ledgers, locks, dependencies, independent QA, conditional specialists, Two-Key closure, selective STALE, resume, and fresh audit under stable policy IDs. |
+| Team Mode deterministic harness | PASS | Five realistic fixtures/scenarios, redacted isolated runner, independent repository/test/hash/Git scorer, and 12 harness/mutation tests pass. Fixture baselines fail as designed; large-spec contains 18 requirements across five phases. |
+| Team Mode live L4 | MIXED | Sonnet large-spec PASS at $0.947329 across three processes and release-auditor PASS at $0.176946. Requirement-change and cross-session retained FAIL because then-current scorers rejected equivalent structured evidence; aliases now have unit coverage but statuses were not rewritten. Final Haiku Two-Key attempt retained FAIL because the verified-finding/transition evidence contract was incomplete. Earlier scorer-defect failures also remain recorded. |
+| Static/hosted release audit | LOCAL PASS / HOSTED NOT RUN | All required local validators, 28 runtime mutation tests, 14 completion tests, 4 L4 scorer tests, 12 activation tests, 12 Team harness tests, compilation, repository validation, and `git diff --check` passed before final publication audit. Hosted matrix awaits push. |
+| Publication | NOT RUN | Commit/push/remote verification pending. |

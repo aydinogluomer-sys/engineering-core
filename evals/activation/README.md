@@ -2,13 +2,13 @@
 
 This maintainer-only harness measures routing separately from engineering behavior. It never enters the distributable `engineering-core/` tree and never installs a router or hook.
 
-Datasets are intentionally split into positive, negative, and ambiguous prompts. Smoke contains 8 positives, 4 negatives, and 2 ambiguous cases; full contains all cases. Ambiguous results are reported but excluded from binary confusion metrics.
+The tuning datasets are split into positive, negative, and ambiguous prompts. Smoke contains 8 positives, 4 negatives, and 2 ambiguous cases; full contains all tuning cases. The separately versioned holdout contains 32 positives, 22 negatives, and 12 ambiguous cases and was frozen before scoring. Ambiguous results are always excluded from binary confusion metrics.
 
 Evidence tiers:
 
-- Tier A: a structured runtime tool trace explicitly loads `engineering-core`;
-- Tier B: a valid `### Execution Summary` names `Policy: engineering-core`;
-- Tier C: several distinctive policy behaviors are visible, without a structured activation signal.
+- Tier A: a structured runtime tool trace explicitly loads `engineering-core`; this is the only tier used for confusion metrics.
+- Tier B: a valid `### Execution Summary` names `Policy: engineering-core`; reported separately.
+- Tier C: several distinctive policy behaviors are visible, without a structured activation signal; never counted as activation.
 
 Skill availability in a Claude init event is not activation. Explicit invocation and natural selection run as separate modes.
 
@@ -26,3 +26,14 @@ python evals/activation/run_activation_eval.py --mode natural --profile smoke --
 ```
 
 Candidate descriptions can be compared with `--description baseline|candidate1|candidate2|current`. Each case uses a disposable Git repository and process. Reports under `evals/activation/reports/` can contain model text and local paths, are ignored by Git, and must be inspected before sharing.
+
+Once the description is frozen, run the sealed holdout without candidate comparison:
+
+```bash
+python evals/activation/run_activation_eval.py --dataset holdout --mode natural --description current --model sonnet --per-case-budget 0.30 --total-budget 19.80
+python evals/activation/run_activation_eval.py --dataset holdout --mode natural --description current --model haiku --per-case-budget 0.20 --total-budget 13.20
+```
+
+Use `--repetitions 2` or `3` only when the total budget permits. Every repetition gets a new disposable repository and process. Do not revise the description from holdout outcomes; retain failures as evidence for a future versioned cycle.
+
+For a bounded stability probe, combine repeatable `--case ID` filters with `--repetitions 3`; filtering occurs before repetition expansion.

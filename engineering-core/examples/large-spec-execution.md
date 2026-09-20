@@ -1,117 +1,76 @@
-# Worked Example: Large Specification Execution
+# Worked Example: Formal Spec Team Mode
 
-## Request
+## Request and mode
 
-“Implement this 2,000-line `implementation.md` hardening plan.”
+“Execute this multi-phase implementation contract, preserve its Decision Locks, verify each phase independently, and complete the release audit.”
 
-## Classification
+The contract has several dependent phases, High-risk authorization work, explicit deferrals, and likely session boundaries. Choose Formal Spec Team Mode and keep the original `implementation.md` authoritative.
 
-- Task: formal specification / multi-phase implementation.
-- Risk: determined per work unit; overall process may contain High/Critical phases.
-- Horizon: long-running.
+## 1. Compile the specification
 
-## 1. Parse the contract
+Create a compact Section Inventory without copying the full spec:
 
-Extract:
+| Section | Class | Executable |
+|---|---|---|
+| S-001 | requirements / Phase A | yes |
+| S-002 | Decision Locks | attached constraint |
+| S-003 | Phase B acceptance | yes |
+| S-004 | deferred provider | no/current deferral |
+| S-005 | release gate | yes |
 
-- authoritative requirements;
-- acceptance criteria;
-- dependencies;
-- explicit deferrals;
-- Decision Locks/constraints;
-- validation gates.
+Extract `REQ-001` onward, acceptance criteria, dependencies, risk, intended evidence, and locks. Reconcile every section and acceptance criterion. An executable item without a work unit blocks planning; a work unit without requirement/correctness justification is scope drift.
 
-Do not treat background prose as a requirement unless the spec does.
+## 2. Build dependency-aware work units
 
-## 2. Build work units
+Example graph:
 
-Example ledger:
+```text
+WORK-001 model contract (REQ-001, REQ-002)
+  -> WORK-002 API consumer (REQ-003)
+  -> WORK-003 authorization boundary (REQ-004, High)
+WORK-002 + WORK-003
+  -> WORK-004 UI integration (REQ-005)
+all work units
+  -> release audit (REQ-006)
+```
 
-| Work unit | Depends on | Status | Required evidence |
-|---|---|---|---|
-| A: request identity invariant | none | VERIFIED | targeted tests + diff |
-| B: durable idempotency | A | IN_PROGRESS | replay/duplicate/failure tests |
-| C: privilege hardening | A | NOT_STARTED | role/negative-path tests |
-| D: release audit | B, C | NOT_STARTED | cross-cutting suite |
+Each unit names one writer, allowed files, forbidden changes, artifacts, checks, stop conditions, specialist need, and evidence. Parallelize only independent non-overlapping ownership; do not spawn agents to make the topology look busy.
 
-Use statuses:
+## 3. Execute with independent QA
 
-`NOT_STARTED`, `IN_PROGRESS`, `IMPLEMENTED`, `VERIFIED`, `STALE`, `BLOCKED`, `DEFERRED`, `NOT_APPLICABLE`.
-
-## 3. Execute in dependency order
-
-For each unit:
-
-1. inspect current code/state;
-2. confirm prerequisite evidence;
-3. implement the bounded change;
-4. run the unit's verification;
-5. update status;
-6. preserve unresolved findings.
-
-Do not mark `IMPLEMENTED` as `VERIFIED`.
-
-## 4. Phase closure
-
-Suppose Phase B passes all scoped invariants.
+The builder implements `WORK-003` and records current targeted tests. Independent QA receives the original authorization requirement, acceptance, lock, actual diff, and tests—not “the builder says it passes.” QA discovers that same-tenant success is covered but cross-tenant denial is missing.
 
 Record:
 
-`Phase B = VERIFIED`
-
-Do not translate that into:
-
-`Release = VERIFIED`
-
-A closed phase is not reopened for speculative edge-case hunting without new evidence.
-
-## 5. New evidence can reopen
-
-If the final release audit discovers a cross-cutting failure that invalidates a closed phase's assumptions, reopen the affected phase with the new evidence and reverify it.
-
-The same selective rule applies when the user changes requirements during execution. For example, after B is `VERIFIED`, the user changes B's retry contract and D's release criterion:
-
-| Work unit | Before | After comparison | Action |
+| Finding | Link | State | Evidence |
 |---|---|---|---|
-| A | VERIFIED | VERIFIED | Preserve its evidence; the identity invariant is unaffected. |
-| B | VERIFIED | STALE | Update implementation/tests and reverify the changed retry contract. |
-| C | NOT_STARTED | NOT_STARTED | Preserve status unless B's changed interface affects it. |
-| D | NOT_STARTED | NOT_STARTED / replanned | Update its criterion and dependencies before execution. |
+| FIND-001 | REQ-004 / WORK-003 | OPEN | no forbidden-path test |
 
-Do not erase A's valid evidence or leave B marked verified against an obsolete requirement. `PHASE_VERIFIED != RELEASE_VERIFIED` still applies.
+The phase is `IMPLEMENTED`, not `VERIFIED`. After the writer adds the correct negative test and QA independently observes it pass, mark `FIND-001` `VERIFIED_FIXED`.
 
-## 6. Final cross-cutting audit
+## 4. Two-Key closure
 
-Only after dependencies/phases are complete, evaluate:
+Close the Moderate/High phase only when both are current:
 
-- requirement coverage;
-- shared interfaces;
-- security boundaries;
-- migrations/data state;
-- replay/concurrency behavior;
-- integration tests;
-- release gates;
-- unresolved blockers.
+- implementation key: intended diff/artifacts and targeted checks;
+- independent key: QA acceptance mapping, negative paths, and required security specialist evidence.
 
-## 7. Long-horizon state
+Then mark `PHASE_VERIFIED`. This does not imply release verification.
 
-Persist only compact continuation-critical state in an approved task system/file:
+## 5. Requirement change and selective STALE
 
-- current phase/work unit;
-- verified invariants;
-- modified files;
-- current evidence;
-- blockers;
-- next action.
+After Phase A is verified, the user changes retry semantics in `REQ-005` and its release criterion. Preserve unaffected Phase A. Mark `REQ-005`, its work unit, downstream integration, and affected release evidence `STALE`; update acceptance and reverify that path. Do not restart unrelated verified work or keep obsolete green checks.
 
-On resume, verify repository state rather than trusting stale notes.
+## 6. Cross-session resume
+
+Before a session boundary, preserve compact state: repository/branch, original spec location, active requirements/locks, unit states, changed files, current evidence, findings, blocker, and next action. A fresh session verifies repository identity, worktree, original spec, and whether later edits made tests stale before continuing. It does not trust a note saying “tests passed.”
+
+## 7. Fresh release audit
+
+Give a fresh auditor the original spec, repository instructions, base-to-HEAD diff, coverage matrix, locks, phase evidence, Finding Ledger, deferrals, and release gates. Do not prime it with a success conclusion.
+
+The auditor scans source sections, orphan requirements/diffs, locks, specialists, Two-Key closures, findings, migrations, integration invariants, and stale evidence. If a cross-module API mismatch remains, verdict is `RELEASE_NOT_VERIFIED` or `RELEASE_BLOCKED` even though individual phases are green. After correction and current cross-cutting evidence, it may become `RELEASE_VERIFIED`.
 
 ## Completion
 
-A correct report distinguishes:
-
-- phases implemented;
-- phases verified;
-- release audit status;
-- blocked/deferred items;
-- checks not run.
+Use the universal `### Execution Summary` with relevant Team Mode fields: Policy, Mode, Risk, Status, Phases, Requirements, Verification, Findings, Deferred, Limitations, and Release Status. Keep `PHASE_VERIFIED != RELEASE_VERIFIED` explicit.

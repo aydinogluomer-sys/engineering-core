@@ -4,6 +4,8 @@ This harness tests observed Claude Code behavior, not just policy text. Every ca
 
 Explicit activation (`/engineering-core`) and natural activation are separate measurements. The six core behavior fixtures use explicit activation so policy behavior is not confused with model routing. Natural selection is measured by the separate positive/negative/ambiguous harness in [`activation/README.md`](activation/README.md).
 
+Formal Spec Team Mode uses a distinct five-scenario harness because its evidence contract includes requirement compilation, independent QA, Two-Key closure, cross-session state, selective invalidation, and fresh release audit. See [`formal-spec-team/README.md`](formal-spec-team/README.md).
+
 Run a cheap case first:
 
 ```bash

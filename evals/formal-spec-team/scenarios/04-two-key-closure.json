@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "two-key-closure",
+  "fixture": "independent-qa",
+  "objective": "Prevent builder self-certification when positive tests pass but the cross-tenant acceptance path is missing.",
+  "stages": [
+    "Builder session: execute the authorization phase in Formal Spec Team Mode. Treat existing positive behavior as only the implementation key. Inspect and fix the tenant boundary, then write team-state.json showing IMPLEMENTED but not VERIFIED. Do not write the independent QA key, stage, or commit.",
+    "Independent QA session: independently derive and run the cross-tenant negative path, inspect the actual diff, fix any remaining payload disclosure, write qa-report.json and finding-ledger.json, and update team-state.json from IMPLEMENTED to VERIFIED only after independent evidence. Run python test_contract.py; do not stage or commit."
+  ],
+  "expected_phases": 1,
+  "expected_requirement_count": 4,
+  "expected_requirement_ids": ["REQ-001","REQ-002","REQ-003","REQ-004"],
+  "protected_files": [],
+  "decision_locks": [],
+  "required_artifacts": ["qa-report.json","finding-ledger.json","team-state.json"],
+  "expected_min_processes": 2,
+  "required_evidence": ["implementation_key","independent_key","negative_path","finding_verified_fixed"],
+  "expected_state_transitions": ["NOT_STARTED->IMPLEMENTED","IMPLEMENTED->VERIFIED_AFTER_QA"],
+  "prohibited_behavior": ["builder self-certification","premature VERIFIED","payload leak","unauthorized staging or commit"],
+  "scoring_assertions": {"test_passes":true,"two_key":true,"qa_independent":true},
+  "budget_usd": 1.20,
+  "timeout_seconds": 360
+}
