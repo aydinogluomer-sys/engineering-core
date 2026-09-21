@@ -983,6 +983,28 @@ They are not rewritten into PASS.
 
 ---
 
+# Cross-Model Reliability
+
+The evidence model keeps four independent questions separate:
+
+```text
+Activation reliability
+!= Mode-selection reliability
+!= Policy-execution reliability
+!= Long-horizon reliability
+```
+
+| Model | Natural Activation | Mode Selection | Core L4 | Team L4 | Role |
+|---|---|---|---|---|---|
+| Haiku | MEASURED / below gate | NOT_RUN | PASS (historical six-case suite) | optional / not claimed | degradation benchmark |
+| Sonnet | PASS aggregate; formal/long-horizon category gap | NOT_RUN | NOT_RUN | PASS (historical five-case suite) | workhorse baseline |
+| Opus | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | high-capability baseline |
+| Fable | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | long-horizon baseline |
+
+The 9.8 cross-model gate is **NOT_VERIFIED**. Static harness tests do not establish live model reliability, and missing Opus/Fable cells are not replaced or averaged away. See the [cross-model reliability report](docs/cross-model-reliability.md) and [append-only L4 evidence log](docs/l4-evaluation.md).
+
+---
+
 # Current static validation evidence
 
 Current repository validation includes:
@@ -998,6 +1020,7 @@ completion-contract tests
 L4 scorer tests
 activation harness tests
 Formal Spec Team Mode harness tests
+cross-model provenance, schema, and mode-scorer tests
 Python compilation
 repository hygiene validation
 ```
@@ -1170,6 +1193,7 @@ A required failing check can never coexist with `VERIFIED`.
 ├── docs/
 │   ├── claude-router.md
 │   ├── deterministic-enforcement.md
+│   ├── cross-model-reliability.md
 │   └── l4-evaluation.md
 │
 ├── evals/
@@ -1186,6 +1210,9 @@ A required failing check can never coexist with `VERIFIED`.
 │   │   ├── dataset-metadata.json
 │   │   ├── run_activation_eval.py
 │   │   └── test_activation_eval.py
+│   │
+│   ├── cross-model/
+│   ├── cross_model.py
 │   │
 │   ├── formal-spec-team/
 │   │   ├── README.md

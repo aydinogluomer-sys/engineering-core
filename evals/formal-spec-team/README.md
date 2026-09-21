@@ -31,4 +31,8 @@ python evals/formal-spec-team/run_team_eval.py --case large-spec --model sonnet
 
 Independent QA and fresh release-auditor roles run in separate Claude processes where the scenario requires them. The scorer also requires an artifact to record selection of `Formal Spec Team Mode`; prose alone is insufficient.
 
-Every scenario uses its own configured budget and timeout unless stricter CLI caps are supplied. Automatic retries are disabled. Raw redacted reports are written under the ignored `reports/` directory.
+Every scenario uses its own configured budget and timeout unless stricter CLI caps are supplied. `--total-budget` reserves the whole run before each scenario, `--repetitions` creates independent disposable runs, and `--retries` is fixed at zero. An unobserved process cost consumes its reservation instead of failing open. Budget overflow is retained as `BLOCKED: budget`. Raw redacted reports are written under the ignored `reports/` directory.
+
+Reports use the shared v3 provenance contract. They distinguish the requested alias from the effective model observed in runtime events; missing or inconsistent evidence becomes `UNOBSERVED` with fallback ambiguity. Repetition summaries retain PASS, FAIL, BLOCKED, cost variance, and failure classes per scenario.
+
+The 9.8 matrix requires all five scenarios to pass independently on Sonnet, Opus, and Fable. Historical Sonnet PASS evidence is retained; Opus/Fable remain `NOT_RUN` until an explicitly budgeted live evaluation is performed.

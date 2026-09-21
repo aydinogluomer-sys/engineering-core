@@ -1177,3 +1177,67 @@ Phases A–C require two keys: implementation evidence plus independent requirem
 | REQ-008 | VERIFIED | Single Compact State owner and resume protocol; L3 110; independent duplicate audit PASS after correction. |
 | REQ-009 | VERIFIED | Frozen frontmatter description unchanged; 12 activation harness tests PASS; no uplift claimed. |
 | REQ-010 | VERIFIED | Full local command suite and independent contract/Decision-Lock re-audit PASS; no open Moderate+ finding. |
+
+## 15. Cross-Model Reliability v3 Execution Contract
+
+This section applies `implementation-v3-cross-model-reliability.md` to clean `main` at `f2d2d78d5f089f67477348859c2f34d9e4958699`. It is additive evidence/harness work: the three-mode runtime and frozen skill description remain unchanged unless non-holdout evidence justifies a generic correction. CMR-DL-01 through CMR-DL-15 remain locked. Live evidence is model-specific; unavailable models, budgets, timeouts, unknown effective models, and failed gates remain visible rather than being averaged or rewritten.
+
+### 15.1 Dependency-ordered phases
+
+1. **A — schema/provenance foundation:** model registry, shared report/provenance contract, failure taxonomy, and unit tests. Gate: schema/provenance tests pass.
+2. **B — bounded harnesses:** activation/core/Team provenance and budgets, repeated-run support, and mode-selection runner. Gate: harness unit tests pass without live reliability claims.
+3. **C — live evidence:** follow the bounded order for activation, mode, core, Team, and repeatability; stop on broken scorer or budget/model unavailability. Gate: every attempted run has retained model-specific evidence.
+4. **D — divergence/docs/release:** update all required docs, preserve historical failures, independently audit the contract, run static CI, push, and verify local/remote SHA.
+
+### 15.2 Acceptance criteria
+
+- [ ] **CMR-001:** Four-model activation reports are independent, Tier-A-controlled, category-aware, and preserve blocked/timeouts.
+- [ ] **CMR-002:** Role-aware activation gates and formal-spec/long-horizon category results are evaluated without aggregate masking.
+- [ ] **CMR-003:** Repeated activation samples and per-prompt rates exist for Sonnet, Opus, and Fable, or are honestly BLOCKED.
+- [x] **CMR-004:** Activation and Team reports distinguish requested/effective model, observation, fallback, and `UNOBSERVED`.
+- [ ] **CMR-005:** A bounded four-model mode-selection corpus/scorer measures Fast-Exit, Standard, Team, and abort behavior.
+- [ ] **CMR-006:** Core six-scenario results are retained per model with independent machine evidence.
+- [ ] **CMR-007:** Five Team scenarios are machine-scored independently for Sonnet, Opus, and Fable.
+- [ ] **CMR-008:** Representative long-horizon repetitions retain all PASS/FAIL/BLOCKED outcomes and classify causes.
+- [x] **CMR-009:** A model-specific divergence report covers routing, execution, cost, timeout, and completion behavior without averaging.
+- [x] **CMR-010:** Frozen description/holdout integrity remains intact; any tuning would require non-holdout before/after evidence.
+- [x] **CMR-011:** Versioned cross-model report schema contains required scenario fields; report writers redact recognized secret patterns and raw reports remain ignored.
+- [x] **CMR-012:** Harness CLIs expose explicit model/scenario controls and do not hide individual failures.
+- [x] **CMR-013:** Per-case/process and total budgets, timeouts, filters, cost recording, and zero automatic retries are enforced.
+- [x] **CMR-014:** Cross-model failure taxonomy distinguishes policy/model failures from CLI/fixture/scorer/environment failures.
+- [x] **CMR-015:** README, L4 log, and all eval READMEs expose evidence-backed per-model state and limitations.
+- [x] **CMR-016:** Hosted CI runs only static/unit provenance/schema/harness checks; no automatic live-model spend is introduced.
+- [x] **CMR-017:** Maintainer-only model registry records stable aliases, roles, and Team-gate obligations without runtime pollution.
+- [ ] **CMR-018:** Five varied formal/long-horizon prompts per strong model are measured or explicitly BLOCKED; no 9.8 claim is made below the gate.
+
+### 15.3 9.8 gate and execution record
+
+The 9.8 claim remains `NOT_VERIFIED` until every required strong-model activation, core, Team, provenance, and repeatability cell is evidenced. Static infrastructure completion does not satisfy live gates.
+
+| Phase | Status | Evidence |
+|---|---|---|
+| A — schema/provenance | PASS | Schema v2, exact four-role registry, provenance/fallback logic, canonical taxonomy, and 15 cross-model tests pass locally. Partial or inconsistent provenance remains `UNOBSERVED`. |
+| B — bounded harnesses | PASS | Activation, mode, core, and Team runners expose bounded budgets/timeouts/filters, zero retries, individual results, repeatability fields, and machine metrics; 14 activation, 6 core-scorer, and 14 Team tests pass locally. |
+| C — live evidence | BLOCKED | Full four-model live execution was not attempted because no explicit material-spend ceiling was authorized. Historical evidence is retained; every new required cell remains `NOT_RUN`, never inferred. |
+| D — docs/release | IN_PROGRESS | Required documentation and local validation pass; fresh independent re-audit reports no Moderate-or-higher finding. Push, hosted CI, and local/remote SHA equality remain pending. |
+
+| Requirement | Status | Evidence |
+|---|---|---|
+| CMR-001 | PARTIAL | Historical Haiku/Sonnet activation is retained; Opus/Fable and v3 normalized live reports are `NOT_RUN`. |
+| CMR-002 | PARTIAL | Role-aware gates and category calculations are implemented; missing strong-model live cells prevent verification. |
+| CMR-003 | PARTIAL | Per-prompt repetition rates use total-run denominators; historical Sonnet sampling is narrower than the required matrix. |
+| CMR-004 | VERIFIED | Shared provenance parser and schema cover activation, core, mode, and Team reports; partial/inconsistent observations regress to `UNOBSERVED`. |
+| CMR-005 | IMPLEMENTED_NOT_RUN | Ten-case corpus, isolated repository runner, scorer, aggregate accuracy/over-under-trigger/abort metrics, and budget controls pass static tests; no live model result exists. |
+| CMR-006 | PARTIAL | Historical Haiku six-scenario PASS exists; Sonnet/Opus/Fable are `NOT_RUN`. |
+| CMR-007 | PARTIAL | Historical Sonnet five-scenario PASS exists; Opus/Fable are `NOT_RUN`. |
+| CMR-008 | PARTIAL | Harnesses retain per-attempt statuses, policy variance, and cost range; required strong-model long-horizon repetitions are `NOT_RUN`. |
+| CMR-009 | VERIFIED | `docs/cross-model-reliability.md` retains per-model strengths, gaps, costs, timeouts, provenance uncertainty, and completion limitations without averaging. |
+| CMR-010 | VERIFIED | Frozen runtime description and sealed holdout are unchanged; holdout integrity tests pass. |
+| CMR-011 | VERIFIED | Schema v2 and validators require model/scenario provenance and controlled statuses; report writers redact recognized secret patterns and raw report trees are ignored. |
+| CMR-012 | VERIFIED | Four purpose-built CLIs expose model and scenario controls and retain per-result failures. |
+| CMR-013 | VERIFIED | All live runners enforce positive per-call/process and total budgets, timeout, filters, and zero retries; unknown Team cost consumes its reservation. |
+| CMR-014 | VERIFIED | Canonical taxonomy is validated; policy assertion failures and budget/model/permission/CLI/scorer failures remain distinct. |
+| CMR-015 | VERIFIED | README, eval READMEs, divergence report, and append-only L4 entry expose current model-specific evidence and limitations. |
+| CMR-016 | VERIFIED | Push CI adds static cross-model tests/compilation only and contains no live invocation. |
+| CMR-017 | VERIFIED | Maintainer-only registry contains exactly Haiku/Sonnet/Opus/Fable aliases, roles, family tokens, and Team obligations; runtime package is unchanged. |
+| CMR-018 | NOT_RUN | Five-prompt targeted corpus exists, but Sonnet/Opus/Fable live category runs were not executed; 9.8 remains `NOT_VERIFIED`. |

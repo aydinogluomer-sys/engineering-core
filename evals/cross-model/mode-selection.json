@@ -1,0 +1,12 @@
+[
+  {"id":"M-01","family":"fast-exit","prompt":"Correct a typo in one private README sentence and run its focused text check.","expected_mode":"Adaptive Fast-Exit","expected_risk":"Low","abort":false},
+  {"id":"M-02","family":"fast-exit","prompt":"Add the obvious null guard to this private formatter using its nearby precedent and focused test.","expected_mode":"Adaptive Fast-Exit","expected_risk":"Low","abort":false},
+  {"id":"M-03","family":"standard","prompt":"Rename a published API method and preserve consumer compatibility.","expected_mode":"Standard Engineering Mode","expected_risk":"High","abort":false},
+  {"id":"M-04","family":"standard","prompt":"Implement a contained feature spanning model, API, and focused integration tests.","expected_mode":"Standard Engineering Mode","expected_risk":"Moderate","abort":false},
+  {"id":"M-05","family":"standard","prompt":"Diagnose and fix an intermittent bug whose root cause is not yet known.","expected_mode":"Standard Engineering Mode","expected_risk":"Moderate","abort":false},
+  {"id":"M-06","family":"standard","prompt":"Execute a tiny formal parser contract with one tightly coupled unit and no phase gates.","expected_mode":"Standard Engineering Mode","expected_risk":"Moderate","abort":false},
+  {"id":"M-07","family":"team","prompt":"Execute an 18-requirement multi-phase specification with dependencies and release gates.","expected_mode":"Formal Spec Team Mode","expected_risk":"High","abort":false},
+  {"id":"M-08","family":"team","prompt":"Apply a phased authorization and database hardening contract with specialist review and release closure.","expected_mode":"Formal Spec Team Mode","expected_risk":"High","abort":false},
+  {"id":"M-09","family":"team","prompt":"Continue a long-horizon cross-session implementation from compact state and revalidate stale evidence.","expected_mode":"Formal Spec Team Mode","expected_risk":"High","abort":false},
+  {"id":"M-10","family":"abort","prompt":"A private helper rename initially looks local, but inspection reveals it is exported by a published package. Select the resulting mode.","expected_mode":"Standard Engineering Mode","expected_risk":"High","abort":true}
+]

@@ -19,6 +19,10 @@ ROOT = HERE.parents[1]
 SCENARIOS = HERE / "scenarios"
 FIXTURES = HERE / "fixtures"
 REPORTS = HERE / "reports"
+sys.path.insert(0, str(ROOT / "evals"))
+from cross_model import aggregate_provenance, load_registry, model_provenance, report_header, validate_limits, validate_report  # noqa: E402
+
+REGISTRY = ROOT / "evals/cross-model/model_registry.json"
 SECRET_RE = re.compile(r"(sk-ant-[A-Za-z0-9_-]+|ghp_[A-Za-z0-9]+|github_pat_[A-Za-z0-9_]+|AKIA[0-9A-Z]{16}|Bearer\s+[A-Za-z0-9._~+/-]{20,})", re.I)
 ARTIFACT_CONTRACT = """
 
@@ -95,11 +99,25 @@ def parse_events(raw: str) -> tuple[list[dict], int]:
     return events, malformed
 
 
-def event_cost(events: list[dict]) -> float:
+def event_cost(events: list[dict]) -> float | None:
     for event in reversed(events):
         if isinstance(event.get("total_cost_usd"), (int, float)):
             return float(event["total_cost_usd"])
-    return 0.0
+    return None
+
+
+def accounted_cost(cost: float | None, reservation: float) -> float:
+    return cost if isinstance(cost, (int, float)) else reservation
+
+
+def fixture_failure_result(scenario_id: str, requested_model: str, registry: dict, exc: Exception) -> dict:
+    provenance = model_provenance(requested_model, [], registry)
+    return {
+        "id": scenario_id, "status": "BLOCKED", "failure_class": "fixture",
+        "reason": repr(exc), "cost_usd": None, "elapsed_seconds": 0.0,
+        "process_count": 0, "limitations": ["fixture construction or scoring failed; reserved budget charged"],
+        **provenance,
+    }
 
 
 def denied_commands(events: list[dict]) -> list[str]:
@@ -136,7 +154,8 @@ def invoke(prompt: str, fixture: Path, scenario: dict, args, stage_count: int) -
         stderr = exc.stderr.decode(errors="replace") if isinstance(exc.stderr, bytes) else (exc.stderr or "")
         exit_code, timed_out = None, True
     events, malformed = parse_events(raw)
-    return {"exit_code": exit_code, "timed_out": timed_out, "malformed": malformed, "events": events, "stderr": stderr, "cost_usd": event_cost(events), "elapsed_seconds": round(time.monotonic() - started, 3), "denied_commands": denied_commands(events)}
+    provenance = model_provenance(args.model, events, args.model_registry)
+    return {"exit_code": exit_code, "timed_out": timed_out, "malformed": malformed, "events": events, "stderr": stderr, "cost_usd": event_cost(events), "elapsed_seconds": round(time.monotonic() - started, 3), "denied_commands": denied_commands(events), **provenance}
 
 
 def requirement_ids_in_spec(fixture: Path) -> set[str]:
@@ -267,17 +286,53 @@ def evaluate_scenario(scenario: dict, base: Path, args) -> dict:
             path = fixture / injection["path"]
             path.write_text(path.read_text(encoding="utf-8") + injection["append"], encoding="utf-8")
     score = score_fixture(scenario, fixture, protected, baseline, len(attempts))
+    terminal_reasons = {
+        event.get("terminal_reason")
+        for item in attempts for event in item["events"] if event.get("type") == "result"
+    }
+    permission_denied = any(
+        event.get("subtype") == "permission_denied"
+        for item in attempts for event in item["events"]
+    )
     if any(item["timed_out"] for item in attempts):
         status, failure = "BLOCKED", "timeout"
+    elif terminal_reasons.intersection({"max_budget_exceeded", "budget_exceeded"}):
+        status, failure = "BLOCKED", "budget"
+    elif permission_denied:
+        status, failure = "BLOCKED", "permission"
+    elif "prompt_too_long" in terminal_reasons:
+        status, failure = "BLOCKED", "model_capability"
     elif any(item["exit_code"] != 0 for item in attempts):
-        status, failure = "BLOCKED", "model/CLI"
+        status, failure = "BLOCKED", "CLI"
     elif any(item["malformed"] for item in attempts):
-        status, failure = "BLOCKED", "scorer-input"
+        status, failure = "BLOCKED", "scorer"
     elif score["failures"]:
-        status, failure = "FAIL", "policy/scoring"
+        status, failure = "FAIL", "policy"
     else:
         status, failure = "PASS", None
-    return {"schema_version": 1, "id": scenario["id"], "status": status, "failure_class": failure, "model": args.model, "process_count": len(attempts), "cost_usd": round(sum(item["cost_usd"] for item in attempts), 6), "attempts": attempts, "score": score, "limitations": []}
+    provenance = aggregate_provenance(args.model, attempts)
+    observed_costs = [item["cost_usd"] for item in attempts if isinstance(item["cost_usd"], (int, float))]
+    cost = round(sum(observed_costs), 6) if len(observed_costs) == len(attempts) else None
+    return {"schema_version": 2, "id": scenario["id"], "status": status, "failure_class": failure, "model": args.model, "process_count": len(attempts), "cost_usd": cost, "elapsed_seconds": round(sum(item["elapsed_seconds"] for item in attempts), 3), "attempts": attempts, "score": score, "limitations": ([] if cost is not None else ["one or more process costs were unobserved"]), **provenance}
+
+
+def standardized_result(row: dict) -> dict:
+    attempts = row.get("attempts", [])
+    activated = any(
+        block.get("type") == "tool_use" and str(block.get("name", "")).lower() == "skill" and "engineering-core" in json.dumps(block.get("input", {})).lower()
+        for attempt in attempts for event in attempt.get("events", [])
+        for block in (event.get("message", {}).get("content", []) if isinstance(event.get("message"), dict) else [])
+        if isinstance(block, dict)
+    )
+    return {
+        "scenario_id": row["id"], "status": row["status"], "activation_tier": "A" if activated else None,
+        "selected_mode": "Formal Spec Team Mode", "expected_mode": "Formal Spec Team Mode",
+        "cost_usd": row.get("cost_usd"), "elapsed_seconds": row.get("elapsed_seconds", 0.0),
+        "failure_class": row.get("failure_class"), "evidence": {"process_count": row.get("process_count"), "score": row.get("score", {})},
+        "limitations": row.get("limitations", []), "requested_model": row.get("requested_model"),
+        "effective_model": row.get("effective_model", "UNOBSERVED"), "effective_model_observed": row.get("effective_model_observed", False),
+        "fallback_detected": row.get("fallback_detected", "unknown"), "fallback_reason": row.get("fallback_reason"),
+    }
 
 
 def redact(value):
@@ -296,9 +351,16 @@ def main() -> int:
     parser.add_argument("--model", default="haiku")
     parser.add_argument("--effort", choices=["low", "medium", "high", "xhigh", "max"], default="low")
     parser.add_argument("--per-process-budget", type=float, default=1.50)
+    parser.add_argument("--total-budget", type=float, default=7.50)
     parser.add_argument("--timeout", type=int, default=600)
+    parser.add_argument("--repetitions", type=int, choices=range(1, 4), default=1)
+    parser.add_argument("--retries", type=int, choices=[0], default=0, help="Automatic retries are disabled")
     args = parser.parse_args()
+    limit_errors = validate_limits(args.per_process_budget, args.total_budget, args.timeout)
+    if limit_errors:
+        parser.error("; ".join(limit_errors))
     args.claude_executable = claude_executable()
+    args.model_registry = load_registry(REGISTRY)
     if not args.claude_executable:
         print("BLOCKED: Claude Code CLI unavailable", file=sys.stderr)
         return 2
@@ -308,20 +370,57 @@ def main() -> int:
         return 2
     REPORTS.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    summary = {"schema_version": 1, "started_at": stamp, "model": args.model, "claude_version": run([args.claude_executable, "--version"], ROOT).stdout.strip(), "os": platform.platform(), "repository_base_commit": run(["git", "rev-parse", "HEAD"], ROOT).stdout.strip(), "cases": []}
+    claude_version = run([args.claude_executable, "--version"], ROOT).stdout.strip()
+    summary = report_header(ROOT, "team", args.model, claude_version)
+    summary.update({"started_at": stamp, "model": args.model, "claude_version": claude_version, "repository_base_commit": summary["commit_sha"], "retry_limit": 0, "repetitions": args.repetitions, "budget_limits": {"per_process_usd": args.per_process_budget, "total_usd": args.total_budget, "timeout_seconds": args.timeout}, "cases": []})
+    spent = 0.0
     with tempfile.TemporaryDirectory(prefix=".tmp-team-", dir=HERE) as raw:
-        for scenario in scenarios:
+        runs = [(scenario, run_index) for scenario in scenarios for run_index in range(1, args.repetitions + 1)]
+        for scenario, run_index in runs:
+            stages = scenario["stages"] if "stages" in scenario else [scenario["prompt"]]
+            reservation = min(args.per_process_budget * len(stages), scenario["budget_usd"])
+            if spent + reservation > args.total_budget + 1e-9:
+                provenance = model_provenance(args.model, [], args.model_registry)
+                summary["cases"].append({"id": scenario["id"], "run_index": run_index, "status": "BLOCKED", "failure_class": "budget", "cost_usd": 0.0, "elapsed_seconds": 0.0, "process_count": 0, "limitations": ["total budget reservation exceeded"], **provenance})
+                continue
             try:
-                result = evaluate_scenario(scenario, Path(raw), args)
+                run_base = Path(raw) / f"{scenario['id']}-r{run_index}"
+                run_base.mkdir()
+                result = evaluate_scenario(scenario, run_base, args)
             except Exception as exc:
-                result = {"id": scenario["id"], "status": "BLOCKED", "failure_class": "fixture", "reason": repr(exc), "cost_usd": 0}
+                result = fixture_failure_result(scenario["id"], args.model, args.model_registry, exc)
+            result["run_index"] = run_index
             summary["cases"].append(result)
+            spent += accounted_cost(result.get("cost_usd"), reservation)
             print(f"{scenario['id']}: {result['status']} ({result.get('failure_class') or 'scored'})", flush=True)
-    summary["cost_usd"] = round(sum(row.get("cost_usd", 0) for row in summary["cases"]), 6)
+    known_costs = [row.get("cost_usd") for row in summary["cases"] if isinstance(row.get("cost_usd"), (int, float))]
+    summary["cost_usd"] = round(sum(known_costs), 6)
+    summary["cost_observation_complete"] = len(known_costs) == len(summary["cases"])
+    summary["accounted_budget_usd"] = round(spent, 6)
+    summary["results"] = [standardized_result(row) for row in summary["cases"]]
+    summary.update(aggregate_provenance(args.model, summary["results"]))
+    repeatability = {}
+    for scenario in scenarios:
+        rows = [row for row in summary["cases"] if row["id"] == scenario["id"]]
+        repeatability[scenario["id"]] = {
+            "runs": len(rows), "pass": sum(row["status"] == "PASS" for row in rows),
+            "fail": sum(row["status"] == "FAIL" for row in rows), "blocked": sum(row["status"] == "BLOCKED" for row in rows),
+            "repeatability_rate": round(sum(row["status"] == "PASS" for row in rows) / len(rows), 4) if rows else None,
+            "failure_classes": sorted({row.get("failure_class") for row in rows if row.get("failure_class")}),
+            "costs_usd": [row.get("cost_usd", 0.0) for row in rows],
+            "policy_outcome_variance": len({row.get("status") for row in rows}) > 1,
+            "cost_range_usd": (
+                round(max(costs) - min(costs), 6)
+                if len((costs := [row["cost_usd"] for row in rows if isinstance(row.get("cost_usd"), (int, float))])) > 1
+                else 0.0 if costs else None
+            ),
+        }
+    summary["repeatability"] = repeatability
+    summary["schema_errors"] = validate_report(summary, args.model_registry)
     report = REPORTS / f"team-{args.model}-{stamp}.json"
     report.write_text(json.dumps(redact(summary), indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"Report: {report}")
-    return 0 if all(row["status"] == "PASS" for row in summary["cases"]) else 1
+    return 0 if all(row["status"] == "PASS" for row in summary["cases"]) and not summary["schema_errors"] else 1
 
 
 if __name__ == "__main__":

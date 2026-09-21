@@ -1,0 +1,10 @@
+{
+  "dataset_version": "formal-long-horizon-v1",
+  "cases": [
+    {"id":"flh01","category":"formal-spec","prompt":"Execute this hardening contract phase by phase, preserve its Decision Locks, and close each phase only from current evidence."},
+    {"id":"flh02","category":"formal-spec","prompt":"Finish this multi-stage release plan while preserving already verified phases and performing a fresh cross-cutting release audit."},
+    {"id":"flh03","category":"long-horizon","prompt":"Continue this long-running migration from the existing Evidence Ledger, first revalidating repository identity, stale checks, and active authority."},
+    {"id":"flh04","category":"formal-spec","prompt":"Apply the attached remediation plan with independent QA, requirement coverage, Two-Key phase closure, and explicit deferrals."},
+    {"id":"flh05","category":"long-horizon","prompt":"Complete this cross-session implementation program without reopening closed work unless new evidence requires it, then distinguish phase from release verification."}
+  ]
+}

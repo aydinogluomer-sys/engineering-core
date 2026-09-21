@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from run_activation_eval import DESCRIPTIONS, activation_evidence, load_dataset, metrics, set_description
+from run_activation_eval import DESCRIPTIONS, activation_evidence, load_dataset, metrics, repetition_metrics, set_description
 
 
 class ActivationEvalTests(unittest.TestCase):
@@ -94,6 +94,19 @@ class ActivationEvalTests(unittest.TestCase):
         self.assertEqual(result["confirmed_recall"], 0.3333)
         self.assertEqual(result["named_policy_recall"], 0.6667)
         self.assertEqual((result["tier_a_count"], result["tier_b_count"], result["tier_c_count"]), (1, 1, 1))
+
+    def test_targeted_formal_long_horizon_dataset_is_separate(self):
+        rows = load_dataset("full", "targeted")
+        self.assertGreaterEqual(len(rows), 5)
+        self.assertTrue(all(row["expected"] == "positive" for row in rows))
+        self.assertTrue({"formal-spec", "long-horizon"} <= {row["category"] for row in rows})
+
+    def test_repetition_metrics_expose_activation_rate(self):
+        rows = [
+            {"id": "x", "status": "SCORED", "evidence_tier": "A"},
+            {"id": "x", "status": "BLOCKED", "evidence_tier": None},
+        ]
+        self.assertEqual(repetition_metrics(rows)["x"]["activation_rate"], 0.5)
 
 
 if __name__ == "__main__":

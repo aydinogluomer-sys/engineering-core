@@ -14,3 +14,5 @@ evals/activation/reports/
 evals/activation/.tmp-activation-*/
 evals/formal-spec-team/reports/
 evals/formal-spec-team/.tmp-team-*/
+evals/cross-model/reports/
+evals/cross-model/.tmp-mode-*/

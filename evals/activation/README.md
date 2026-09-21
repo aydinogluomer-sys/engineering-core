@@ -37,3 +37,13 @@ python evals/activation/run_activation_eval.py --dataset holdout --mode natural 
 Use `--repetitions 2` or `3` only when the total budget permits. Every repetition gets a new disposable repository and process. Do not revise the description from holdout outcomes; retain failures as evidence for a future versioned cycle.
 
 For a bounded stability probe, combine repeatable `--case ID` filters with `--repetitions 3`; filtering occurs before repetition expansion.
+
+The v3 report adds per-prompt activation rates, explicit positive/negative/ambiguous and blocked/timeout counts, role-aware gates, and requested/effective-model provenance. Repetition activation rate is Tier-A runs divided by all runs, including blocked attempts. Tier A alone controls confirmed confusion matrices. Missing runtime model identity is `UNOBSERVED`; it is never inferred from the requested alias.
+
+Formal-spec and long-horizon closure uses a separate versioned corpus so the frozen holdout is not edited or reused as a tuning set:
+
+```bash
+python evals/activation/run_activation_eval.py --dataset targeted --mode natural --model sonnet --repetitions 3 --per-case-budget 0.30 --total-budget 13.50
+```
+
+Run Opus and Fable separately with their own explicit total budgets. A budget overflow remains `BLOCKED: budget` and is excluded from the confusion matrix; it is not converted into TP or FN.

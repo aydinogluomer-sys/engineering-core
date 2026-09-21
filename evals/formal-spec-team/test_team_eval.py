@@ -9,10 +9,22 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from run_team_eval import FIXTURES, load_scenarios, requirement_ids_in_spec, score_fixture  # noqa: E402
+from run_team_eval import FIXTURES, REGISTRY, accounted_cost, event_cost, fixture_failure_result, load_scenarios, requirement_ids_in_spec, score_fixture  # noqa: E402
+sys.path.insert(0, str(HERE.parents[1]))
+from cross_model import load_registry  # noqa: E402
 
 
 class TeamEvalTests(unittest.TestCase):
+    def test_unobserved_cost_consumes_reservation(self):
+        self.assertIsNone(event_cost([]))
+        self.assertEqual(accounted_cost(None, 1.5), 1.5)
+        self.assertEqual(accounted_cost(0.4, 1.5), 0.4)
+
+    def test_fixture_exception_cost_is_unobserved_and_reserved(self):
+        result = fixture_failure_result("large-spec", "sonnet", load_registry(REGISTRY), RuntimeError("boom"))
+        self.assertIsNone(result["cost_usd"])
+        self.assertEqual(accounted_cost(result["cost_usd"], 1.5), 1.5)
+
     def copy_fixture(self, name: str) -> Path:
         raw = Path(tempfile.mkdtemp(prefix="team-eval-test-"))
         self.addCleanup(lambda: shutil.rmtree(raw, ignore_errors=True))

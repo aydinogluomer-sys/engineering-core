@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "engineering-core cross-model report",
+  "type": "object",
+  "required": [
+    "schema_version", "commit_sha", "dataset_version", "claude_code_version",
+    "os", "requested_model", "effective_model", "effective_model_observed",
+    "fallback_detected", "fallback_reason", "evaluation_type", "results"
+  ],
+  "properties": {
+    "schema_version": {"const": 2},
+    "requested_model": {"enum": ["haiku", "sonnet", "opus", "fable"]},
+    "effective_model": {"type": "string"},
+    "effective_model_observed": {"type": "boolean"},
+    "fallback_detected": {"enum": [true, false, "unknown"]},
+    "fallback_reason": {"type": ["string", "null"]},
+    "evaluation_type": {"enum": ["activation", "mode_selection", "core", "team"]},
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "scenario_id", "status", "activation_tier", "selected_mode",
+          "expected_mode", "cost_usd", "elapsed_seconds", "failure_class",
+          "evidence", "limitations", "requested_model", "effective_model",
+          "effective_model_observed", "fallback_detected", "fallback_reason"
+        ],
+        "properties": {
+          "scenario_id": {"type": "string"},
+          "status": {"enum": ["PASS", "FAIL", "BLOCKED", "NOT_RUN"]},
+          "activation_tier": {"enum": ["A", "B", "C", null]},
+          "selected_mode": {"type": ["string", "null"]},
+          "expected_mode": {"type": ["string", "null"]},
+          "cost_usd": {"type": ["number", "null"], "minimum": 0},
+          "elapsed_seconds": {"type": "number", "minimum": 0},
+          "failure_class": {"type": ["string", "null"]},
+          "evidence": {"type": "object"},
+          "limitations": {"type": "array", "items": {"type": "string"}},
+          "requested_model": {"enum": ["haiku", "sonnet", "opus", "fable"]},
+          "effective_model": {"type": "string"},
+          "effective_model_observed": {"type": "boolean"},
+          "fallback_detected": {"enum": [true, false, "unknown"]},
+          "fallback_reason": {"type": ["string", "null"]}
+        }
+      }
+    }
+  }
+}

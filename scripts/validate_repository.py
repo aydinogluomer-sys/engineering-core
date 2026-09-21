@@ -10,6 +10,7 @@ REQUIRED = {
     ".github/workflows/validate.yml",
     "README.md",
     "docs/deterministic-enforcement.md",
+    "docs/cross-model-reliability.md",
     "docs/l4-evaluation.md",
     "evals/README.md",
     "evals/activation/README.md",
@@ -23,6 +24,14 @@ REQUIRED = {
     "evals/activation/run_activation_eval.py",
     "evals/activation/test_activation_eval.py",
     "evals/completion_summary.py",
+    "evals/cross_model.py",
+    "evals/cross-model/README.md",
+    "evals/cross-model/formal-long-horizon.json",
+    "evals/cross-model/mode-selection.json",
+    "evals/cross-model/model_registry.json",
+    "evals/cross-model/run_mode_selection_eval.py",
+    "evals/cross-model/schemas/cross-model-report.schema.json",
+    "evals/cross-model/test_cross_model_matrix.py",
     "evals/formal-spec-team/README.md",
     "evals/formal-spec-team/run_team_eval.py",
     "evals/formal-spec-team/test_team_eval.py",
@@ -75,6 +84,10 @@ def validate(root: Path) -> list[str]:
             errors.append("static CI must not depend on repository secrets")
         if "evals/formal-spec-team/test_team_eval.py" not in text:
             errors.append("CI workflow does not run Formal Spec Team Mode harness tests")
+        if "evals/cross-model/test_cross_model_matrix.py" not in text:
+            errors.append("CI workflow does not run cross-model provenance/schema tests")
+        if "run_mode_selection_eval.py --model" in text or "run_activation_eval.py --mode" in text:
+            errors.append("push CI must not run live cross-model evaluations")
 
     found: set[str] = set()
     for path in sorted((root / "evals/scenarios").glob("*.json")):
@@ -155,9 +168,29 @@ def validate(root: Path) -> list[str]:
         errors.append("Formal Spec Team Mode fixtures do not match the required set")
 
     gitignore = (root / ".gitignore").read_text(encoding="utf-8") if (root / ".gitignore").exists() else ""
-    for marker in ("evals/activation/reports/", "evals/formal-spec-team/reports/"):
+    for marker in ("evals/activation/reports/", "evals/formal-spec-team/reports/", "evals/cross-model/reports/"):
         if marker not in gitignore:
             errors.append(f"raw report directory is not ignored: {marker}")
+
+    registry = root / "evals/cross-model/model_registry.json"
+    if registry.exists():
+        try:
+            models = json.loads(registry.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"invalid cross-model registry: {exc}")
+        else:
+            if set(models) != {"haiku", "sonnet", "opus", "fable"}:
+                errors.append("cross-model registry must contain exactly four stable aliases")
+
+    mode_dataset = root / "evals/cross-model/mode-selection.json"
+    if mode_dataset.exists():
+        try:
+            modes = json.loads(mode_dataset.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"invalid mode-selection dataset: {exc}")
+        else:
+            if not isinstance(modes, list) or len(modes) < 10 or not any(row.get("abort") for row in modes if isinstance(row, dict)):
+                errors.append("mode-selection dataset must contain ten cases including Fast-Exit abort")
 
     for path in (root / "evals").rglob("*"):
         if path.is_file() and "reports" not in path.parts:

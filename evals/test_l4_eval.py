@@ -2,10 +2,16 @@ from __future__ import annotations
 
 import unittest
 
-from run_l4_eval import denied_commands, final_model_text, runs_required_test, successful_commands
+from run_l4_eval import classify_failure, denied_commands, final_model_text, runs_required_test, successful_commands
 
 
 class L4ScorerEventTests(unittest.TestCase):
+    def test_independent_assertion_failure_is_policy_failure(self):
+        self.assertEqual(classify_failure(0, "", False, ["independent fixture test failed"], []), "policy")
+
+    def test_malformed_stream_is_scorer_failure(self):
+        self.assertEqual(classify_failure(0, "", False, ["1 non-JSON output line(s)"], [], malformed=1), "scorer")
+
     def test_denied_and_later_successful_commands_are_distinct(self):
         events = [
             {"message":{"content":[{"type":"tool_use","name":"Bash","id":"a","input":{"command":"cd repo && python test_contract.py"}}]}},

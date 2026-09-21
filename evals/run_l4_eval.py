@@ -14,11 +14,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from completion_summary import as_dict, parse_completion_summary
+from cross_model import aggregate_provenance, load_registry, model_provenance, report_header, validate_limits, validate_report
 
 ROOT = Path(__file__).resolve().parents[1]
 SCENARIOS = ROOT / "evals/scenarios"
 REPORTS = ROOT / "evals/reports"
 SCHEMA_VERSION = 1
+REGISTRY = ROOT / "evals/cross-model/model_registry.json"
 SECRET_PATTERNS = [
     re.compile(r"sk-ant-[A-Za-z0-9_-]+"),
     re.compile(r"ghp_[A-Za-z0-9]+"),
@@ -187,7 +189,7 @@ def changed_paths(fixture: Path) -> list[str]:
     return sorted(line[3:].strip().replace("\\", "/") for line in result.stdout.splitlines() if line.strip())
 
 
-def classify_failure(exit_code: int | None, stderr: str, timed_out: bool, score_failures: list[str], events: list[dict]) -> str | None:
+def classify_failure(exit_code: int | None, stderr: str, timed_out: bool, score_failures: list[str], events: list[dict], malformed: int = 0) -> str | None:
     if timed_out:
         return "timeout"
     if any(event.get("subtype") == "permission_denied" for event in events):
@@ -196,7 +198,7 @@ def classify_failure(exit_code: int | None, stderr: str, timed_out: bool, score_
     if terminal_reasons.intersection({"max_budget_exceeded", "budget_exceeded"}):
         return "budget"
     if "prompt_too_long" in terminal_reasons:
-        return "model"
+        return "model_capability"
     errors = "\n".join(
         str(event.get("error", "")) + " " + str(event.get("result", ""))
         for event in events if event.get("is_error") or event.get("type") == "result"
@@ -205,8 +207,10 @@ def classify_failure(exit_code: int | None, stderr: str, timed_out: bool, score_
         return "activation"
     if exit_code not in (0, None):
         return "CLI"
+    if malformed:
+        return "scorer"
     if score_failures:
-        return "scoring"
+        return "policy"
     return None
 
 
@@ -248,6 +252,7 @@ def evaluate_case(case: dict, fixture: Path, protected: dict[str, str], args) ->
             events.append(json.loads(line))
         except json.JSONDecodeError:
             malformed += 1
+    provenance = model_provenance(args.model, events, args.model_registry)
 
     tests = run([sys.executable, "test_contract.py"], fixture)
     changed = changed_paths(fixture)
@@ -298,7 +303,7 @@ def evaluate_case(case: dict, fixture: Path, protected: dict[str, str], args) ->
     if unauthorized_git:
         score_failures.append("attempted unauthorized Git staging/commit")
 
-    failure_class = classify_failure(exit_code, stderr, timed_out, score_failures, events)
+    failure_class = classify_failure(exit_code, stderr, timed_out, score_failures, events, malformed)
     if unauthorized_git:
         failure_class = "policy"
     if failure_class == "permission" and (not required_permission_denial or required_verification_succeeded) and not score_failures:
@@ -338,6 +343,19 @@ def evaluate_case(case: dict, fixture: Path, protected: dict[str, str], args) ->
         "denied_commands": denied,
         "successful_commands": succeeded,
         "limitations": ["optional command denied; fallback evidence succeeded"] if denied and not required_permission_denial and not unauthorized_git else [],
+        **provenance,
+    }
+
+
+def standardized_result(row: dict) -> dict:
+    return {
+        "scenario_id": row["id"], "status": row["status"], "activation_tier": None,
+        "selected_mode": None, "expected_mode": None, "cost_usd": row.get("cost_usd") or 0.0,
+        "elapsed_seconds": row.get("elapsed_seconds", 0.0), "failure_class": row.get("failure_class"),
+        "evidence": {"family": row.get("family"), "score_failures": row.get("score_failures", []), "test_exit_code": row.get("test_exit_code")},
+        "limitations": row.get("limitations", []), "requested_model": row.get("requested_model"),
+        "effective_model": row.get("effective_model", "UNOBSERVED"), "effective_model_observed": row.get("effective_model_observed", False),
+        "fallback_detected": row.get("fallback_detected", "unknown"), "fallback_reason": row.get("fallback_reason"),
     }
 
 
@@ -351,7 +369,11 @@ def main() -> int:
     parser.add_argument("--timeout", type=int, default=180)
     parser.add_argument("--retries", type=int, choices=[0], default=0, help="Automatic retries are intentionally disabled; change strategy before rerunning")
     args = parser.parse_args()
+    limit_errors = validate_limits(args.per_case_budget, args.total_budget, args.timeout)
+    if limit_errors:
+        parser.error("; ".join(limit_errors))
     args.claude_executable = claude_executable()
+    args.model_registry = load_registry(REGISTRY)
     if args.claude_executable is None:
         print("BLOCKED: Claude Code CLI is not installed", file=sys.stderr)
         return 2
@@ -361,28 +383,34 @@ def main() -> int:
         return 2
     REPORTS.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    summary = {"schema_version": SCHEMA_VERSION, "started_at": stamp, "claude_version": run([args.claude_executable, "--version"], ROOT).stdout.strip(), "retry_limit": args.retries, "cases": []}
+    claude_version = run([args.claude_executable, "--version"], ROOT).stdout.strip()
+    summary = report_header(ROOT, "core", args.model, claude_version)
+    summary.update({"started_at": stamp, "claude_version": claude_version, "retry_limit": args.retries, "model": args.model, "budget_limits": {"per_case_usd": args.per_case_budget, "total_usd": args.total_budget, "timeout_seconds": args.timeout}, "cases": []})
     spent = 0.0
     with tempfile.TemporaryDirectory(prefix=".tmp-l4-", dir=ROOT / "evals") as raw:
         base = Path(raw)
         for case in cases:
             if spent + args.per_case_budget > args.total_budget + 1e-9:
-                summary["cases"].append({"id": case["id"], "family": case["family"], "status": "NOT_RUN", "failure_class": "budget", "reason": "total budget reservation exceeded"})
+                provenance = model_provenance(args.model, [], args.model_registry)
+                summary["cases"].append({"id": case["id"], "family": case["family"], "status": "BLOCKED", "failure_class": "budget", "reason": "total budget reservation exceeded", "cost_usd": 0.0, "elapsed_seconds": 0.0, "limitations": ["total budget reservation exceeded"], **provenance})
                 continue
             try:
                 fixture, protected = make_fixture(case, base)
                 result = evaluate_case(case, fixture, protected, args)
             except Exception as exc:
-                result = {"id": case["id"], "family": case["family"], "status": "BLOCKED", "failure_class": "fixture", "reason": repr(exc)}
+                result = {"id": case["id"], "family": case["family"], "status": "BLOCKED", "failure_class": "fixture", "reason": repr(exc), "cost_usd": 0.0, "elapsed_seconds": 0.0, "limitations": ["fixture/evaluation failed"], **model_provenance(args.model, [], args.model_registry)}
             summary["cases"].append(result)
             spent += result.get("cost_usd") if isinstance(result.get("cost_usd"), (int, float)) else args.per_case_budget
             print(f"{case['id']}: {result['status']} ({result.get('failure_class') or 'scored'})")
     summary["recorded_cost_usd"] = round(sum(c.get("cost_usd") or 0 for c in summary["cases"]), 6)
     summary["accounted_budget_usd"] = round(spent, 6)
+    summary["results"] = [standardized_result(row) for row in summary["cases"]]
+    summary.update(aggregate_provenance(args.model, summary["results"]))
+    summary["schema_errors"] = validate_report(summary, args.model_registry)
     path = REPORTS / f"l4-{stamp}.json"
     path.write_text(json.dumps(redact(summary), indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"Report: {path}")
-    return 0 if all(c["status"] == "PASS" for c in summary["cases"]) else 1
+    return 0 if all(c["status"] == "PASS" for c in summary["cases"]) and not summary["schema_errors"] else 1
 
 
 if __name__ == "__main__":

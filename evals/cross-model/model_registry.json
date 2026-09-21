@@ -1,0 +1,22 @@
+{
+  "haiku": {
+    "role": "degradation",
+    "team_gate_required": false,
+    "expected_model_tokens": ["haiku"]
+  },
+  "sonnet": {
+    "role": "workhorse",
+    "team_gate_required": true,
+    "expected_model_tokens": ["sonnet"]
+  },
+  "opus": {
+    "role": "high-capability",
+    "team_gate_required": true,
+    "expected_model_tokens": ["opus"]
+  },
+  "fable": {
+    "role": "long-horizon",
+    "team_gate_required": true,
+    "expected_model_tokens": ["fable"]
+  }
+}

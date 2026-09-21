@@ -108,3 +108,11 @@ Every scenario used a disposable Git repository, explicit `/engineering-core`, p
 Earlier Two-Key attempts (`$0.307547`, `$0.315626`, and `$0.229088`) remain retained as FAIL: the first two exposed overly narrow transition scoring, while the third lacked the required verified-finding/transition evidence. Earlier requirement-change/cross-session failures (`$0.150897`, `$0.320563`, `$0.140508`, `$0.346663`, `$0.278680`, and `$0.286095`) exposed structured-evidence alias assumptions before the final PASS runs. Mutation tests were added and the artifact prompts were clarified rather than rewriting historical statuses or tuning runtime policy to a scorer defect.
 
 All five Team Mode scenarios now have a final machine-scored PASS while their failed history remains visible. Together with the primary-model activation and static/hosted evidence, this satisfies the contract's 9.7 evidence gate. It does not establish 9.8 or L5 reliability: Haiku natural recall remains weak, and the full Team suite has not been reproduced across multiple strong coding models or a longitudinal workload.
+
+## Cross-model reliability v3 infrastructure — 2026-09-21
+
+The v3 harness layer adds a four-role model registry, standardized schema, requested/effective-model provenance, fallback ambiguity, canonical failure classes, role-aware activation gates, per-prompt repetition rates, a separate five-prompt formal/long-horizon corpus, a ten-case mode-selection scorer, Team repetition summaries, and explicit total budgets. The frozen runtime description and sealed holdout are unchanged.
+
+No new live model run is claimed by this infrastructure entry. Mode selection is `NOT_RUN` for all four models; Opus/Fable activation, core, Team, and repeatability are `NOT_RUN`; Sonnet core remains `NOT_RUN`. The 9.8 gate is therefore `NOT_VERIFIED`. A full first-pass matrix can consume material model budget before repetitions, so live execution requires an explicit bounded spend decision. Static/unit success must not be cited as cross-model behavior.
+
+See [`cross-model-reliability.md`](cross-model-reliability.md) for the current per-model divergence and limitations.
