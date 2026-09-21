@@ -1219,7 +1219,7 @@ The 9.8 claim remains `NOT_VERIFIED` until every required strong-model activatio
 | A — schema/provenance | PASS | Schema v2, exact four-role registry, provenance/fallback logic, canonical taxonomy, and 15 cross-model tests pass locally. Partial or inconsistent provenance remains `UNOBSERVED`. |
 | B — bounded harnesses | PASS | Activation, mode, core, and Team runners expose bounded budgets/timeouts/filters, zero retries, individual results, repeatability fields, and machine metrics; 14 activation, 6 core-scorer, and 14 Team tests pass locally. |
 | C — live evidence | BLOCKED | Full four-model live execution was not attempted because no explicit material-spend ceiling was authorized. Historical evidence is retained; every new required cell remains `NOT_RUN`, never inferred. |
-| D — docs/release | IN_PROGRESS | Required documentation and local validation pass; fresh independent re-audit reports no Moderate-or-higher finding. Push, hosted CI, and local/remote SHA equality remain pending. |
+| D — docs/release | PASS | Required docs and local validation pass; fresh independent re-audit found no Moderate-or-higher issue. Implementation commit `c3d5823b66d8a37d66ffedbbc1fe3a0393760bd3` was pushed to `main`, all four hosted static-validation jobs passed in run `35573051764`, and local/remote SHAs were equal before this closure record. |
 
 | Requirement | Status | Evidence |
 |---|---|---|
