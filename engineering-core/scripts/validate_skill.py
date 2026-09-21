@@ -9,6 +9,7 @@ from typing import Iterable
 EXPECTED = {
     "SKILL.md",
     "examples/small-fix.md",
+    "examples/fast-exit-abort.md",
     "examples/normal-feature.md",
     "examples/high-risk-change.md",
     "examples/removal-task.md",

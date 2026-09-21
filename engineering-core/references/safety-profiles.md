@@ -167,6 +167,21 @@ External messages, deployments, destructive API calls, production writes, creden
 
 Authorization to draft, review, validate, or stage does not imply authorization to send, deploy, mutate, rotate, or delete.
 
-## 9. Team Mode specialist routing
+## 9. Safety anti-pattern catalog
+
+These are investigation leads, not substitute evidence and not deterministic prevention. Confirm each against current code, configuration, tests, and runtime behavior, then apply the linked profile.
+
+| Anti-pattern | Why it is dangerous | Correction / profile |
+|---|---|---|
+| Client-side authorization boundary | Hidden UI can be bypassed and does not protect data or effects | Enforce at the trusted server/data boundary; apply the authentication/authorization profile |
+| Fail-open auth or billing | Errors, missing state, or provider failure can grant access or money effects | Default deny or hold safely; apply the authentication/authorization or billing profile and test failure paths |
+| Production test bypass | An environment switch is not a security control; a bypass can escape fixtures and disable real controls | Isolate test-only behavior structurally; apply the destructive/production profile and prove production config cannot enable it |
+| Unstable idempotency identity | A key derived from random, retry-specific, or otherwise unstable input turns one logical effect into duplicates | Derive a stable operation identity; apply the billing/side-effect profile and test replay/out-of-order behavior |
+| Empty database migration “success” | A no-op file or green runner on an empty database does not prove existing production-row or locking behavior | Apply the database profile; inspect SQL and resulting schema/data/locks |
+| Secret in diff, log, or prompt | Copies persist across Git history, telemetry, and model/tool output | Apply secret safety: redact, remove from artifacts, and handle rotation as a separate authorized action |
+| Broad Git clean or reset | It can destroy unrelated user work | Apply Git/user-work safety: inspect status and use explicit recoverable paths |
+| “Prepare production” treated as deploy authority | Readiness work is not authorization for an external mutation | Apply the external-side-effect profile; separate preparation from deployment and verify exact authority |
+
+## 10. Team Mode specialist routing
 
 Team Mode uses these profiles rather than copying domain manuals: auth/tenant/RLS loads security and, when persistence policy is involved, database expertise; billing/webhook/idempotency loads security plus state-transition expertise; migrations load database expertise; external irreversible actions remain Critical and require exact authority. A specialist may challenge implementation with evidence but cannot supersede current user Decision Locks or the core's authorization/completion rules.

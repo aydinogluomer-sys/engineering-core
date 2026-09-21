@@ -43,7 +43,9 @@ For Team Mode, load [references/formal-spec-team-mode.md](references/formal-spec
 ## Adaptive Fast-Exit
 <!-- policy-id: fast-path -->
 
-Use only after initial inspection supports Low risk: the change is local, reversible, unambiguous, follows a known precedent, has a narrow proof, and has no design uncertainty or trust, authorization, sensitive-data, billing, concurrency, production, irreversible, shared-public-contract, schema, or dependency consequence. Line count and file count never establish eligibility. Eligible work may include a localized bug, null guard, local refactor/rename, clear test correction, dead helper, safe config/type fix, or deterministic rule.
+Enter only when **all** are evidenced: Low risk; local and reversible behavior; an unambiguous one-sentence contract; a known local precedent or trivial pattern; a narrow focused proof; no risk hard floor; and no trust, authorization, sensitive-data, billing, concurrency, production, irreversible, shared/public-contract, schema, dependency, or design consequence. Line count and file count never establish eligibility.
+
+Abort immediately when **any one** appears: a dependency or shared interface; root cause remains uncertain after one bounded localization attempt; a focused check behaves unexpectedly; scope no longer fits the one-sentence contract; a risk hard floor applies; or auth, secret, production, or external-side-effect behavior appears. Preserve evidence, reclassify, and continue in Standard or Team Mode. Do not remain in Fast-Exit merely to minimize tool calls.
 
 1. Discover applicable instructions; inspect only the target and nearest context/precedent/test.
 2. Hold the internal contract: intended behavior, allowed surface, proof.
@@ -51,7 +53,7 @@ Use only after initial inspection supports Low risk: the change is local, revers
 4. Run focused verification and inspect status/diff.
 5. Emit the compact Execution Summary below.
 
-By default, do not create a plan artifact or ledger, delegate to a subagent, invoke a graph/map provider, scan broadly, run the full suite, or request fresh review. Before opening another reference or broad file, ask which unresolved decision it will change. Exit Fast-Exit immediately if a dependency/shared contract appears, root cause is uncertain, a check behaves unexpectedly, scope expands, or any risk condition rises; continue through the normal lifecycle with gathered evidence. Do not optimize for raw tool-call count.
+By default, do not create a plan artifact or Evidence Ledger, delegate to a subagent, invoke a graph/map provider, scan broadly, run the full suite, or request fresh review. Before opening another reference or broad file, ask which unresolved decision it will change.
 
 ## Route to detail
 
@@ -64,7 +66,7 @@ By default, do not create a plan artifact or ledger, delegate to a subagent, inv
 - For subagents, specialist skills, independent review, parallel work, compaction, resume, or long-running tasks, read [references/collaboration-state.md](references/collaboration-state.md).
 - Only when an integration is present or explicitly requested, read [references/integrations.md](references/integrations.md). External tools are optional; use native fallbacks when absent.
 - Maintainers evaluating or revising this skill should read [references/source-synthesis.md](references/source-synthesis.md) and [references/evaluation-scenarios.md](references/evaluation-scenarios.md).
-- When a concrete illustration would reduce ambiguity, load only the matching example: [small fix](examples/small-fix.md), [normal feature](examples/normal-feature.md), [high-risk change](examples/high-risk-change.md), [removal task](examples/removal-task.md), or [large specification execution](examples/large-spec-execution.md).
+- When a concrete illustration would reduce ambiguity, load only the matching example: [small fix](examples/small-fix.md), [Fast-Exit abort](examples/fast-exit-abort.md), [normal feature](examples/normal-feature.md), [high-risk change](examples/high-risk-change.md), [removal task](examples/removal-task.md), or [large specification execution](examples/large-spec-execution.md).
 
 ## Safety boundary
 

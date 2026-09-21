@@ -76,17 +76,15 @@ Do not read the entire repository by default.
 
 ## 4. Evidence ledger for non-trivial work
 
-Track, internally or in an approved task/state system:
+For Moderate-or-higher work, or whenever competing hypotheses exist, track this canonical ledger internally or in an approved task/state system. Adaptive Fast-Exit is exempt.
 
-| Field | Purpose |
-|---|---|
-| Requirement / hypothesis | What must be true or what is being tested |
-| Evidence | Source/test/config/runtime observation |
-| Confidence / open question | What remains uncertain |
-| Affected surface | Files/interfaces/data/state |
-| Planned proof | How correctness will be checked |
+| ID | Hypothesis / Requirement | Evidence (source/test/config/runtime) | Confidence | Open question | Affected surface | Planned proof |
+|---|---|---|---|---|---|---|
+| E-001 | Concise claim | Exact observation and location | low / medium / high | Unresolved decision, or `None` | Files/interfaces/data/state | Check that would prove or falsify it |
 
-Use the ledger to prevent repeated searches and unsupported assertions.
+Optional maps, graphs, summaries, and agent reports create leads for ledger rows; they do not become evidence until verified against current source, configuration, tests, or runtime behavior. Use the ledger to prevent repeated searches and unsupported assertions.
+
+**Adjacent stop rule:** stop acquiring context when the change contract, likely impact, and verification strategy are supported. Before reading another broad surface, name the decision, risk question, or proof gap that the evidence could change; if none exists, stop.
 
 ## 5. Impact tracing
 
@@ -156,10 +154,6 @@ When a source generator exists:
 
 Do not manually patch generated output unless the repository explicitly treats it as authoritative.
 
-## 9. Context-stop rule
+## 9. Context-stop reminder
 
-Before reading another broad surface, ask:
-
-“What decision will this evidence change?”
-
-If there is no concrete decision, risk question, or verification gap, stop expanding context.
+Apply the adjacent stop rule from the Evidence Ledger section throughout impact tracing and provider use.

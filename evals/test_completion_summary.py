@@ -23,6 +23,11 @@ class CompletionSummaryTests(unittest.TestCase):
         parsed, errors = parse_completion_summary(report())
         self.assertEqual(errors, [])
         self.assertEqual(parsed.status, "VERIFIED")
+        summary = report().split("### Execution Summary", 1)[1]
+        self.assertEqual(
+            [line.split(":", 1)[0] for line in summary.splitlines() if ":" in line],
+            ["Policy", "Risk", "Status", "Changed", "Verified", "Limitations"],
+        )
 
     def test_moderate_with_relevant_section(self):
         parsed, errors = parse_completion_summary(report("Moderate") + "\n#### Negative Paths\nInvalid input rejected.\n")

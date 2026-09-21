@@ -23,6 +23,11 @@ Classification determines whether implementation is authorized, not only which w
 
 Use the highest applicable risk dimension. Diff size is not a risk proxy.
 
+1. Start from the apparent task class in section 1.
+2. Evaluate only dimensions supported by observed source, configuration, runtime, specification, or user-authority evidence; do not score hypothetical possibilities.
+3. Apply every evidenced hard floor below.
+4. Classify from the highest remaining applicable dimension and record the evidence that controls the decision.
+
 | Level | Typical properties |
 |---|---|
 | Low | Localized, reversible, familiar pattern, narrow blast radius |
@@ -41,9 +46,19 @@ Assess at least:
 - external side effects;
 - verification difficulty.
 
-A one-line authorization, RLS, billing-state, webhook, or production-config change can be High or Critical.
+For each dimension, write the observed fact and its consequence rather than assigning a label from intuition. Many low-weight or hypothetical uncertainties do not automatically produce High; concrete blast radius and trust boundaries control. Diff size never lowers a floor.
 
-Risk may escalate whenever new evidence changes scope or consequence. Downward reclassification requires evidence.
+| Observed surface | Minimum risk |
+|---|---|
+| Authentication, authorization, RLS, or tenant isolation | High |
+| Billing, payment, credit, or money-moving webhook behavior | High |
+| Production mutation, irreversible external action, or credential exposure | Critical |
+| Schema migration affecting production rows or locking behavior | High |
+| Shared public or published API contract | High |
+
+Example: removing one server-side authorization check is still High risk even when it is a one-line deletion. The trusted boundary, not patch size, controls.
+
+Risk may escalate whenever new evidence changes scope or consequence. Downward reclassification requires positive evidence—for example, source and call-site inspection proving that an apparent shared interface is private, local, reversible, and covered by a focused test. Mere absence of discovered problems is not enough.
 
 ## 3. Adaptive workflow
 

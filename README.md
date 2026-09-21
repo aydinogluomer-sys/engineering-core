@@ -107,6 +107,7 @@ This progressive-disclosure design reduces default context cost, avoids repeatin
     ├── SKILL.md
     ├── examples/
     │   ├── small-fix.md
+    │   ├── fast-exit-abort.md
     │   ├── normal-feature.md
     │   ├── high-risk-change.md
     │   ├── removal-task.md
@@ -311,9 +312,11 @@ See [`engineering-core/references/source-synthesis.md`](engineering-core/referen
 
 ## Current evidence status
 
-- L1 structural validation: locally exercised; see the current execution record in [`implementation.md`](implementation.md).
-- L2 policy lint: locally exercised; static heuristics are not behavioral proof.
-- L3 adversarial policy traces: documented and audited; see the execution record for current counts/results.
+- Maturity v2: REQ-001 through REQ-010 are locally verified and independently re-audited with no open Moderate-or-higher finding; see the evidence-backed execution record in [`implementation.md`](implementation.md).
+- Runtime footprint: 19 files, with the progressive-disclosure `SKILL.md` entrypoint at 82 lines.
+- L1 structural validation: the exact tree, links, frontmatter, line ceiling, imports, and inactive-integration boundary pass.
+- L2 policy lint: the validator and all 28 mutation tests pass; static heuristics remain structural evidence rather than behavioral proof.
+- L3 adversarial policy traces: 113 documented cases now include operational risk floors, Fast-Exit abort, Team non-entry, compact summaries, safety anti-patterns, Evidence Ledger inclusion/exemption, and stale-state resume behavior.
 - L4 live Claude Code behavior: see [`docs/l4-evaluation.md`](docs/l4-evaluation.md); cases are never implied by a green static validator.
 - L5 longitudinal field evidence: not established.
 

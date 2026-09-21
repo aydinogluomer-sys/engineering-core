@@ -6,6 +6,10 @@
 
 The contract has several dependent phases, High-risk authorization work, explicit deferrals, and likely session boundaries. Choose Formal Spec Team Mode and keep the original `implementation.md` authoritative.
 
+### Counterexample: a formal file that stays Standard
+
+A five-item contract describing one tightly coupled parser correction, one module, one focused test, and no specialist, phase/release, or resume need stays Standard Engineering Mode. The formal document is authority, not automatic Team eligibility. If the parser change is consequential it may still be Moderate/High and therefore not Fast-Exit, but one bounded writer and proportional review are enough.
+
 ## 1. Compile the specification
 
 Create a compact Section Inventory without copying the full spec:
@@ -63,7 +67,7 @@ After Phase A is verified, the user changes retry semantics in `REQ-005` and its
 
 ## 6. Cross-session resume
 
-Before a session boundary, preserve compact state: repository/branch, original spec location, active requirements/locks, unit states, changed files, current evidence, findings, blocker, and next action. A fresh session verifies repository identity, worktree, original spec, and whether later edits made tests stale before continuing. It does not trust a note saying “tests passed.”
+Before a session boundary, use the single [canonical Compact State schema](../references/collaboration-state.md#6-canonical-compact-state); do not reproduce a second field list here. A fresh session follows that reference's resume protocol and does not trust a note saying “tests passed.”
 
 ## 7. Fresh release audit
 

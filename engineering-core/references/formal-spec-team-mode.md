@@ -5,7 +5,11 @@ Read this reference only when a formal specification is large, multi-phase, long
 ## 1. Entry and source of truth
 <!-- policy-id: formal-spec-team-mode -->
 
-Enter from Standard Engineering Mode when evidence shows orchestration will reduce requirement loss or unsupported closure. A formal file alone is not sufficient: a small, clear contract may remain Standard Mode. High/Critical units, many executable requirements, several dependent phases, multiple domains, compaction/resume risk, or explicit phase/release gates are strong signals; no numeric threshold decides alone.
+Enter from Standard Engineering Mode when evidence shows orchestration will reduce requirement loss or unsupported closure.
+
+Positive signals include a large executable requirement surface, several dependent phases, multiple specialist domains, High/Critical work units, likely compaction/resume, distinct phase and release gates, or enough independent work that bounded ownership reduces integration risk. No numeric threshold decides alone.
+
+Negative signals include a small clear contract with few executable requirements and no phase gates, one tightly coupled bounded feature, one domain, a short verification path, no material resume risk, and no independent-QA value beyond ordinary diff review. A formal file alone is never sufficient. Such work stays Standard Mode even when it is consequential and therefore ineligible for Fast-Exit.
 
 Authority order:
 
@@ -116,9 +120,7 @@ With either key missing, the phase may be `IMPLEMENTED` but not `VERIFIED`. A pu
 
 On changed requirements, capture current authority, stop obsolete work safely, identify affected requirements/units/dependents, preserve unaffected `VERIFIED` work, mark only invalidated evidence `STALE`, update acceptance/locks/risk, replan the affected path, and rerun necessary integration/release evidence. Do not restart everything or preserve obsolete green checks.
 
-For compaction/session boundaries, use an existing task system or approved compact state—never create repository artifacts by default. Record repository identity, branch/commit, objective, active requirements/locks, phase/unit states, modified files, current evidence, findings/blockers, next action, and stop conditions. Avoid chronological transcripts.
-
-On resume, verify repository identity, branch, worktree, key files, original spec, and compact state; compare later edits with recorded tests; invalidate stale evidence; reconcile requirement changes; reclassify risk; then continue. A note saying “tests passed” is never current proof by itself. A genuine cross-session evaluation uses a fresh process/context.
+For compaction/session boundaries, use the single canonical Compact State and resume protocol in `collaboration-state.md`. Do not create a repository artifact by default or duplicate a competing field list here. A genuine cross-session evaluation uses a fresh process/context.
 
 ## 9. Fresh Release Auditor
 <!-- policy-id: fresh-release-auditor -->

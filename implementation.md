@@ -1067,3 +1067,113 @@ This append-only contract implements `engineering-core` 9.7–9.8 orchestration 
 | Team Mode live L4 | PASS WITH RETAINED FAILURES | Final machine-scored PASS runs: Sonnet large-spec $0.947329 / three processes; requirement-change $0.221538; cross-session $0.276508 / two processes; Two-Key $0.324171 / two processes; release auditor $0.176946. Earlier scorer-defect and incomplete-evidence FAIL reports remain documented and ignored rather than rewritten. |
 | Static/hosted release audit | PASS | All required local validators, 28 runtime mutation tests, 14 completion tests, 4 L4 scorer tests, 12 activation tests, 12 Team harness tests, compilation, repository validation, and `git diff --check` passed. Hosted run `35524061605` passed Ubuntu/Windows × Python 3.10/3.14 for final Team-evidence commit `7716b3ab8cb542677e6c6a4ac09bc8e62e01db14`. |
 | Publication | PASS | Final Team-evidence commit `7716b3ab8cb542677e6c6a4ac09bc8e62e01db14` was pushed to `origin/main`; local HEAD and `refs/heads/main` were equal before this separate publication-record commit. Final record-commit equality is verified externally after its push. |
+
+## 14. Maturity Hardening v2 Execution Contract
+
+This contract applies `implementation-v2-maturity.md` as a targeted hardening layer over the existing three-mode, repository-agnostic runtime at clean `main` commit `ebf7cbb9547c52438b495845665a1cd5e6eae8e5`. The attached contract's older maturity estimate does not replace the repository's current evidence; its ten requirements are implemented without rebuilding the runtime, weakening Team Mode, changing the layer boundary, or tuning against the sealed activation holdout.
+
+### 14.1 Baseline and Decision Locks
+
+- Branch/HEAD: `main` / `ebf7cbb9547c52438b495845665a1cd5e6eae8e5`; worktree clean; origin is `aydinogluomer-sys/engineering-core`.
+- Runtime package: 18 files; `SKILL.md` 80 lines; no active hook, MCP, plugin, or required external provider ships in the package.
+- Hosted baseline: run `35524113285` passed Linux/Windows × Python 3.10/3.14.
+- DL-01 through DL-10 remain locked. Diff/file count is not risk; hard floors control; builders cannot self-close Moderate+ Team phases; `IMPLEMENTED != VERIFIED`; behavioral policy is not deterministic enforcement; external intelligence remains optional; the original spec remains authoritative; Low summaries retain six fields; anti-patterns remain evidence leads; activation guidance remains non-deterministic.
+
+### 14.2 Dependency-ordered phases
+
+1. **Phase A — risk and mode eligibility:** implement operational hard floors, evidenced weighting, Fast-Exit entry/abort criteria, and Team Mode positive/negative signals. Gate: L2 validator and L3 traces pass; no behavioral overclaim.
+2. **Phase B — completion and safety:** harden Low summary compression and add eight repository-agnostic safety anti-patterns. Gate: completion tests and policy lint pass.
+3. **Phase C — reusable state and negative examples:** add `fast-exit-abort.md`, canonical Evidence Ledger, and a single canonical Compact State template with resume verification. Gate: exact-tree/link validation and adversarial read-through pass.
+4. **Phase D — activation/package closure:** preserve the frozen discriminating description, optional integrations, runtime budget, validators, and documentation. Gate: all required local commands, independent contract review, and full diff audit pass.
+
+Phases A–C require two keys: implementation evidence plus independent requirement/Decision-Lock review. Phase D may close after no Moderate+ semantic finding remains and all release evidence is current.
+
+### 14.3 Acceptance criteria
+
+#### REQ-001 — operational risk weighting
+
+- [x] An evidenced risk decision procedure and hard-floor table exist in the risk-model owner.
+- [x] Auth/RLS/tenant, billing/money webhooks, production/irreversible/credential, production-row migration, and shared public contract floors are present.
+- [x] Diff size cannot override a hard floor; accumulated hypothetical uncertainty does not itself create High.
+- [x] Downward reclassification requires positive evidence; a one-line removed auth check example remains High/Critical.
+
+#### REQ-002 — Fast-Exit eligibility and abort
+
+- [x] Co-located all-must-hold entry criteria and any-one abort triggers exist.
+- [x] Fast-Exit still avoids plans, ledgers, agents, broad scans/suites, and fresh review by default.
+- [x] Tool-call minimization cannot justify remaining in Fast-Exit.
+- [x] `fast-exit-abort.md` demonstrates reclassification without a Fast-Exit completion claim.
+
+#### REQ-003 — Team Mode eligibility
+
+- [x] Positive and negative Team Mode signals are explicit; a formal file alone is insufficient.
+- [x] Small/tightly coupled formal work returns or remains in Standard Mode without losing valid evidence.
+- [x] Consequential Team units cannot use Fast-Exit because their patch is small.
+- [x] Moderate+ Two-Key and Fresh Release Auditor obligations remain unchanged.
+
+#### REQ-004 — compact Low completion
+
+- [x] Low output requires exactly the six controlled fields and omits empty optional sections by default.
+- [x] Low `Changed` and `Verified` may each be one short line.
+- [x] Moderate+ may add only relevant non-empty optional sections.
+- [x] Risk/Status vocabularies, pre-send check, and `Limitations: None` remain intact; no JSON/YAML protocol is introduced.
+
+#### REQ-005 — safety anti-patterns
+
+- [x] At least eight named anti-patterns each state why they fail and the correction posture.
+- [x] The catalog covers client-only auth, fail-open auth/billing, production test bypass, unstable idempotency, empty-DB migration proof, debug secret exposure, broad Git cleanup, and deploy-authority confusion.
+- [x] Entries route to existing profiles without duplicating them; anti-patterns are leads governed by repository evidence.
+- [x] No deterministic prevention claim is added.
+
+#### REQ-006 — negative examples
+
+- [x] `fast-exit-abort.md` exists, is linked conditionally from `SKILL.md`, and shows abort/reclassification/valid summary.
+- [x] A small formal contract remaining in Standard Mode is illustrated without weakening Team Mode.
+- [x] Examples remain optional progressive-disclosure aids.
+
+#### REQ-007 — Evidence Ledger
+
+- [x] One canonical copyable table contains ID, hypothesis/requirement, grounded evidence, confidence, open question, affected surface, and planned proof.
+- [x] It is for Moderate+ or competing hypotheses; Fast-Exit is exempt by default.
+- [x] Maps/tool summaries remain leads and the adjacent stop rule ends context growth when no decision-relevant question remains.
+
+#### REQ-008 — Compact State
+
+- [x] Exactly one canonical template contains repository identity/branch/HEAD, authority, active requirements/locks, phase/unit states, modified paths, evidence pointers, findings/blockers, and next action/stop conditions.
+- [x] Existing task systems are preferred and repository state files are not created by default.
+- [x] Resume verifies repository/spec/state before trust and marks changed evidence `STALE` for re-proof.
+
+#### REQ-009 — activation signal hygiene
+
+- [x] Frontmatter remains discriminating, exclusion-aware, model-invocable, and independent of project routers.
+- [x] No sealed-holdout-driven description change or unproven activation uplift is claimed.
+- [x] Existing activation harness tests remain green and L4 metrics remain unchanged evidence.
+
+#### REQ-010 — package consistency
+
+- [x] Runtime validator, mutation tests, relevant eval tests, repository validator, compilation, and diff checks pass.
+- [x] Runtime exact tree and line budget are intentionally updated; every link resolves and no scaffold/secret is present.
+- [x] No layer-boundary violation, required external tool, active hook/config, or deterministic-safety claim is introduced.
+- [x] Independent review maps REQ-001…010 and DL-01…10 to the final diff with no open Moderate+ finding.
+
+### 14.4 Execution record
+
+| Phase | Status | Evidence |
+|---|---|---|
+| A — risk and modes | PASS | Risk procedure/floors, co-located Fast-Exit eligibility/abort rules, and Team positive/negative routing are present; scenarios 94–100 trace the boundary; independent re-audit found no open issue. |
+| B — completion and safety | PASS | Low shape test and scenarios 101/111 pass static review; eight anti-patterns plus scenarios 102–109 map failures to existing profiles. |
+| C — templates/examples | PASS | New abort example, one Evidence Ledger, and one canonical Compact State validate; scenarios 110/112/113 exercise resume and ledger inclusion/exemption; duplicate-template review finding was fixed and re-audited. |
+| D — closure | PASS | `SKILL.md` is 82 lines and the runtime tree is 19 files. Structural/repository validation, 28 mutation tests, 14 completion tests, 4 L4 scorer tests, 12 activation tests, 12 Team harness tests, Python compilation, and `git diff --check` passed after final edits. |
+
+| Requirement | Status | Evidence |
+|---|---|---|
+| REQ-001 | VERIFIED | `operating-model.md` risk procedure/table; L3 94–96; validator PASS. |
+| REQ-002 | VERIFIED | `SKILL.md` co-located entry/abort rules; `fast-exit-abort.md`; L3 97–98. |
+| REQ-003 | VERIFIED | `formal-spec-team-mode.md` positive/negative routing; small-formal example; L3 99–100. |
+| REQ-004 | VERIFIED | Six-field compact policy; Low unit assertion; L3 101/111; 14 completion tests PASS. |
+| REQ-005 | VERIFIED | Eight-entry anti-pattern catalog; L3 102–109; policy validator PASS. |
+| REQ-006 | VERIFIED | Linked negative example and Standard counterexample; package link validation PASS. |
+| REQ-007 | VERIFIED | Canonical seven-column Evidence Ledger plus adjacent stop rule; L3 112–113. |
+| REQ-008 | VERIFIED | Single Compact State owner and resume protocol; L3 110; independent duplicate audit PASS after correction. |
+| REQ-009 | VERIFIED | Frozen frontmatter description unchanged; 12 activation harness tests PASS; no uplift claimed. |
+| REQ-010 | VERIFIED | Full local command suite and independent contract/Decision-Lock re-audit PASS; no open Moderate+ finding. |

@@ -82,24 +82,24 @@ The specialist may override generic implementation mechanics in its domain, whil
 
 Escalate consequential unresolved conflict.
 
-## 6. Long-horizon state
+## 6. Canonical Compact State
 
 For work likely to span context compaction, sessions, or many gates, maintain compact state using an existing task system or a user/repository-approved file.
 
 Do not create repository artifacts by default.
 
-Record only what is needed to continue reliably:
+Use this single canonical schema; other references point here rather than inventing variants.
 
-- objective;
-- current authorization boundary;
-- decisions;
-- important evidence/invariants;
-- modified files;
-- commands/results;
-- open failures/blockers;
-- current work unit;
-- next action;
-- stop conditions.
+| Field | Required content |
+|---|---|
+| Repository identity / branch / HEAD | Repository, active branch, and observed commit |
+| Objective / current authority | Current requested outcome and exact authorization boundary |
+| Active requirements / Decision Locks | IDs, constraints, and current states |
+| Phase / work-unit state | Current phase, unit ownership, dependencies, and status |
+| Modified paths | Paths only; no copied source or secrets |
+| Evidence pointers | Commands/results and source/test/config/runtime locations |
+| Findings / blockers | Open findings, failures, ambiguity, and stale evidence |
+| Next action / stop conditions | One next action and conditions that require pause or reclassification |
 
 Avoid unbounded chronological logs.
 
@@ -108,11 +108,11 @@ Avoid unbounded chronological logs.
 On resume:
 
 1. read the compact state;
-2. verify repository identity and worktree status;
-3. verify that key files/state still match;
-4. treat old test passes as stale after relevant edits;
-5. reclassify risk if scope/state changed;
-6. continue from the latest supported state.
+2. verify repository identity, branch, HEAD, and worktree status;
+3. reopen the original specification and verify key files against the recorded state;
+4. compare later edits with evidence pointers and mark affected evidence stale;
+5. reconcile changed requirements and reclassify risk when scope/state changed;
+6. continue only from the latest supported state.
 
 Never assume a state record is current merely because it exists.
 

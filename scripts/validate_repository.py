@@ -97,9 +97,9 @@ def validate(root: Path) -> list[str]:
             match = re.match(r"\|\s*(\d+)\s*\|", line)
             if match:
                 rows[int(match.group(1))] = line
-        expected_ids = set(range(38, 94))
+        expected_ids = set(range(38, 114))
         if expected_ids - rows.keys():
-            errors.append("adversarial L3 matrices must contain scenarios 38-93")
+            errors.append("adversarial L3 matrices must contain scenarios 38-113")
         for number in expected_ids.intersection(rows):
             if len(rows[number].split("|")) < 10 or "L3" not in rows[number]:
                 errors.append(f"L3 scenario {number} lacks required trace fields/evidence level")
