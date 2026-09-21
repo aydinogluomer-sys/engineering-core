@@ -1,669 +1,1211 @@
-engineering-core
+# engineering-core
 
+[![Validate](https://github.com/aydinogluomer-sys/engineering-core/actions/workflows/validate.yml/badge.svg)](https://github.com/aydinogluomer-sys/engineering-core/actions/workflows/validate.yml)
+![Claude Code](https://img.shields.io/badge/Claude%20Code-engineering%20orchestration-black)
+![Policy](https://img.shields.io/badge/policy-risk--adaptive-black)
+![License](https://img.shields.io/badge/license-MIT-black)
+
+## Engineering orchestration for Claude Code
 
+`engineering-core` is a repository-agnostic engineering operating system for Claude Code.
+
+It does more than tell an agent how to write code.
 
+It gives substantial engineering work a disciplined execution model for:
+
+**risk classification → repository investigation → requirement compilation → bounded implementation → independent QA → specialist review → evidence-based phase closure → cross-session continuity → fresh release audit**
 
-Risk-adaptive engineering operating policy for Claude Code.
+Small changes stay small.
+
+Normal engineering work gets proportionate investigation and verification.
 
-engineering-core gives Claude Code a reusable software-engineering discipline for implementation, debugging, refactoring, removal, testing, review, migration, and release work.
+Large `implementation.md` specifications can escalate into a structured engineering-team workflow with explicit ownership, requirement traceability, independent evidence, and release gates.
 
-It does not force every task through the same heavyweight workflow. It scales investigation, planning, safety, testing, review, and coordination to the actual consequence and uncertainty of the change.
+> **The objective is not maximum process.
+> The objective is the minimum engineering ceremony required by the consequence and uncertainty of the task.**
 
-Core principle
+---
 
-Use the minimum engineering ceremony required by the risk of the task, and require stronger evidence as consequence increases.
+## At a glance
 
-A typo should remain a tiny task.
+| Capability                    | What `engineering-core` does                                                                                                 |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **Adaptive Fast-Exit**        | Keeps genuinely Low-risk local work fast                                                                                     |
+| **Standard Engineering Mode** | Handles normal implementation, debugging, refactoring, migration, review, and release preparation                            |
+| **Formal Spec Team Mode**     | Executes large or consequential `implementation.md` contracts as an engineering organization                                 |
+| **Spec Compiler**             | Converts long specifications into traceable sections, requirements, acceptance criteria, locks, dependencies, and work units |
+| **Independent QA**            | Prevents builders from defining their own correctness                                                                        |
+| **Conditional Specialists**   | Escalates security, database, frontend/browser, or performance work only when relevant                                       |
+| **Finding Ledger**            | Tracks review findings through evidence-backed resolution                                                                    |
+| **Two-Key Phase Closure**     | Prevents Moderate/High/Critical phases from being self-certified by the builder                                              |
+| **Cross-Session State**       | Preserves only continuation-critical evidence across compaction or new sessions                                              |
+| **Fresh Release Auditor**     | Separates local phase success from actual release verification                                                               |
+| **Evidence Ladder**           | Separates structural proof, policy lint, adversarial traces, live Claude behavior, and real-world field evidence             |
+| **Optional integrations**     | Can use code graphs, hooks, observability, or specialist skills without depending on them                                    |
 
-A one-line authorization, billing, database, or production change should not be treated as low risk merely because the diff is small.
+---
 
-Why engineering-core exists
+# Why this exists
 
-Coding agents commonly fail in two opposite directions:
+Coding agents commonly fail in two opposite directions.
 
-Failure mode
+They can **under-engineer consequential work**:
 
-Typical behavior
+```text
+"Only one line changed."
+        ↓
+Treat as trivial.
+        ↓
+Miss auth / billing / schema / production consequences.
+```
 
-Cost
+Or they can **over-engineer trivial work**:
 
-Under-engineering
+```text
+"Fix this local typo."
+        ↓
+Broad repository scan.
+        ↓
+Large plan.
+        ↓
+Multiple agents.
+        ↓
+Full test suite.
+```
 
-Rushes into consequential edits with thin evidence
+Large implementation plans introduce another class of failures:
 
-Broken auth, billing, data, migrations, or production behavior
+```text
+implementation.md
+        ↓
+Agent starts coding immediately
+        ↓
+Requirement omitted
+        ↓
+Builder writes its own tests
+        ↓
+Builder declares itself complete
+        ↓
+Later phase changes earlier assumptions
+        ↓
+Old evidence remains "green"
+        ↓
+Release declared ready
+```
+
+`engineering-core` is designed specifically to resist those failure modes.
+
+---
+
+# The runtime architecture
 
-Over-engineering
+```mermaid
+flowchart TD
+    U[User Request] --> C[CLASSIFY]
+    C --> D[DISCOVER]
+    D --> R{Choose execution mode}
 
-Turns a local, reversible fix into plans, ledgers, agents, and broad test suites
+    R -->|Low, local, reversible,<br/>clear proof| F[Adaptive Fast-Exit]
+    R -->|Ordinary engineering work| S[Standard Engineering Mode]
+    R -->|Large / multi-phase /<br/>dependency-rich / long-horizon| T[Formal Spec Team Mode]
 
-Wasted context, latency, money, and attention
+    F --> V1[Focused Verification]
+    S --> V2[Risk-Adaptive Verification]
+    T --> V3[Independent + Cross-Cutting Verification]
+
+    V1 --> E[Execution Summary]
+    V2 --> E
+    V3 --> E
+```
+
+The dispatcher begins with evidence, not diff size.
+
+A one-line authorization change may be **High**.
 
-engineering-core rejects both.
+A one-file typo may remain **Low**.
 
-LOW RISK                                           HIGH / CRITICAL RISK
-────────                                           ────────────────────
-local · reversible                                auth · billing · data
-known precedent                                   schema · production
-narrow proof                                      shared contracts
-no hard-floor surface                             irreversible side effects
-        │                                                  │
-        ▼                                                  ▼
-Adaptive Fast-Exit                               Expanded lifecycle
-minimal inspection                               deeper investigation
-minimum correct edit                             explicit invariants
-focused verification                             negative paths
-final diff review                                specialist / independent review
-compact completion                               release gates
+A formal document does not automatically require Team Mode.
 
-Ceremony follows risk, not diff size.
+---
 
-What it provides
+# Three execution modes
 
-The universal operating loop is:
+## 1. Adaptive Fast-Exit
 
-CLASSIFY
-   ↓
-DISCOVER
-   ↓
-INVESTIGATE
-   ↓
-PLAN
-   ↓
-IMPLEMENT
-   ↓
-VERIFY
-   ↓
-REVIEW
-   ↓
-COMPLETE
+For work that is genuinely:
 
-Backward transitions are first-class:
+```text
+Low risk
++
+local
++
+reversible
++
+unambiguous
++
+supported by a clear local precedent
++
+provable through a narrow focused check
+```
 
-new evidence changes risk      → CLASSIFY
-understanding is insufficient  → INVESTIGATE
-architecture does not fit      → PLAN / INVESTIGATE
-verification fails             → classify failure → IMPLEMENT / INVESTIGATE
-review finds a defect          → IMPLEMENT → VERIFY → REVIEW
-requirements change            → invalidate affected evidence → replan impacted path
-authority is missing           → WAIT_FOR_AUTHORIZATION
+Fast-Exit compresses investigation and planning.
 
-For genuinely low-risk work, investigation and planning compress into Adaptive Fast-Exit. For higher-risk work, the same lifecycle expands rather than being replaced by a separate methodology.
+It does **not** remove:
 
-Key behaviors include:
+```text
+repository instructions
+scope control
+verification
+final diff review
+evidence-based completion
+```
 
-risk-adaptive workflow selection;
+### Fast-Exit architecture
 
-repository instruction and authority discovery;
+```mermaid
+flowchart LR
+    A[Inspect target + nearest context] --> B{All Fast-Exit conditions hold?}
+    B -->|Yes| C[Minimum correct edit]
+    C --> D[Focused verification]
+    D --> E[Inspect status + diff]
+    E --> F[Compact Execution Summary]
 
-evidence-first, bounded codebase investigation;
+    B -->|No| G[Preserve evidence]
+    G --> H[Reclassify]
+    H --> I[Standard or Team Mode]
+```
 
-minimum-correct implementation and scope control;
+### Fast-Exit abort conditions
 
-systematic root-cause debugging;
+Fast-Exit immediately stops when evidence reveals:
 
-repeated-failure and loop classification;
+```text
+shared/public contract
+dependency consequence
+uncertain root cause
+unexpected verification result
+scope expansion
+auth / RLS / tenant boundary
+billing / payment behavior
+production consequence
+schema/data consequence
+secret handling
+irreversible side effect
+```
 
-risk-adaptive positive and negative verification;
+The goal is not fewer tool calls.
 
-database, auth, authorization, billing, secret, and production escalation;
+The goal is **minimum sufficient engineering work**.
 
-Git/user-work preservation;
+---
 
-bounded subagent delegation;
+## 2. Standard Engineering Mode
 
-formal specification and implementation.md execution;
+Most engineering work belongs here.
 
-requirement traceability and resumable long-horizon state;
+```mermaid
+flowchart LR
+    A[CLASSIFY] --> B[DISCOVER]
+    B --> C[INVESTIGATE]
+    C --> D[PLAN]
+    D --> E[IMPLEMENT]
+    E --> F[VERIFY]
+    F --> G[REVIEW]
+    G --> H[COMPLETE]
 
-independent QA and fresh release audit when warranted;
+    F -->|Failure| C
+    G -->|Defect| E
+    C -->|Risk changes| A
+```
 
-removal/completeness audits;
+The lifecycle is deliberately reversible.
 
-optional code-intelligence integrations with native fallbacks;
+Verification failure does not mean “try another random patch”.
 
-evidence-based completion semantics.
+It means classify the failure, update the hypothesis, and move backward deliberately.
 
-Architecture: four responsibilities, deliberately separated
+---
 
-engineering-core is strongest when behavioral policy is not confused with deterministic enforcement or tooling.
+## 3. Formal Spec Team Mode
 
-┌──────────────────────────────────────────────────────────────────────┐
-│ 1 — ENGINEERING POLICY                                               │
-│ engineering-core                                                     │
-│ classify · investigate · plan · implement · verify · review · close │
-│                                                                      │
-│ Behavioral policy. Does not itself block shell commands or grant     │
-│ permissions.                                                         │
-└──────────────────────────────────┬───────────────────────────────────┘
-                                   │ may cooperate with
-                  ┌────────────────┼────────────────┐
-                  ▼                ▼                ▼
-┌──────────────────────┐ ┌───────────────────┐ ┌──────────────────────┐
-│ 2 — CONTROL PLANE    │ │ 3 — OBSERVABILITY│ │ 4 — CODE INTELLIGENCE│
-│ optional             │ │ optional          │ │ optional              │
-│ permissions          │ │ session traces    │ │ code graphs           │
-│ sandbox              │ │ agent/tool views  │ │ LSP / indexes         │
-│ hooks / guards       │ │ telemetry         │ │ dependency maps       │
-│ allow/deny/ask       │ │ visibility only   │ │ discovery leads       │
-└──────────┬───────────┘ └─────────┬─────────┘ └──────────┬───────────┘
-           │                       │                       │
-           └───────────────────────┼───────────────────────┘
-                                   ▼
-                 ┌──────────────────────────────────┐
-                 │ REPOSITORY + RUNTIME EVIDENCE    │
-                 │ source · tests · config · schema │
-                 │ history · logs · actual behavior │
-                 └──────────────────────────────────┘
+Formal Spec Team Mode is the largest differentiator in `engineering-core`.
 
-Layer
+It is intended for work such as:
 
-Responsibility
+```text
+large implementation.md
+multi-phase hardening
+dependency-rich migrations
+security-sensitive programs
+multiple engineering domains
+long-horizon implementation
+phase/release gated work
+work likely to survive context compaction or session boundaries
+```
 
-Required?
+It is **not** triggered merely because an `implementation.md` file exists.
 
-Engineering policy
+A small, tightly coupled formal contract may remain in Standard Engineering Mode.
 
-Risk, evidence, scope, implementation discipline, verification, completion
+---
 
-Yes
+# Formal Spec Team Mode
 
-Control plane
+```mermaid
+flowchart TD
+    SPEC[Original implementation.md] --> COMP[Spec Compiler]
 
-Deterministic allow / deny / ask / sandbox / guard behavior
+    COMP --> INV[Section Inventory]
+    COMP --> REQ[Requirements]
+    COMP --> ACC[Acceptance Criteria]
+    COMP --> LOCK[Decision Locks]
+    COMP --> DEP[Dependency Graph]
+    COMP --> REC[Coverage Reconciliation]
 
-No
+    INV --> ORCH[Orchestrator / Tech Lead]
+    REQ --> ORCH
+    ACC --> ORCH
+    LOCK --> ORCH
+    DEP --> ORCH
+    REC --> ORCH
 
-Observability
+    ORCH --> W1[Builder / Work Unit]
+    ORCH --> QA[Independent QA]
+    ORCH --> SP[Conditional Specialist]
 
-Visibility into agents, tools, sessions, and traces
+    W1 --> FIND[Finding Ledger]
+    QA --> FIND
+    SP --> FIND
 
-No
+    FIND --> CLOSE[Two-Key Phase Closure]
 
-Code intelligence
+    CLOSE -->|Phase verified| NEXT[Next Work Unit / Phase]
+    NEXT --> CLOSE
 
-Faster symbol, relationship, dependency, and repository discovery
+    CLOSE -->|All phases closed| AUDIT[Fresh Release Auditor]
 
-No
+    AUDIT -->|Evidence sufficient| RV[RELEASE_VERIFIED]
+    AUDIT -->|Evidence insufficient| BLOCK[RELEASE_NOT_VERIFIED / BLOCKED]
+```
 
-Two boundaries are non-negotiable:
+This is orchestration discipline, not agent-count theater.
 
-Visibility is not correctness.
+---
 
-Generated graphs and indexes are leads, not authority, until grounded in source, tests, config, schema, history, or runtime evidence.
+# Spec Compiler
 
-Risk model
+The first responsibility in a large formal specification is **not coding**.
 
-Risk is classified from consequence, not line count or file count.
+It is loss-resistant specification compilation.
 
-                       RISK DIMENSIONS
-        ┌──────────────┬───────────────┬──────────────┐
-        │ consequence  │ reversibility │ uncertainty  │
-        ├──────────────┼───────────────┼──────────────┤
-        │ blast radius │ privilege     │ data         │
-        ├──────────────┼───────────────┼──────────────┤
-        │ side effects │ verification difficulty      │
-        └──────────────┴──────────────────────────────┘
-                              │
-                              ▼
-              highest applicable dimension controls
-                              │
-                              ▼
-             Low ── Moderate ── High ── Critical
+```mermaid
+flowchart LR
+    A[Original Spec] --> B[Pass 1<br/>Section Inventory]
+    B --> C[Pass 2<br/>Requirement Compilation]
+    C --> D[Pass 3<br/>Coverage Reconciliation]
+    D --> E[Executable Work Graph]
+```
 
-Hard floors
+## Pass 1 — Section Inventory
 
-Some surfaces cannot be classified below a minimum risk merely because the patch is small.
+Every meaningful source section receives a classification:
 
-Surface
+```text
+requirement
+acceptance criterion
+Decision Lock
+constraint
+background / rationale
+suggestion
+deferral
+release gate
+verification instruction
+unknown / ambiguous
+```
 
-Minimum risk
+No section may silently disappear.
 
-Authorization / RLS / tenant isolation boundary
+---
 
-High
+## Pass 2 — Requirement Compilation
 
-Billing / payments / credits / money-path webhook
+Executable requirements become stable work items:
 
-High
+```text
+REQ-001
+REQ-002
+REQ-003
+...
+```
 
-Production-data schema migration or lock-sensitive migration
+Each requirement can carry:
 
-High
+```text
+source
+acceptance criteria
+constraints
+Decision Locks
+dependencies
+affected surfaces
+risk
+specialist need
+verification evidence
+current state
+```
 
-Shared public / published API contract
+---
 
-High
+## Pass 3 — Coverage Reconciliation
 
-Production mutation / irreversible external action
+Before implementation begins:
 
-Critical
+```mermaid
+flowchart TD
+    A[Every source section classified?] -->|No| X[Planning BLOCKED]
+    A -->|Yes| B[Every executable requirement has work?]
 
-Credential exposure / secret leakage event
+    B -->|No| X
+    B -->|Yes| C[Every acceptance criterion mapped?]
 
-Critical
+    C -->|No| X
+    C -->|Yes| D[Every Decision Lock attached?]
 
-Downward reclassification requires positive evidence.
+    D -->|No| X
+    D -->|Yes| E[Every work unit justified?]
 
-Three runtime modes
+    E -->|No| Y[Scope-drift review]
+    E -->|Yes| Z[Implementation may begin]
+```
 
-The dispatcher selects exactly one starting mode from consequence, uncertainty, specification depth, and coordination need.
+This protects against a dangerous class of failure:
 
-                         ┌─────────────────────┐
-                         │   MODE DISPATCHER   │
-                         └──────────┬──────────┘
-                ┌───────────────────┼───────────────────┐
-                ▼                   ▼                   ▼
-      ┌──────────────────┐ ┌──────────────────┐ ┌────────────────────┐
-      │ Adaptive         │ │ Standard         │ │ Formal Spec        │
-      │ Fast-Exit        │ │ Engineering      │ │ Team Mode          │
-      ├──────────────────┤ ├──────────────────┤ ├────────────────────┤
-      │ Low only         │ │ default mode     │ │ multi-phase /      │
-      │ local            │ │ ordinary work    │ │ long-horizon       │
-      │ reversible       │ │ proportional     │ │ requirement ledger │
-      │ known precedent  │ │ lifecycle        │ │ independent QA     │
-      │ narrow proof     │ │                  │ │ Two-Key closure    │
-      └──────────────────┘ └──────────────────┘ │ fresh release audit│
-                                                └────────────────────┘
+> perfectly implementing an incomplete interpretation of the specification.
 
-Adaptive Fast-Exit
+---
 
-Use only when all of the following are evidenced:
+# Requirement Coverage Matrix
 
-Low risk;
+Formal Spec Team Mode keeps requirement traceability explicit.
 
-local and reversible behavior;
+| Requirement | Source | Work Unit | Implementation | Evidence   | Independent Review | Status   |
+| ----------- | ------ | --------- | -------------- | ---------- | ------------------ | -------- |
+| `REQ-001`   | §2.1   | `WORK-01` | `auth.ts`      | auth tests | QA                 | VERIFIED |
+| `REQ-002`   | §2.4   | `WORK-02` | migration      | role probe | DB specialist      | VERIFIED |
+| `REQ-003`   | §3.2   | `WORK-03` | —              | —          | —                  | BLOCKED  |
 
-unambiguous one-sentence contract;
+Two important audits follow from this.
 
-known local precedent or trivial pattern;
+### Orphan requirement
 
-narrow focused proof;
+```text
+Requirement exists
+but
+no implementation / disposition / evidence plan
+```
 
-no hard-floor surface;
+Result:
 
-no consequential auth, billing, schema, production, concurrency, shared-contract, secret, or external-side-effect boundary.
+```text
+phase or release closure blocked
+```
 
-Fast-Exit aborts as soon as those assumptions stop being true.
+### Orphan change
 
-Standard Engineering Mode
+```text
+Meaningful code change exists
+but
+no requirement / correctness justification
+```
 
-Default for ordinary implementation, debugging, refactoring, migration, review, removal, and test/build work.
+Result:
 
-It applies the universal lifecycle proportionally without forcing multi-agent orchestration.
+```text
+scope-drift review
+```
 
-Formal Spec Team Mode
+---
 
-Use for qualifying large or dependency-rich formal work where traceability, independent verification, resumable state, or release closure matter.
+# Orchestrator / Tech Lead
 
-A formal file alone does not trigger Team Mode.
+The orchestrator owns coordination, not truth by proclamation.
 
-See engineering-core/references/formal-spec-team-mode.md.
+```mermaid
+flowchart TD
+    U[Current User Authority] --> O[Orchestrator]
+    S[Original Specification] --> O
+    R[Repository Instructions] --> O
+    C[Current Source / Config / Tests / Runtime] --> O
 
-Formal Spec Team Mode
+    O --> L[Requirement + Work Unit Ledger]
+    O --> A[Assignments]
+    O --> P[Phase State]
+    O --> F[Finding Adjudication]
+    O --> X[Cross-Session State]
 
-Team Mode is orchestration discipline, not “use as many agents as possible.”
+    B[Builder Reports] -->|Claims / evidence leads| O
+    Q[QA Reports] -->|Independent evidence| O
+    SP[Specialist Reports] -->|Domain evidence| O
+```
 
-                   ORIGINAL SPECIFICATION
-                    authoritative source
-                            │
-                            ▼
-                  ┌──────────────────────┐
-                  │    SPEC COMPILER     │
-                  │ section inventory    │
-                  │ requirement extract  │
-                  │ coverage graph       │
-                  └──────────┬───────────┘
-                             ▼
-                  ┌──────────────────────┐
-                  │ REQUIREMENT LEDGER   │
-                  │ decision locks       │
-                  │ work-unit graph      │
-                  └──────────┬───────────┘
-                             │
-            ┌────────────────┼────────────────┐
-            ▼                ▼                ▼
-     ┌─────────────┐  ┌──────────────┐ ┌───────────────┐
-     │ Orchestrator│  │ Writer(s)    │ │ Independent   │
-     │ / Tech Lead │  │ bounded work │ │ QA / specialist│
-     └──────┬──────┘  └──────┬───────┘ └──────┬────────┘
-            └────────────────┼──────────────────┘
-                             ▼
-                  ┌──────────────────────┐
-                  │ TWO-KEY PHASE CLOSE  │
-                  │ implementation key   │
-                  │ independent key      │
-                  └──────────┬───────────┘
-                             ▼
-                  ┌──────────────────────┐
-                  │ FRESH RELEASE AUDIT  │
-                  │ RELEASE_VERIFIED     │
-                  │ NOT_VERIFIED/BLOCKED │
-                  └──────────────────────┘
+Authority is ordered:
 
-Two-Key closure
+```text
+current explicit user instruction
+        ↓
+original formal specification
+        ↓
+applicable repository instructions
+        ↓
+current source / config / test / runtime evidence
+        ↓
+derived requirement/work-unit state
+        ↓
+agent reports
+```
 
-For Moderate / High / Critical Team Mode phases:
+A subagent saying “done” is never enough.
 
-Key
+---
 
-Meaning
+# Work Units and bounded ownership
 
-Implementation key
+Every non-trivial Team Mode unit defines:
 
-Intended diff exists, required current tests pass, forbidden scope is absent, builder evidence maps to requirements
+```text
+WORK-ID
+requirement IDs
+objective
+dependencies
+allowed files/surfaces
+one active writer
+write authority
+forbidden changes
+expected artifacts
+required verification
+risk
+specialist requirement
+status
+evidence
+stop conditions
+```
 
-Independent key
+## One-writer rule
 
-Independent QA/reviewer acceptance passes, required negative paths pass, required specialist evidence is resolved
+```mermaid
+flowchart LR
+    W[Work Unit] --> B1[One Active Writer]
 
-If either key is missing, a phase may be IMPLEMENTED but not VERIFIED.
+    B1 -->|Independent scope| P[Parallel work allowed]
+    B1 -->|Overlapping / coupled scope| S[Sequential execution]
 
-PHASE_VERIFIED and RELEASE_VERIFIED are intentionally different states.
+    P --> I[Integration]
+    S --> I
+```
 
-Authority order
+Parallelism is allowed only when it improves throughput without sacrificing ownership clarity.
 
-Current explicit user instruction
+Maximum agent count is not a quality metric.
 
-Original formal specification
+---
 
-Applicable repository instructions
+# Independent QA
 
-Current source / config / test / schema / runtime evidence
+Builders should not define their own correctness.
 
-Derived requirement and work-unit state
+```mermaid
+flowchart TD
+    REQ[Original Requirement] --> QA[Independent QA]
+    ACC[Acceptance Criteria] --> QA
+    LOCK[Decision Locks] --> QA
+    DIFF[Actual Diff] --> QA
+    TEST[Tests + Runtime Evidence] --> QA
+    BR[Builder Evidence] -->|Claim, not truth| QA
 
-Agent reports
+    QA --> C1[Acceptance → Evidence Mapping]
+    QA --> C2[Negative Paths]
+    QA --> C3[Test Oracle Review]
+    QA --> C4[Test-Cheating Detection]
+    QA --> C5[Regression Coverage]
+    QA --> C6[Requirement Omission Check]
+```
 
-Evidence-first investigation
+For High/Critical work, expected behavior and negative paths should be derived before or independently from the final implementation whenever practical.
 
-Consequential claims should be grounded in the strongest available evidence.
+---
 
-STRONGER
-───────
-current source
-current tests
-schemas / migrations
-configuration
-Git status / diff / history
-runtime behavior / logs
-current authoritative specification
+# Conditional specialists
 
-generated maps / graph indexes
-tool summaries
-README / comments
-conversation memory
-agent self-reports
-───────
-WEAKER
+Specialists are loaded only when the engineering surface justifies them.
 
-Bounded investigation
+```mermaid
+flowchart TD
+    W[Work Unit] --> S{Relevant specialist domain?}
 
-target symbol
-   ↓
-nearest test / precedent
-   ↓
-direct callers / relevant config
-   ↓
-decision-relevant question still unanswered?
-        ├─ yes → expand one hop
-        └─ no  → stop expanding
+    S -->|Auth / RLS / tenant / secrets| SEC[Security]
+    S -->|Schema / migrations / grants / DB functions| DB[Database]
+    S -->|Interaction / accessibility / browser state| FE[Frontend / Browser]
+    S -->|Latency / throughput / memory / query| PERF[Performance]
+    S -->|No specialist need| NONE[Independent QA only]
+```
 
-Before broadening the search, ask:
+The specialist owns domain mechanics.
 
-What decision will this additional evidence change?
+`engineering-core` still owns:
 
-Optional graph/index tools can accelerate discovery. Their absence is not a blocker.
+```text
+scope
+authorization
+evidence
+user-work safety
+verification
+completion semantics
+Decision Locks
+```
 
-Implementation and debugging discipline
+---
 
-Minimum-correct implementation
+# Finding Ledger
 
-Optimize for the smallest change that completely satisfies the requirement and repository invariants.
+Review findings are not allowed to disappear informally.
 
-Prefer existing local patterns, direct behavior, fitting abstractions, explicit contracts, and narrow scope.
+```mermaid
+stateDiagram-v2
+    [*] --> OPEN
+    OPEN --> ACCEPTED
+    ACCEPTED --> FIXED
+    FIXED --> VERIFIED_FIXED
 
-Avoid opportunistic refactors, unrelated cleanup, speculative configurability, unnecessary dependency churn, and broad formatting changes.
+    OPEN --> REJECTED_WITH_EVIDENCE
+    OPEN --> DEFERRED_AUTHORIZED
 
-Minimum-correct is not minimum line count.
+    REJECTED_WITH_EVIDENCE --> [*]
+    DEFERRED_AUTHORIZED --> [*]
+    VERIFIED_FIXED --> [*]
+```
 
-Root-cause debugging
+Allowed states:
 
-REPRODUCE
-   ↓
-LOCALIZE
-   ↓
-HYPOTHESIZE
-   ↓
-DISCRIMINATE
-   ↓
-FIX ROOT CAUSE
-   ↓
-VERIFY
+```text
+OPEN
+ACCEPTED
+FIXED
+VERIFIED_FIXED
+REJECTED_WITH_EVIDENCE
+DEFERRED_AUTHORIZED
+```
 
-Step
+Plain `REJECTED` is intentionally insufficient.
 
-Discipline
+A finding can be rejected only with evidence.
 
-Reproduce
+---
 
-Exact failure, inputs, environment, expected vs observed
+# Two-Key Phase Closure
 
-Localize
+Moderate, High, and Critical Team Mode phases cannot be self-certified.
 
-Earliest violated invariant, not merely the final symptom
+```mermaid
+flowchart TD
+    B[Builder completes work] --> K1{Implementation Key}
 
-Hypothesize
+    K1 -->|Diff + artifacts + current tests + scope evidence| I[IMPLEMENTED]
 
-Falsifiable explanation
+    I --> K2{Independent Key}
 
-Discriminate
+    K2 -->|QA / reviewer + required negative paths + specialist evidence| V[PHASE_VERIFIED]
+    K2 -->|Missing / unresolved| I
 
-Cheapest experiment that separates competing hypotheses
+    V --> R[Eligible for downstream phase]
+```
 
-Fix
+The two keys are:
 
-Smallest correction at the actual broken boundary
+### Key 1 — Implementation evidence
 
-Verify
+```text
+intended artifacts exist
+required current tests pass
+forbidden scope absent
+builder evidence maps to requirements
+```
 
-Original repro + regression + relevant negative path
+### Key 2 — Independent evidence
 
-Loop detection
+```text
+QA acceptance mapping passes
+required negative paths pass
+required specialist findings resolved
+```
 
-Same action twice without new evidence → change tactic
+Therefore:
 
-Third equivalent failure → classify the failure before more edits
+```text
+IMPLEMENTED != VERIFIED
+```
 
-Failure classes include implementation defect, test-oracle defect, environment/tooling, dependency/external service, permission, flaky/timing, missing prerequisite, stale artifact, migration/state mismatch, scope conflict, and unknown.
+and:
 
-Never test-cheat. Do not hardcode production behavior to fixtures or weaken valid assertions merely to turn CI green.
+```text
+PHASE_VERIFIED != RELEASE_VERIFIED
+```
 
-Verification and completion
+---
 
-Verification depth scales with risk.
+# Requirement changes during execution
 
-Low
-→ narrow meaningful check
-→ final diff review
+Large plans change.
 
-Moderate
-→ targeted tests
-→ relevant static/integration checks
-→ affected-module regression
-→ final diff review
+`engineering-core` does not respond by throwing away all verified work.
 
-High
-→ invariants
-→ negative paths
-→ compatibility / concurrency where relevant
-→ specialist or independent review
-→ broader regression / release gates
+```mermaid
+flowchart TD
+    U[User changes requirement] --> C[Compare against active ledger]
 
-Critical
-→ all applicable High checks
-→ exact action + target authorization
-→ consequence review
-→ production / external-action gates
+    C --> A[Affected requirements]
+    C --> D[Downstream dependents]
+    C --> N[Unaffected verified work]
 
-A typical verification order is:
+    N --> KEEP[Preserve VERIFIED evidence]
 
-syntax/static
-→ targeted unit
-→ module
-→ type/lint
-→ integration
-→ E2E
-→ broader regression
+    A --> STALE[Mark affected evidence STALE]
+    D --> REPLAN[Replan affected dependency path]
 
-Stale evidence rule
+    STALE --> UPDATE[Update acceptance / locks / risk]
+    REPLAN --> UPDATE
 
-A passing test is evidence only for the code/state it actually tested.
+    UPDATE --> VERIFY[Reimplement / Reverify required scope]
+```
 
-After a relevant final edit, affected evidence becomes stale until rerun or replaced by equivalent current evidence.
+The principle is selective invalidation.
 
-Completion states are not synonyms
+Example:
 
-implemented
-   ↓
-locally verified
-   ↓
-phase verified
-   ↓
-release verified
-   ↓
-reviewed
-   ↓
-merged
-   ↓
-released
-   ↓
-deployed
+```text
+Phase A → VERIFIED → remains VERIFIED
+Phase B / REQ-12 → changed → STALE
+Phase D → depends on REQ-12 → replanned
+Unrelated Phase C → preserved
+```
 
-A required check that fails or cannot be established without equivalent evidence produces NOT_VERIFIED or BLOCKED—never a contradictory “complete but unverified.”
+---
 
-Execution Summary contract
+# Cross-session continuity
 
-Every substantive execution ends with:
+Long-running engineering work must survive context compaction and fresh sessions without trusting stale notes.
 
+```mermaid
+sequenceDiagram
+    participant S1 as Session A
+    participant State as Compact State
+    participant Repo as Repository
+    participant S2 as Fresh Session B
+
+    S1->>Repo: Implement + verify work
+    S1->>State: Save continuation-critical state
+    Note over State: repo / branch / HEAD<br/>requirements / locks<br/>phase state<br/>modified paths<br/>evidence pointers<br/>findings / blockers<br/>next action
+
+    S2->>State: Read state
+    S2->>Repo: Verify repository identity / branch / HEAD
+    S2->>Repo: Reopen original specification
+    S2->>Repo: Inspect worktree + changed files
+    S2->>State: Compare old evidence with current state
+    S2->>State: Mark invalid evidence STALE
+    S2->>Repo: Continue from latest supported state
+```
+
+A note saying:
+
+```text
+tests passed
+```
+
+is not current evidence after relevant edits.
+
+---
+
+# Fresh Release Auditor
+
+Local phase success is not the same as release readiness.
+
+```mermaid
+flowchart TD
+    P1[Phase A VERIFIED] --> A[Fresh Release Auditor]
+    P2[Phase B VERIFIED] --> A
+    P3[Phase C VERIFIED] --> A
+
+    SPEC[Original Spec] --> A
+    DIFF[base..HEAD Diff] --> A
+    MAT[Requirement Coverage Matrix] --> A
+    LOCK[Decision Locks] --> A
+    FIND[Finding Ledger] --> A
+    EVID[Phase Evidence] --> A
+
+    A --> Q{Cross-cutting release evidence sufficient?}
+
+    Q -->|Yes| RV[RELEASE_VERIFIED]
+    Q -->|No, fixable| NV[RELEASE_NOT_VERIFIED]
+    Q -->|Cannot safely proceed| BL[RELEASE_BLOCKED]
+```
+
+The release auditor receives builder/orchestrator conclusions as claims, not truth.
+
+Its job is specifically to find defects that individual phases can miss.
+
+---
+
+# Risk model
+
+Risk is consequence-based.
+
+```mermaid
+flowchart TD
+    T[Observed Task] --> E[Evaluate evidenced dimensions]
+
+    E --> C[Consequence]
+    E --> R[Reversibility]
+    E --> U[Uncertainty]
+    E --> B[Blast Radius]
+    E --> P[Privilege Sensitivity]
+    E --> D[Data Sensitivity]
+    E --> X[External Side Effects]
+    E --> V[Verification Difficulty]
+
+    C --> F[Apply Hard Floors]
+    R --> F
+    U --> F
+    B --> F
+    P --> F
+    D --> F
+    X --> F
+    V --> F
+
+    F --> OUT[Highest applicable evidenced risk]
+```
+
+## Hard floors
+
+| Surface                                                                  | Minimum risk |
+| ------------------------------------------------------------------------ | -----------: |
+| Authentication / authorization / RLS / tenant isolation                  |     **High** |
+| Billing / payment / credit / money-moving webhook behavior               |     **High** |
+| Production mutation / irreversible external action / credential exposure | **Critical** |
+| Schema migration affecting production rows or locking behavior           |     **High** |
+| Material shared/public contract change                                   |     **High** |
+
+A tiny patch cannot override a hard floor.
+
+At the same time, hypothetical possibilities are not accumulated merely to inflate risk.
+
+Risk is based on **observed evidence**.
+
+---
+
+# Safety anti-pattern recognition
+
+The system explicitly recognizes recurring engineering failures such as:
+
+| Anti-pattern                      | Why it fails                                                                 |
+| --------------------------------- | ---------------------------------------------------------------------------- |
+| Client-only authorization         | Hidden UI is not enforcement                                                 |
+| Fail-open auth/billing            | Errors must not grant access or money effects                                |
+| Production test bypass            | Environment switches are not security boundaries                             |
+| Unstable idempotency identity     | Retry-specific keys create duplicate effects                                 |
+| Empty-DB migration proof          | Green migration on an empty database does not model existing production rows |
+| Secret in diff/log/prompt         | Exposure creates a separate consequential event                              |
+| Broad Git clean/reset             | Unknown worktree changes are user-owned                                      |
+| “Prepare for production” = deploy | Readiness is not authorization for external mutation                         |
+
+These are investigation leads.
+
+Repository evidence remains authoritative.
+
+---
+
+# Debugging model
+
+Debugging follows falsifiable hypotheses rather than patch iteration.
+
+```mermaid
+flowchart LR
+    A[REPRODUCE] --> B[LOCALIZE]
+    B --> C[HYPOTHESIZE]
+    C --> D[DISCRIMINATE]
+    D --> E[FIX ROOT CAUSE]
+    E --> F[VERIFY]
+```
+
+Repeated equivalent failure forces strategy change.
+
+A third equivalent failure requires explicit failure classification before continuing.
+
+Typical classes include:
+
+```text
+implementation defect
+broken test oracle
+environment/tooling
+dependency/external service
+permission/authorization
+timing/flakiness
+missing prerequisite
+stale generated artifact
+migration/state mismatch
+scope conflict
+unknown
+```
+
+---
+
+# Evidence-first repository investigation
+
+The system begins with the cheapest useful evidence.
+
+```mermaid
+flowchart TD
+    A[Instructions + Worktree] --> B[Target Symbol / File]
+    B --> C[Nearest Tests]
+    C --> D[Nearest Precedent]
+    D --> E[Direct Consumers]
+    E --> F[Relevant Config / Schema / Manifest]
+
+    F --> Q{Unresolved decision?}
+    Q -->|Yes| G[Expand targeted context]
+    G --> Q
+    Q -->|No| STOP[Stop gathering context]
+```
+
+The central stop rule is:
+
+> **Before loading another broad surface, identify which unresolved engineering decision the additional evidence can change. If none exists, stop.**
+
+---
+
+# Evidence Ledger
+
+For Moderate+ investigation or competing hypotheses, a canonical ledger may be used:
+
+| ID      | Hypothesis / Requirement     | Evidence                     | Confidence | Open question            | Affected surface | Planned proof  |
+| ------- | ---------------------------- | ---------------------------- | ---------- | ------------------------ | ---------------- | -------------- |
+| `E-001` | Request identity is unstable | `request.ts:42`, replay test | high       | provider retry behavior? | billing state    | replay fixture |
+
+Fast-Exit does not create a ledger by default.
+
+---
+
+# Evidence model
+
+`engineering-core` deliberately separates five levels of confidence.
+
+```mermaid
+flowchart BT
+    L1[L1 — Structural Validation]
+    L2[L2 — Policy Lint]
+    L3[L3 — Adversarial Scenario Traces]
+    L4[L4 — Live Claude Code Behavior]
+    L5[L5 — Longitudinal Field Evidence]
+
+    L1 --> L2
+    L2 --> L3
+    L3 --> L4
+    L4 --> L5
+```
+
+A lower level never claims a higher-level guarantee.
+
+| Level  | Proves                                                 |
+| ------ | ------------------------------------------------------ |
+| **L1** | package/tree/link/frontmatter structure                |
+| **L2** | statically observable policy properties                |
+| **L3** | expected reasoning under adversarial scenarios         |
+| **L4** | actual Claude Code behavior in disposable repositories |
+| **L5** | sustained behavior across real-world workloads         |
+
+---
+
+# Current measured evidence
+
+The repository records live evaluation evidence rather than treating a green static validator as behavioral proof.
+
+## Natural activation — sealed holdout
+
+The current sealed holdout was frozen before scoring.
+
+### Sonnet
+
+| Metric            |                Result |
+| ----------------- | --------------------: |
+| Positive prompts  |                    32 |
+| Negative prompts  |                    22 |
+| Ambiguous prompts | 12, scored separately |
+| True positives    |                    27 |
+| False positives   |                     0 |
+| True negatives    |                    22 |
+| False negatives   |                     5 |
+| **Precision**     |            **1.0000** |
+| **Recall**        |            **0.8438** |
+
+Only **Tier-A actual `Skill` invocation traces** count toward the confusion matrix.
+
+Named output or behavior resemblance cannot inflate activation precision/recall.
+
+### Known limitation
+
+Natural activation is model-dependent.
+
+The same sealed holdout produced substantially weaker recall on Haiku.
+
+That difference is retained as evidence rather than hidden through averaging.
+
+---
+
+# Formal Spec Team Mode — live L4 evidence
+
+The Team Mode harness uses disposable Git repositories, bounded cost/time, protected-file checks, independent fixture tests, Git state inspection, and machine scoring.
+
+| Scenario                  | Final status | Key evidence                                                                                        |
+| ------------------------- | ------------ | --------------------------------------------------------------------------------------------------- |
+| **Large specification**   | **PASS**     | 18 requirements, five phases, locks, deferral, dirty user file, independent QA, fresh release audit |
+| **Requirement change**    | **PASS**     | selective `STALE` invalidation; unaffected phase preserved                                          |
+| **Cross-session resume**  | **PASS**     | two processes; state revalidated before continuation                                                |
+| **Two-Key closure**       | **PASS**     | builder stopped at `IMPLEMENTED`; independent QA supplied second key                                |
+| **Fresh release auditor** | **PASS**     | seeded producer/consumer mismatch prevented premature release closure                               |
+
+Failed historical evaluation attempts are intentionally retained where they exposed:
+
+```text
+model-policy failures
+scorer defects
+parser defects
+incomplete evidence
+```
+
+They are not rewritten into PASS.
+
+---
+
+# Current static validation evidence
+
+Current repository validation includes:
+
+```text
+runtime exact-tree validation
+frontmatter validation
+local link validation
+policy-ID ownership
+stdlib-only runtime validation scripts
+mutation tests
+completion-contract tests
+L4 scorer tests
+activation harness tests
+Formal Spec Team Mode harness tests
+Python compilation
+repository hygiene validation
+```
+
+Hosted CI currently covers:
+
+```text
+Ubuntu + Python 3.10
+Ubuntu + Python 3.14
+Windows + Python 3.10
+Windows + Python 3.14
+```
+
+---
+
+# System boundaries
+
+`engineering-core` deliberately keeps four responsibilities separate.
+
+```mermaid
+flowchart LR
+    EC[engineering-core] --> B[Behavioral Engineering Policy]
+    H[Hooks / Permissions] --> D[Deterministic Enforcement]
+    O[Observability] --> V[Execution Visibility]
+    CI[Codebase Intelligence] --> C[Context / Relationships]
+
+    B -. cooperates .-> D
+    B -. cooperates .-> V
+    B -. cooperates .-> C
+```
+
+Therefore:
+
+```text
+Skill                  = behavioral engineering policy
+Hooks / permissions    = deterministic enforcement
+Observability          = visibility
+Codebase intelligence  = context provider
+Specialist skills      = domain mechanics
+```
+
+No layer is allowed to pretend to be another.
+
+---
+
+# Optional codebase intelligence
+
+When already available or explicitly requested, `engineering-core` can cooperate with systems such as:
+
+```text
+CodeGraph
+Cartographer
+Graphify
+language servers
+repository indexes
+```
+
+They help locate evidence.
+
+They are not unquestioned sources of truth.
+
+```mermaid
+flowchart LR
+    TOOL[Optional Graph / Index] --> LEAD[Evidence Lead]
+    LEAD --> SRC[Current Source / Config / Tests / Runtime]
+    SRC --> DECISION[Engineering Decision]
+```
+
+If a provider is absent or stale, native repository investigation continues.
+
+No provider is automatically installed.
+
+---
+
+# Formal specification state model
+
+Requirement states:
+
+```mermaid
+stateDiagram-v2
+    [*] --> NOT_STARTED
+    NOT_STARTED --> READY
+    READY --> IN_PROGRESS
+    IN_PROGRESS --> IMPLEMENTED
+    IMPLEMENTED --> VERIFIED
+
+    VERIFIED --> STALE: changed requirement / new evidence
+    STALE --> READY
+
+    IN_PROGRESS --> BLOCKED
+    BLOCKED --> READY
+
+    NOT_STARTED --> DEFERRED
+    NOT_STARTED --> NOT_APPLICABLE
+```
+
+`IMPLEMENTED` and `VERIFIED` are intentionally different states.
+
+---
+
+# Completion contract
+
+Every substantive execution ends with a controlled summary.
+
+For a Low-risk change:
+
+```text
 ### Execution Summary
-- **Policy:** engineering-core
-- **Risk:** Low | Moderate | High | Critical
-- **Status:** NO_CHANGE | IMPLEMENTED | VERIFIED | NOT_VERIFIED | BLOCKED
-- **Changed:** …
-- **Verified:** …
-- **Limitations:** … | None
+Policy: engineering-core
+Risk: Low
+Status: VERIFIED
+Changed: Corrected the local parsing guard.
+Verified: Focused parser test passed after the final edit.
+Limitations: None
+```
 
-Safety and authorization
+Controlled risk values:
 
-Trust-boundary review deepens when a change crosses:
+```text
+Low
+Moderate
+High
+Critical
+```
 
-input
-→ identity
-→ authorization
-→ data
-→ side effect
-→ failure / recovery
+Controlled status values:
 
-Common triggers include authentication and authorization, RLS/tenant isolation, sessions/tokens, secrets/PII, billing/payments/webhooks, uploads, SQL construction, infrastructure privileges, CI secrets, cryptography, and production actions.
+```text
+NO_CHANGE
+IMPLEMENTED
+VERIFIED
+NOT_VERIFIED
+BLOCKED
+```
 
-Safety profiles
+A required failing check can never coexist with `VERIFIED`.
 
-Profile
+---
 
-Focus
+# Before and after
 
-Database / migration
+| Without a disciplined engineering policy             | With `engineering-core`                                                    |
+| ---------------------------------------------------- | -------------------------------------------------------------------------- |
+| Read plan and immediately start coding               | Compile the specification first when complexity warrants it                |
+| Patch size influences perceived risk                 | Consequence and trust boundaries control risk                              |
+| Builder validates itself                             | Independent QA provides separate evidence                                  |
+| Tests pass → “done”                                  | Implementation, phase verification, and release verification stay distinct |
+| New requirement destabilizes the entire plan         | Only impacted work/evidence becomes `STALE`                                |
+| Session restart trusts old notes                     | Repository/spec/state are revalidated before continuation                  |
+| Multi-agent means more agents                        | Delegation is bounded by ownership and dependency                          |
+| Findings disappear in discussion                     | Finding Ledger requires explicit evidence-backed disposition               |
+| Every formal file triggers heavyweight orchestration | Team Mode activates only when coordination value exists                    |
+| Every tiny task gets process overhead                | Adaptive Fast-Exit keeps genuine Low-risk work cheap                       |
 
-Ordering, locks, backfill, RLS, grants, forward-only vs rollback, production rows
+---
 
-Auth / authorization
+# Repository architecture
 
-Server-side enforcement, default-deny, tenant isolation, admin bypass
-
-Billing / side effects
-
-Idempotency, retries, replay, partial completion, reconciliation, auditability
-
-Git / user work
-
-Preserve unknown user-owned changes; no broad reset/clean/force without exact authority
-
-Secrets
-
-Never print, commit, prompt, or log secrets; treat exposure as a separate consequential event
-
-Destructive / production
-
-Exact action + exact target authorization after required gates
-
-Authorization is action-and-target specific.
-
-Exact current authorization for the exact action and target is sufficient after required gates; do not ask redundantly.
-
-Broad, implied, stale, ambiguous, or differently scoped intent is not authority.
-
-“Prepare this for production” does not authorize deployment.
-
-“Deploy this exact release to production after the required checks pass” does.
-
-Honest safety boundary
-
-engineering-core is a behavioral policy. It does not claim deterministic prevention of unsafe actions.
-
-Deterministic blocking belongs to permissions, sandboxing, managed policy, and optional hooks/command guards. See docs/deterministic-enforcement.md.
-
-Progressive disclosure
-
-SKILL.md is a runtime dispatcher, not a monolithic handbook.
-
-                    ┌───────────────────┐
-                    │     SKILL.md      │
-                    │ universal loop    │
-                    │ invariants        │
-                    │ Fast-Exit         │
-                    │ mode routing      │
-                    │ safety boundary   │
-                    │ completion        │
-                    └─────────┬─────────┘
-                              │ load only when needed
-             ┌────────────────┼────────────────┐
-             ▼                ▼                ▼
-       ┌────────────┐   ┌────────────┐   ┌────────────┐
-       │ references │   │ examples   │   │ scripts    │
-       │ deep policy│   │ concrete   │   │ validation │
-       │ procedures │   │ scenarios  │   │ tooling    │
-       └────────────┘   └────────────┘   └────────────┘
-
-At current main, the distributable runtime package contains 19 files and the SKILL.md entrypoint is 83 lines.
-
-Package structure
-
+```text
 .
 ├── README.md
 ├── LICENSE
 ├── .gitignore
 ├── implementation.md
+│
 ├── .github/
 │   └── workflows/
 │       └── validate.yml
+│
 ├── docs/
 │   ├── claude-router.md
 │   ├── deterministic-enforcement.md
 │   └── l4-evaluation.md
+│
 ├── evals/
 │   ├── README.md
+│   │
 │   ├── activation/
+│   │   ├── README.md
+│   │   ├── positive.json
+│   │   ├── negative.json
+│   │   ├── ambiguous.json
+│   │   ├── holdout-positive.json
+│   │   ├── holdout-negative.json
+│   │   ├── holdout-ambiguous.json
+│   │   ├── dataset-metadata.json
+│   │   ├── run_activation_eval.py
+│   │   └── test_activation_eval.py
+│   │
 │   ├── formal-spec-team/
+│   │   ├── README.md
+│   │   ├── run_team_eval.py
+│   │   ├── test_team_eval.py
+│   │   ├── fixtures/
+│   │   └── scenarios/
+│   │
 │   ├── scenarios/
 │   ├── completion_summary.py
 │   ├── run_l4_eval.py
 │   ├── test_completion_summary.py
 │   └── test_l4_eval.py
+│
 ├── scripts/
 │   └── validate_repository.py
+│
 └── engineering-core/
     ├── SKILL.md
+    │
     ├── examples/
     │   ├── small-fix.md
     │   ├── fast-exit-abort.md
@@ -671,6 +1213,7 @@ Package structure
     │   ├── high-risk-change.md
     │   ├── removal-task.md
     │   └── large-spec-execution.md
+    │
     ├── references/
     │   ├── operating-model.md
     │   ├── formal-spec-team-mode.md
@@ -682,148 +1225,150 @@ Package structure
     │   ├── integrations.md
     │   ├── source-synthesis.md
     │   └── evaluation-scenarios.md
+    │
     └── scripts/
         ├── validate_skill.py
         └── test_validate_skill.py
+```
 
-Installation
+---
 
-Personal skill
+# Progressive disclosure
 
+The runtime package intentionally avoids loading its entire engineering handbook for every task.
+
+```mermaid
+flowchart TD
+    S[SKILL.md<br/>Lean Dispatcher] -->|Risk / planning| O[operating-model.md]
+    S -->|Large formal spec| T[formal-spec-team-mode.md]
+    S -->|Repository investigation| R[repository-investigation.md]
+    S -->|Debugging| D[implementation-debugging.md]
+    S -->|Verification / release| V[verification-review.md]
+    S -->|Security-sensitive| P[safety-profiles.md]
+    S -->|Agents / state / resume| C[collaboration-state.md]
+    S -->|Existing integration only| I[integrations.md]
+```
+
+The entrypoint stays intentionally small.
+
+Detailed procedures load only when relevant.
+
+---
+
+# Installation
+
+## Personal skill
+
+Clone the repository:
+
+```bash
 git clone https://github.com/aydinogluomer-sys/engineering-core.git
+```
 
-macOS / Linux:
+### macOS / Linux
 
+```bash
 mkdir -p ~/.claude/skills
 cp -R engineering-core/engineering-core ~/.claude/skills/engineering-core
+```
 
-PowerShell:
+### PowerShell
 
+```powershell
 New-Item -ItemType Directory -Force "$HOME\.claude\skills" | Out-Null
 Copy-Item -Recurse ".\engineering-core\engineering-core" "$HOME\.claude\skills\engineering-core"
+```
 
-Restart Claude Code if necessary.
+Restart Claude Code if required.
 
-Project-scoped skill
+---
 
-Copy the inner engineering-core/ directory to:
+## Project-scoped installation
 
+Copy the inner package to:
+
+```text
 <project>/.claude/skills/engineering-core/
+```
 
-The installed directory should contain:
+The installed runtime package contains:
 
+```text
 SKILL.md
 examples/
 references/
 scripts/
+```
 
-Usage
+The root `evals/`, `docs/`, and repository-maintenance files are not part of the installed runtime skill.
+
+---
+
+# Usage
+
+The skill is model-invocable.
 
 Typical requests:
 
+```text
 Fix this race condition.
-Implement this feature.
-Remove this subsystem completely.
+
+Implement this feature and verify the affected contracts.
+
+Remove this legacy integration completely.
+
 Review and fix this authorization flow.
-Implement this implementation.md phase by phase.
-Prepare this branch for release.
 
-Explicit invocation:
+Execute this implementation.md phase by phase.
 
+Harden this payment webhook against duplicate delivery.
+
+Prepare this branch for release. Do not deploy.
+```
+
+For critical formal-spec work, explicit invocation removes routing ambiguity:
+
+```text
 /engineering-core
 
-engineering-core does not replace specialist domain skills. It supplies the cross-cutting operating policy:
+Execute this implementation.md using Formal Spec Team Mode.
+Preserve Decision Locks, use independent QA, and do not claim
+RELEASE_VERIFIED without the fresh release audit.
+```
 
-risk
-+ evidence
-+ scope
-+ implementation discipline
-+ verification
-+ review
-+ completion semantics
+---
 
-Optional routing and integrations
+# Optional project routing
 
-Project routing
+Natural skill activation is model-driven and therefore not deterministic.
 
-For stronger project-level guidance so Claude consistently considers engineering-core for substantive engineering work, see docs/claude-router.md.
+Projects that want stronger routing guidance can use the optional pattern documented in:
 
-The router is optional and is not deterministic enforcement.
+[`docs/claude-router.md`](docs/claude-router.md)
 
-Natural skill selection is measured separately from explicit /engineering-core invocation.
+The router is guidance.
 
-Code intelligence
+It is not an enforcement mechanism.
 
-When already available or explicitly requested, the core can cooperate with CodeGraph, Cartographer, Graphify, language servers, or repository indexes.
+---
 
-These are context providers, not sources of truth. Native search/read/Git fallback remains valid.
+# Validate the package
 
-Deterministic enforcement
+From the repository root:
 
-Permissions, sandboxes, hooks, and command guards belong to a separate control plane.
-
-See docs/deterministic-enforcement.md.
-
-Validation model: L1–L5
-
-L5  Longitudinal real-world field evidence
-▲
-L4  Live Claude Code behavioral evaluation
-▲
-L3  Manual / adversarial scenario evaluation
-▲
-L2  Policy lint / static policy properties
-▲
-L1  Structural validation
-
-Level
-
-What it establishes
-
-What it does not establish
-
-L1
-
-Package tree, links, frontmatter, structural constraints
-
-Runtime model behavior
-
-L2
-
-Statically observable policy properties
-
-Correct live engineering decisions
-
-L3
-
-Adversarial reasoning/scenario coverage
-
-Longitudinal reliability
-
-L4
-
-Observed Claude Code behavior in disposable repositories
-
-Universal behavior or field reliability
-
-L5
-
-Longitudinal real-world evidence
-
-—
-
-A lower level never claims a higher-level guarantee.
-
-Validate the package
-
-Python 3.10+:
-
+```bash
 python engineering-core/scripts/validate_skill.py engineering-core
 python engineering-core/scripts/test_validate_skill.py
 python evals/test_completion_summary.py
 python evals/test_l4_eval.py
 python evals/activation/test_activation_eval.py
 python evals/formal-spec-team/test_team_eval.py
+python scripts/validate_repository.py .
+```
+
+Compile validation tooling:
+
+```bash
 python -m py_compile \
   engineering-core/scripts/validate_skill.py \
   engineering-core/scripts/test_validate_skill.py \
@@ -836,259 +1381,194 @@ python -m py_compile \
   evals/activation/test_activation_eval.py \
   evals/formal-spec-team/run_team_eval.py \
   evals/formal-spec-team/test_team_eval.py
-python scripts/validate_repository.py .
+```
 
-Hosted static CI runs on Linux and Windows with Python 3.10 and 3.14.
+Static validation proves only what is statically observable.
 
-A green static validator does not prove correct root-cause discovery, safe Critical handling, natural activation, or absence of scope creep.
+It does not prove:
 
-Live behavioral evaluation
+```text
+natural activation
+security correctness
+correct root-cause discovery
+absence of scope creep
+release readiness
+```
 
-L4 evaluation is intentionally local/manual because it invokes Claude Code and has time/cost implications.
+Those require stronger evidence.
 
-Each case uses a disposable Git repository and separate Claude process. PASS requires machine-scored artifact, Git, and independent-test evidence; zero process exit or a model-written VERIFIED claim is not sufficient.
+---
 
-Core explicit-activation smoke
+# Live L4 evaluation
 
-python evals/run_l4_eval.py --case small --model haiku --per-case-budget 0.35 --total-budget 0.35
+Live evaluation is manual because it invokes Claude Code and has model/time/cost implications.
 
-Natural activation
+## Core behavioral evaluation
 
+```bash
+python evals/run_l4_eval.py \
+  --case small \
+  --model haiku \
+  --per-case-budget 0.35 \
+  --total-budget 0.35
+```
+
+## Natural activation
+
+```bash
 python evals/activation/run_activation_eval.py \
-  --dataset holdout \
   --mode natural \
-  --description current \
+  --profile full \
+  --model sonnet
+```
+
+## Formal Spec Team Mode
+
+Start with a bounded scenario:
+
+```bash
+python evals/formal-spec-team/run_team_eval.py \
+  --case two-key-closure \
   --model sonnet \
-  --per-case-budget 0.30 \
-  --total-budget 19.80
+  --per-process-budget 0.60
+```
 
-Formal Spec Team Mode
+Run the complete Team Mode suite only after the harness/scorer is known to be healthy.
 
-python evals/formal-spec-team/run_team_eval.py --case two-key-closure --model haiku
-python evals/formal-spec-team/run_team_eval.py --model sonnet --per-process-budget 1.00
+---
 
-See evals/README.md, evals/activation/README.md, evals/formal-spec-team/README.md, and docs/l4-evaluation.md.
+# Design principles
 
-Current evidence status
+The project is intentionally opinionated about several boundaries:
 
-Evidence is reported conservatively and historically; failures are retained rather than rewritten.
+```text
+Small diff does not mean small risk.
 
-Hosted validation
+More agents do not mean better engineering.
 
-Current main has a successful hosted Validate workflow.
+A builder's PASS is not independent evidence.
 
-L4 core behavior
+A green phase is not a green release.
 
-The six explicit-activation core families have final recorded PASS cases:
+Old evidence is not current evidence after relevant change.
 
-small task;
+A graph is not source truth.
 
-moderate feature;
+A prompt is not deterministic enforcement.
 
-authorization boundary;
+A formal document is not automatically a reason for heavyweight orchestration.
 
-dirty worktree;
+The original specification remains authoritative over derived summaries.
+```
 
-missing graph provider;
+---
 
-formal specification.
+# What engineering-core is not
 
-These are bounded examples, not universal compliance rates.
+It is not a:
 
-Natural activation — sealed holdout, 2026-09-20
+```text
+security sandbox
+destructive-command blocker
+mandatory multi-agent framework
+code graph
+security scanner
+deployment tool
+replacement for specialist domain expertise
+requirement to create planning files for trivial work
+```
 
-Model
+Its role is narrower and more fundamental:
 
-Scored positive
+> **risk + evidence + scope + orchestration + implementation discipline + verification + review + completion semantics**
 
-Blocked positive
+---
 
-TP
+# Current maturity
 
-FP
+The current repository has evidence for a mature engineering orchestration architecture:
 
-TN
+```text
+Lean three-mode runtime dispatcher
+Structural policy contract
+113 adversarial L3 scenarios
+Live explicit L4 behavior
+Sealed Tier-A natural-activation evaluation
+18-requirement / five-phase Team Mode evaluation
+Mid-execution requirement-change evaluation
+Cross-session resume evaluation
+Two-Key closure evaluation
+Fresh release-auditor evaluation
+Linux + Windows hosted CI
+```
 
-FN
+The project deliberately does **not** claim L5.
 
-Precision
+Longitudinal real-project evidence remains a separate maturity layer.
 
-Recall
+---
 
-Sonnet
+# Design influences
 
-32
+`engineering-core` synthesizes and adapts engineering ideas from:
 
-0
+```text
+Official Claude Code guidance
+Superpowers
+gstack
+Trail of Bits skills
+Safety Net / destructive-command guard concepts
+Claude Code Hooks Mastery
+Multi-Agent Observability
+CodeGraph
+Cartographer
+Graphify
+ClaudeKit
+Alireza Claude Skills
+```
 
-27
+The project does not clone these systems.
 
-0
+It uses them as design inputs while maintaining a separate architectural boundary between:
 
-22
+```text
+behavioral workflow
+deterministic enforcement
+observability
+codebase intelligence
+specialist knowledge
+```
 
-5
+See:
 
-1.0000
+[`engineering-core/references/source-synthesis.md`](engineering-core/references/source-synthesis.md)
 
-0.8438
+---
 
-Haiku
+# Evidence and evaluation history
 
-29
+For the append-only record of:
 
-3
+```text
+successful runs
+failed runs
+scorer defects
+parser defects
+model limitations
+activation measurements
+Team Mode L4 results
+```
 
-5
+see:
 
-0
+[`docs/l4-evaluation.md`](docs/l4-evaluation.md)
 
-22
+The implementation and maturity history is recorded in:
 
-24
+[`implementation.md`](implementation.md)
 
-1.0000
+---
 
-0.1724
+# License
 
-Twelve ambiguous prompts were reported separately and excluded from the binary confusion matrix.
-
-These are model-specific observations, not routing guarantees.
-
-Formal Spec Team Mode — 2026-09-20
-
-Final machine-scored PASS exists for all five maintained scenarios:
-
-large specification;
-
-requirement change;
-
-cross-session resume;
-
-Two-Key closure;
-
-fresh release auditor.
-
-Historical failed attempts remain in the evidence record.
-
-L5
-
-Not established.
-
-The project does not claim longitudinal real-world reliability from static validation or bounded L4 runs.
-
-See docs/l4-evaluation.md.
-
-What engineering-core is not
-
-Not this
-
-What engineering-core actually is
-
-Deterministic security sandbox
-
-Behavioral engineering policy
-
-Destructive-command blocker
-
-Defines when exact authority is required
-
-Replacement for permissions/hooks
-
-Compatible with them; does not silently install them
-
-Mandatory multi-agent framework
-
-Conditional Team Mode with bounded roles
-
-Code graph
-
-Can use graph/index providers as optional discovery aids
-
-Security scanner
-
-Escalates security-sensitive work to stronger review
-
-Domain framework
-
-Cross-cutting engineering discipline
-
-Plan-file requirement for every task
-
-Fast-Exit intentionally skips heavyweight artifacts
-
-“Tests passed = safe” claim
-
-Evidence model that distinguishes what each check proves
-
-Design influences
-
-The design synthesizes—rather than concatenates—principles from:
-
-official Claude Code guidance;
-
-Superpowers;
-
-gstack;
-
-Trail of Bits skills;
-
-Safety Net / Destructive Command Guard concepts;
-
-Claude Code Hooks Mastery;
-
-Multi-Agent Observability;
-
-CodeGraph;
-
-Cartographer;
-
-Graphify;
-
-ClaudeKit;
-
-Alireza Claude Skills.
-
-The project intentionally rejects:
-
-mandatory heavyweight planning for every task;
-
-mandatory multi-agent execution;
-
-mandatory TDD regardless of task type;
-
-mandatory graph/index tooling;
-
-automatic hook or MCP installation;
-
-treating observability as correctness;
-
-duplicating specialist domains inside the core;
-
-a monolithic SKILL.md;
-
-static-validator claims about runtime behavior.
-
-See engineering-core/references/source-synthesis.md.
-
-Design thesis
-
-engineering-core is not trying to be the best debugger, security scanner, code graph, test framework, or release system in isolation.
-
-Its purpose is to provide one coherent engineering control policy across all of them:
-
-risk-adaptive workflow
-+ evidence-first context
-+ minimum-correct implementation
-+ systematic debugging
-+ targeted verification
-+ security escalation
-+ bounded collaboration
-+ independent closure where needed
-+ honest completion semantics
-
-Move fast when the change is cheap to be wrong about. Become rigorous when it is expensive to be wrong about. Never confuse confidence with evidence.
-
-License
-
-MIT. See LICENSE.
+MIT — see [`LICENSE`](LICENSE).
