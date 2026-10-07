@@ -25,7 +25,7 @@ class TrustBoundaryTests(unittest.TestCase):
 
     def test_candidate_visible_test_cannot_replace_trusted_oracle(self):
         root = self.repo()
-        oracle = materialize_oracle(root.parent / (root.name + "-oracle"), "acceptance", "import pathlib, runpy, sys\nroot=pathlib.Path(sys.argv[1]); sys.path.insert(0,str(root)); import app\nassert app.allowed('denied') is False\n")
+        oracle = materialize_oracle(root.parent / (root.name + "-oracle"), "acceptance", "import pathlib, runpy, sys\nroot=pathlib.Path(sys.argv[1]); candidate=runpy.run_path(str(root/'app.py'))\nassert candidate['allowed']('denied') is False\n")
         (root / "test_contract.py").write_text("pass\n", encoding="utf-8")
         result = run_trusted_oracle(oracle, root)
         self.assertNotEqual(result.returncode, 0)

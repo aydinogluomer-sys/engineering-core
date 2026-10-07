@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-07T14:36:30.255795+00:00",
-  "repository_commit": "6940e92aa1164c6b857d4bf7de9fbc622806ec17",
+  "generated_at": "2026-10-07T14:40:49.679691+00:00",
+  "repository_commit": "7027eee380ed63926d8b1db6dd21913551024e23",
   "environment": {
     "python": "3.14.6",
     "platform": "Windows-11-10.0.26200-SP0"
@@ -19,7 +19,7 @@
     "engineering-core/references/source-synthesis.md": "4b6085f06d6aefe26021c0c475ae52f5fd3c9d7fadab0a54549c43df7c33d130",
     "engineering-core/references/verification-review.md": "4dfda5ada68610661266b1f6944e0df9c2099ed878ba6e16d1e55c9a6f7eb494"
   },
-  "candidate_manifest_sha256": "87c6b55c7676f4d1de08ab71294e151d64329c4d51092062ebec8533eeaa61fd",
+  "candidate_manifest_sha256": "9f6e0f5f283b3edc7d14aaaa4d626be07ff5f0a0e970ace2c0e67aa607c2094e",
   "candidate_manifest": {
     ".github/CODEOWNERS": "37c7e5939f75773920cc62d771368d72e55e4df6890cc780cf6b7c8076750368",
     ".github/pull_request_template.md": "dd9b9d7cf723f2b28feb13a5fab14d945e311baec8f96a7dce4094e62cd31612",
@@ -238,7 +238,7 @@
     "evals/test_run_manifest.py": "1c16cd56369dd9a96306af06187e389c6a43c245ade5106a94688dffe84bfab0",
     "evals/test_sampling.py": "94582f938829c205c38141436b3ecb49efc42b37e6ff0cd86d3d6a6ee9aaa706",
     "evals/test_team_trust.py": "58ac87d691847f9272ff4152ddad525354fb1d0ecf81d5fe65e38aaffa6ff9f5",
-    "evals/test_trust.py": "d4f474eecee17b0bb8552284e3d3b9491d33df7970e8cd7473082a7f722dc750",
+    "evals/test_trust.py": "be4d90a8edf83f8acdea05a1ea4afcda40eebc4805f74b77e781715b0c3bc8f1",
     "evals/trust.py": "ee4c361451abe162064029c2da89ad9804d23ce3c42b386dc56fe687860588ae",
     "implementation-v4.md": "e42eea509665602aafe5c5da8d186c19a96646b6850f0da55a37b39f769ae2ab",
     "implementation.md": "dcf83394e662f89946006dfeb30220a545377da65a27337a69bf601586882721",
@@ -273,7 +273,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "test_activation_guarantee (__main__.ValidatorTests.test_activation_guarantee) ... ok\ntest_active_mcp_config (__main__.ValidatorTests.test_active_mcp_config) ... ok\ntest_arbitrary_unknown_external_import_is_rejected (__main__.ValidatorTests.test_arbitrary_unknown_external_import_is_rejected) ... ok\ntest_broken_local_link (__main__.ValidatorTests.test_broken_local_link) ... ok\ntest_common_external_imports_are_rejected (__main__.ValidatorTests.test_common_external_imports_are_rejected) ... ok\ntest_deterministic_safety_guarantee (__main__.ValidatorTests.test_deterministic_safety_guarantee) ... ok\ntest_duplicate_policy_id_fails (__main__.ValidatorTests.test_duplicate_policy_id_fails) ... ok\ntest_eval_tree_cannot_enter_runtime_package (__main__.ValidatorTests.test_eval_tree_cannot_enter_runtime_package) ... ok\ntest_external_tool_made_mandatory (__main__.ValidatorTests.test_external_tool_made_mandatory) ... ok\ntest_future_and_builtin_imports_are_accepted (__main__.ValidatorTests.test_future_and_builtin_imports_are_accepted) ... ok\ntest_heading_rename_with_policy_id_passes (__main__.ValidatorTests.test_heading_rename_with_policy_id_passes) ... ok\ntest_invalid_frontmatter (__main__.ValidatorTests.test_invalid_frontmatter) ... ok\ntest_local_validator_import_is_accepted (__main__.ValidatorTests.test_local_validator_import_is_accepted) ... ok\ntest_malformed_policy_id_fails (__main__.ValidatorTests.test_malformed_policy_id_fails) ... ok\ntest_missing_example (__main__.ValidatorTests.test_missing_example) ... ok\ntest_missing_policy_id_fails (__main__.ValidatorTests.test_missing_policy_id_fails) ... ok\ntest_missing_reference (__main__.ValidatorTests.test_missing_reference) ... ok\ntest_missing_team_mode_policy_id_fails (__main__.ValidatorTests.test_missing_team_mode_policy_id_fails) ... ok\ntest_over_broad_frontmatter (__main__.ValidatorTests.test_over_broad_frontmatter) ... ok\ntest_oversized_entrypoint (__main__.ValidatorTests.test_oversized_entrypoint) ... ok\ntest_prose_rewrite_with_policy_id_passes (__main__.ValidatorTests.test_prose_rewrite_with_policy_id_passes) ... ok\ntest_real_package (__main__.ValidatorTests.test_real_package) ... ok\ntest_stdlib_and_nested_stdlib_imports_are_accepted (__main__.ValidatorTests.test_stdlib_and_nested_stdlib_imports_are_accepted) ... ok\ntest_team_mode_heading_and_prose_rewrite_passes (__main__.ValidatorTests.test_team_mode_heading_and_prose_rewrite_passes) ... ok\ntest_team_mode_policy_id_wrong_owner_fails (__main__.ValidatorTests.test_team_mode_policy_id_wrong_owner_fails) ... ok\ntest_unknown_extra_policy_id_is_allowed (__main__.ValidatorTests.test_unknown_extra_policy_id_is_allowed) ... ok\ntest_validator_uses_no_fuzzy_semantics (__main__.ValidatorTests.test_validator_uses_no_fuzzy_semantics) ... ok\ntest_wrong_policy_owner_fails (__main__.ValidatorTests.test_wrong_policy_owner_fails) ... ok\n\n----------------------------------------------------------------------\nRan 28 tests in 7.517s\n\nOK\n"
+      "stderr_tail": "test_activation_guarantee (__main__.ValidatorTests.test_activation_guarantee) ... ok\ntest_active_mcp_config (__main__.ValidatorTests.test_active_mcp_config) ... ok\ntest_arbitrary_unknown_external_import_is_rejected (__main__.ValidatorTests.test_arbitrary_unknown_external_import_is_rejected) ... ok\ntest_broken_local_link (__main__.ValidatorTests.test_broken_local_link) ... ok\ntest_common_external_imports_are_rejected (__main__.ValidatorTests.test_common_external_imports_are_rejected) ... ok\ntest_deterministic_safety_guarantee (__main__.ValidatorTests.test_deterministic_safety_guarantee) ... ok\ntest_duplicate_policy_id_fails (__main__.ValidatorTests.test_duplicate_policy_id_fails) ... ok\ntest_eval_tree_cannot_enter_runtime_package (__main__.ValidatorTests.test_eval_tree_cannot_enter_runtime_package) ... ok\ntest_external_tool_made_mandatory (__main__.ValidatorTests.test_external_tool_made_mandatory) ... ok\ntest_future_and_builtin_imports_are_accepted (__main__.ValidatorTests.test_future_and_builtin_imports_are_accepted) ... ok\ntest_heading_rename_with_policy_id_passes (__main__.ValidatorTests.test_heading_rename_with_policy_id_passes) ... ok\ntest_invalid_frontmatter (__main__.ValidatorTests.test_invalid_frontmatter) ... ok\ntest_local_validator_import_is_accepted (__main__.ValidatorTests.test_local_validator_import_is_accepted) ... ok\ntest_malformed_policy_id_fails (__main__.ValidatorTests.test_malformed_policy_id_fails) ... ok\ntest_missing_example (__main__.ValidatorTests.test_missing_example) ... ok\ntest_missing_policy_id_fails (__main__.ValidatorTests.test_missing_policy_id_fails) ... ok\ntest_missing_reference (__main__.ValidatorTests.test_missing_reference) ... ok\ntest_missing_team_mode_policy_id_fails (__main__.ValidatorTests.test_missing_team_mode_policy_id_fails) ... ok\ntest_over_broad_frontmatter (__main__.ValidatorTests.test_over_broad_frontmatter) ... ok\ntest_oversized_entrypoint (__main__.ValidatorTests.test_oversized_entrypoint) ... ok\ntest_prose_rewrite_with_policy_id_passes (__main__.ValidatorTests.test_prose_rewrite_with_policy_id_passes) ... ok\ntest_real_package (__main__.ValidatorTests.test_real_package) ... ok\ntest_stdlib_and_nested_stdlib_imports_are_accepted (__main__.ValidatorTests.test_stdlib_and_nested_stdlib_imports_are_accepted) ... ok\ntest_team_mode_heading_and_prose_rewrite_passes (__main__.ValidatorTests.test_team_mode_heading_and_prose_rewrite_passes) ... ok\ntest_team_mode_policy_id_wrong_owner_fails (__main__.ValidatorTests.test_team_mode_policy_id_wrong_owner_fails) ... ok\ntest_unknown_extra_policy_id_is_allowed (__main__.ValidatorTests.test_unknown_extra_policy_id_is_allowed) ... ok\ntest_validator_uses_no_fuzzy_semantics (__main__.ValidatorTests.test_validator_uses_no_fuzzy_semantics) ... ok\ntest_wrong_policy_owner_fails (__main__.ValidatorTests.test_wrong_policy_owner_fails) ... ok\n\n----------------------------------------------------------------------\nRan 28 tests in 6.553s\n\nOK\n"
     },
     {
       "command": [
@@ -288,7 +288,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": ".....................................................\n----------------------------------------------------------------------\nRan 53 tests in 3.998s\n\nOK\n"
+      "stderr_tail": ".....................................................\n----------------------------------------------------------------------\nRan 53 tests in 3.498s\n\nOK\n"
     },
     {
       "command": [
@@ -303,7 +303,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.023s\n\nOK\n"
+      "stderr_tail": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.020s\n\nOK\n"
     },
     {
       "command": [
@@ -318,7 +318,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "................\n----------------------------------------------------------------------\nRan 16 tests in 7.488s\n\nOK\n"
+      "stderr_tail": "................\n----------------------------------------------------------------------\nRan 16 tests in 6.816s\n\nOK\n"
     },
     {
       "command": [
@@ -333,7 +333,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "....................\n----------------------------------------------------------------------\nRan 20 tests in 0.620s\n\nOK\n"
+      "stderr_tail": "....................\n----------------------------------------------------------------------\nRan 20 tests in 0.680s\n\nOK\n"
     },
     {
       "command": [
@@ -348,7 +348,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.637s\n\nOK\n"
+      "stderr_tail": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.513s\n\nOK\n"
     },
     {
       "command": [
@@ -357,7 +357,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "....\n----------------------------------------------------------------------\nRan 4 tests in 10.431s\n\nOK\n"
+      "stderr_tail": "....\n----------------------------------------------------------------------\nRan 4 tests in 10.307s\n\nOK\n"
     },
     {
       "command": [
