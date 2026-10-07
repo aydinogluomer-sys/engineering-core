@@ -65,7 +65,7 @@ def begin_stage(fixture: Path, run_id: str, stage_id: str, role: str) -> dict:
 def end_stage(start: dict, fixture: Path, evidence_pointer: str) -> StageRecord:
     return StageRecord(
         **start,
-        ended_ns=time.time_ns(),
+        ended_ns=max(time.time_ns(), start["started_ns"] + 1),
         output_candidate_hash=tree_hash(fixture),
         output_artifact_hashes=artifact_hashes(fixture),
         evidence_pointer=evidence_pointer,
