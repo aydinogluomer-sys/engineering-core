@@ -9,7 +9,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from run_team_eval import FIXTURES, REGISTRY, accounted_cost, event_cost, fixture_failure_result, load_scenarios, requirement_ids_in_spec, score_fixture  # noqa: E402
+from run_team_eval import FIXTURES, REGISTRY, accounted_cost, event_cost, fixture_failure_result, load_scenarios, requirement_ids_in_spec, score_fixture, validate_scenario_contract, validate_scoring_assertions  # noqa: E402
 sys.path.insert(0, str(HERE.parents[1]))
 from cross_model import load_registry  # noqa: E402
 
@@ -41,6 +41,12 @@ class TeamEvalTests(unittest.TestCase):
         required = {"objective","fixture","expected_phases","expected_requirement_count","expected_min_processes","protected_files","decision_locks","expected_state_transitions","required_evidence","prohibited_behavior","scoring_assertions","budget_usd","timeout_seconds"}
         for row in scenarios:
             self.assertTrue(required <= set(row), row["id"])
+            self.assertEqual(validate_scenario_contract(row), [], row["id"])
+
+    def test_unknown_required_evidence_is_not_silently_ignored(self):
+        scenario = dict(load_scenarios(["large-spec"])[0])
+        scenario["required_evidence"] = [*scenario["required_evidence"], "forged-field"]
+        self.assertTrue(any("required_evidence" in error for error in validate_scenario_contract(scenario)))
 
     def test_large_spec_is_realistic(self):
         scenario = load_scenarios(["large-spec"])[0]
@@ -77,7 +83,7 @@ class TeamEvalTests(unittest.TestCase):
         fixture = self.copy_fixture("independent-qa")
         baseline = __import__("subprocess").run(["git", "rev-parse", "HEAD"], cwd=fixture, text=True, capture_output=True).stdout.strip()
         result = score_fixture(scenario, fixture, {}, baseline, 1)
-        self.assertIn("independent process count is below scenario contract", result["failures"])
+        self.assertTrue(any("stage records" in item or "process_count" in item for item in result["failures"]))
         self.assertIn("Formal Spec Team Mode selection is not recorded", result["failures"])
 
     def test_release_scorer_rejects_prose_free_false_claim(self):
@@ -87,7 +93,13 @@ class TeamEvalTests(unittest.TestCase):
         baseline = __import__("subprocess").run(["git", "rev-parse", "HEAD"], cwd=fixture, text=True, capture_output=True).stdout.strip()
         result = score_fixture(scenario, fixture, {}, baseline, 1)
         self.assertFalse(result["passed"])
-        self.assertIn("release auditor evidence incomplete", result["failures"])
+        self.assertTrue(any("release auditor" in item or "auditor" in item for item in result["failures"]))
+
+    def test_release_assertions_bind_string_verdict_to_oracle_trajectory(self):
+        scenario = load_scenarios(["release-auditor"])[0]
+        artifacts = {"release-audit.json": {"release_status":"RELEASE_VERIFIED","detected_defect":"schema version mismatch","correction_evidence":["producer.py:1"],"evidence":["trusted oracle baseline failed then passed"]}}
+        trajectory = [{"role":"baseline","exit_code":1},{"role":"auditor","exit_code":0}]
+        self.assertEqual(validate_scoring_assertions(scenario, artifacts=artifacts, records=[{"role":"auditor"}], oracle_results=trajectory, independent_closure=True), [])
 
     def test_cross_session_requires_two_processes(self):
         scenario = load_scenarios(["cross-session"])[0]

@@ -17,8 +17,8 @@ jobs:
         python: ['3.10', '3.14']
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: ${{ matrix.python }}
       - name: Validate runtime skill package
@@ -35,7 +35,15 @@ jobs:
         run: python evals/formal-spec-team/test_team_eval.py
       - name: Run cross-model provenance and schema tests
         run: python evals/cross-model/test_cross_model_matrix.py
+      - name: Run shared harness, trust, state, and Team provenance tests
+        run: python -m unittest evals.test_harness_core evals.test_trust evals.test_evidence_state evals.test_team_trust evals.test_sampling evals.test_run_manifest
+      - name: Run deterministic failure-resistance tests
+        run: python -m unittest discover -s evals/failure-resistance -p "test_*.py"
+      - name: Run repository-validator mutation tests
+        run: python scripts/test_validate_repository.py
+      - name: Run installer safety tests
+        run: python scripts/test_install.py
       - name: Compile Python validation tools
-        run: python -m py_compile engineering-core/scripts/validate_skill.py engineering-core/scripts/test_validate_skill.py scripts/validate_repository.py evals/completion_summary.py evals/cross_model.py evals/test_completion_summary.py evals/run_l4_eval.py evals/test_l4_eval.py evals/activation/run_activation_eval.py evals/activation/test_activation_eval.py evals/formal-spec-team/run_team_eval.py evals/formal-spec-team/test_team_eval.py evals/cross-model/run_mode_selection_eval.py evals/cross-model/test_cross_model_matrix.py
+        run: python -m compileall -q engineering-core scripts evals
       - name: Validate public repository hygiene
         run: python scripts/validate_repository.py .

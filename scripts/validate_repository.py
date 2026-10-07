@@ -8,7 +8,16 @@ from pathlib import Path
 MIN_PYTHON = (3, 10)
 REQUIRED = {
     ".github/workflows/validate.yml",
+    ".github/CODEOWNERS",
+    ".github/pull_request_template.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
     "README.md",
+    "SECURITY.md",
+    "VERSION",
+    "docs/governance.md",
+    "docs/current-status.md",
+    "docs/longitudinal-protocol.md",
     "docs/deterministic-enforcement.md",
     "docs/cross-model-reliability.md",
     "docs/l4-evaluation.md",
@@ -32,6 +41,23 @@ REQUIRED = {
     "evals/cross-model/run_mode_selection_eval.py",
     "evals/cross-model/schemas/cross-model-report.schema.json",
     "evals/cross-model/test_cross_model_matrix.py",
+    "evals/evidence_state.py",
+    "evals/harness_core.py",
+    "evals/team_trust.py",
+    "evals/test_evidence_state.py",
+    "evals/test_harness_core.py",
+    "evals/test_team_trust.py",
+    "evals/test_trust.py",
+    "evals/trust.py",
+    "evals/failure-resistance/README.md",
+    "evals/failure-resistance/test_failure_resistance.py",
+    "evals/live-run-manifest.template.json",
+    "evals/run_manifest.py",
+    "evals/sampling.py",
+    "evals/test_run_manifest.py",
+    "evals/test_sampling.py",
+    "evidence/current/evidence.json",
+    "evidence/current/SHA256SUMS.json",
     "evals/formal-spec-team/README.md",
     "evals/formal-spec-team/run_team_eval.py",
     "evals/formal-spec-team/test_team_eval.py",
@@ -39,6 +65,12 @@ REQUIRED = {
     "evals/test_completion_summary.py",
     "evals/test_l4_eval.py",
     "engineering-core/SKILL.md",
+    "scripts/install.py",
+    "scripts/install.ps1",
+    "scripts/install.sh",
+    "scripts/build_evidence_bundle.py",
+    "scripts/test_install.py",
+    "scripts/test_validate_repository.py",
 }
 CORE_FAMILIES = {"small", "moderate", "auth", "dirty", "missing-graph", "formal-spec"}
 
@@ -48,6 +80,79 @@ def markdown_links(path: Path, text: str):
         clean = target.split("#", 1)[0]
         if clean and "://" not in clean and not clean.startswith("mailto:"):
             yield target, (path.parent / clean).resolve()
+
+
+def workflow_structure(text: str) -> dict:
+    """Parse only the workflow subset this repository owns; reject structure hidden in comments."""
+    result = {"events": set(), "jobs": {}, "permissions": {}}
+    section = None
+    job = None
+    in_steps = False
+    current_step: dict | None = None
+    for raw in text.splitlines():
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            continue
+        indent = len(raw) - len(raw.lstrip(" "))
+        line = raw.strip()
+        if indent == 0 and line.endswith(":"):
+            section, job, in_steps = line[:-1], None, False
+            continue
+        if section == "on" and indent == 2 and line.endswith(":"):
+            result["events"].add(line[:-1])
+        elif section == "permissions" and indent == 2 and ":" in line:
+            key, value = line.split(":", 1)
+            result["permissions"][key.strip()] = value.strip()
+        elif section == "jobs":
+            if indent == 2 and line.endswith(":"):
+                job = line[:-1]
+                result["jobs"][job] = {"matrix": {}, "steps": []}
+                in_steps = False
+            elif job and indent == 4 and line == "steps:":
+                in_steps = True
+            elif job and indent == 6 and line.startswith("-") and in_steps:
+                current_step = {}
+                result["jobs"][job]["steps"].append(current_step)
+                remainder = line[1:].strip()
+                if ":" in remainder:
+                    key, value = remainder.split(":", 1)
+                    current_step[key.strip()] = value.strip()
+            elif job and in_steps and indent >= 8 and ":" in line and current_step is not None:
+                key, value = line.split(":", 1)
+                current_step[key.strip()] = value.strip()
+            elif job and "matrix:" in line:
+                result["jobs"][job]["has_matrix"] = True
+            elif job and indent >= 8 and not in_steps and ":" in line:
+                key, value = line.split(":", 1)
+                if value.strip().startswith("["):
+                    result["jobs"][job]["matrix"][key.strip()] = value.strip()
+    return result
+
+
+def validate_workflow(text: str) -> list[str]:
+    errors: list[str] = []
+    parsed = workflow_structure(text)
+    if not {"push", "pull_request", "workflow_dispatch"} <= parsed["events"]:
+        errors.append("CI workflow is missing required trigger structure")
+    if parsed["permissions"].get("contents") != "read":
+        errors.append("CI workflow must use read-only contents permission")
+    job = parsed["jobs"].get("static-validation")
+    if not job:
+        return errors + ["CI workflow is missing static-validation job"]
+    if not job.get("has_matrix") or "ubuntu-latest" not in job["matrix"].get("os", "") or "windows-latest" not in job["matrix"].get("os", ""):
+        errors.append("CI workflow must structurally define the OS matrix")
+    if "'3.10'" not in job["matrix"].get("python", "") or "'3.14'" not in job["matrix"].get("python", ""):
+        errors.append("CI workflow must structurally define the Python matrix")
+    uses = [step.get("uses", "") for step in job["steps"]]
+    for action in ("actions/checkout", "actions/setup-python"):
+        matching = [value for value in uses if value.startswith(action + "@")]
+        if len(matching) != 1 or not re.fullmatch(re.escape(action) + r"@[0-9a-f]{40}(?:\s+#\s+v\d+)?", matching[0]):
+            errors.append(f"CI action must be pinned to one immutable SHA: {action}")
+    commands = "\n".join(step.get("run", "") for step in job["steps"])
+    required_commands = ("test_team_eval.py", "test_cross_model_matrix.py", "evals/failure-resistance", "evals.test_run_manifest", "test_install.py", "test_validate_repository.py", "python scripts/validate_repository.py .")
+    for command in required_commands:
+        if command not in commands:
+            errors.append(f"CI workflow does not execute required validation: {command}")
+    return errors
 
 
 def validate(root: Path) -> list[str]:
@@ -77,15 +182,9 @@ def validate(root: Path) -> list[str]:
     workflow = root / ".github/workflows/validate.yml"
     if workflow.exists():
         text = workflow.read_text(encoding="utf-8")
-        for marker in ["push:", "pull_request:", "workflow_dispatch:", "ubuntu-latest", "windows-latest", "'3.10'", "'3.14'", "actions/checkout@v7", "actions/setup-python@v7"]:
-            if marker not in text:
-                errors.append(f"CI workflow missing marker: {marker}")
+        errors.extend(validate_workflow(text))
         if "secrets." in text:
             errors.append("static CI must not depend on repository secrets")
-        if "evals/formal-spec-team/test_team_eval.py" not in text:
-            errors.append("CI workflow does not run Formal Spec Team Mode harness tests")
-        if "evals/cross-model/test_cross_model_matrix.py" not in text:
-            errors.append("CI workflow does not run cross-model provenance/schema tests")
         if "run_mode_selection_eval.py --model" in text or "run_activation_eval.py --mode" in text:
             errors.append("push CI must not run live cross-model evaluations")
 
@@ -193,7 +292,7 @@ def validate(root: Path) -> list[str]:
                 errors.append("mode-selection dataset must contain ten cases including Fast-Exit abort")
 
     for path in (root / "evals").rglob("*"):
-        if path.is_file() and "reports" not in path.parts:
+        if path.is_file() and "reports" not in path.parts and "__pycache__" not in path.parts:
             text = path.read_text(encoding="utf-8", errors="ignore")
             if re.search(r"(sk-ant-[A-Za-z0-9_-]+|ghp_[A-Za-z0-9]+|github_pat_[A-Za-z0-9_]+|AKIA[0-9A-Z]{16}|BEGIN (RSA |OPENSSH )?PRIVATE KEY)", text):
                 errors.append(f"secret-like material in {path.relative_to(root)}")

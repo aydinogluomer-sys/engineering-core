@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import unittest
+import sys
+from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from completion_summary import parse_completion_summary
 
 
@@ -19,6 +22,28 @@ Limitations: None
 
 
 class CompletionSummaryTests(unittest.TestCase):
+    def test_empty_required_values_fail(self):
+        for field in ("Policy", "Risk", "Status", "Changed", "Verified", "Limitations"):
+            text = report().replace(f"{field}: " + {
+                "Policy": "engineering-core", "Risk": "Low", "Status": "VERIFIED",
+                "Changed": "Localized behavior.", "Verified": "`python test_contract.py` passed.", "Limitations": "None",
+            }[field], f"{field}: ")
+            with self.subTest(field=field):
+                _, errors = parse_completion_summary(text)
+                self.assertIn(f"empty completion field: {field.lower()}", errors)
+
+    def test_explicit_none_and_not_run_are_meaningful_values(self):
+        text = report().replace("Changed: Localized behavior.", "Changed: None").replace("Verified: `python test_contract.py` passed.", "Verified: Not run")
+        summary, errors = parse_completion_summary(text)
+        self.assertEqual(errors, [])
+        self.assertEqual((summary.changed, summary.verified), ("None", "Not run"))
+
+    def test_fenced_example_is_not_a_completion(self):
+        text = "```markdown\n" + report() + "\n```"
+        summary, errors = parse_completion_summary(text)
+        self.assertIsNone(summary)
+        self.assertIn("missing ### Execution Summary anchor", errors)
+
     def test_low_compact(self):
         parsed, errors = parse_completion_summary(report())
         self.assertEqual(errors, [])

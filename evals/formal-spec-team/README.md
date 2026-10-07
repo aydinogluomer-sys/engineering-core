@@ -1,5 +1,7 @@
 # Formal Spec Team Mode L4 Evaluation
 
+Historical live reports described here do not automatically satisfy the current schema-v3 evaluator-owned stage/oracle contract. Current claims are maintained in [`../../docs/current-status.md`](../../docs/current-status.md).
+
 This maintainer-only harness evaluates mode selection and orchestration in disposable Git repositories. It is not installed with the runtime skill and never targets a production repository.
 
 ## Machine artifact contract

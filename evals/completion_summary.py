@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-ANCHOR_RE = re.compile(r"^### Execution Summary\s*$", re.MULTILINE)
+ANCHOR_RE = re.compile(r"^### Execution Summary\s*$")
 FIELD_RE = re.compile(r"^\s*(?:[-*]\s+)?(Policy|Risk|Status|Changed|Verified|Limitations|Blockers)\s*:\s*(.*?)\s*$", re.IGNORECASE)
 TABLE_FIELD_RE = re.compile(r"^\s*\|\s*(Policy|Risk|Status|Changed|Verified|Limitations|Blockers)\s*\|\s*(.*?)\s*\|\s*$", re.IGNORECASE)
 RISKS = {"Low", "Moderate", "High", "Critical"}
@@ -24,10 +24,20 @@ class CompletionSummary:
 
 def parse_completion_summary(text: str) -> tuple[CompletionSummary | None, list[str]]:
     """Parse the final Execution Summary without claiming its fields are true."""
-    anchors = list(ANCHOR_RE.finditer(text))
+    anchors: list[int] = []
+    in_fence = False
+    offset = 0
+    lines = text.splitlines(keepends=True)
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            in_fence = not in_fence
+        elif not in_fence and ANCHOR_RE.match(line.rstrip("\r\n")):
+            anchors.append(offset + len(line.rstrip("\r\n")))
+        offset += len(line)
     if not anchors:
         return None, ["missing ### Execution Summary anchor"]
-    section = text[anchors[-1].end():]
+    section = text[anchors[-1]:]
     fields: dict[str, str] = {}
     errors: list[str] = []
     current: str | None = None
@@ -58,6 +68,8 @@ def parse_completion_summary(text: str) -> tuple[CompletionSummary | None, list[
     for required in ("policy", "risk", "status", "changed", "verified", "limitations"):
         if required not in fields:
             errors.append(f"missing completion field: {required}")
+        elif not fields[required].strip():
+            errors.append(f"empty completion field: {required}")
     if fields.get("policy") is not None and fields["policy"] != "engineering-core":
         errors.append("Policy must be engineering-core")
     risk_match = re.match(r"^(Low|Moderate|High|Critical)(?:\s|$|[-—:])", fields.get("risk", ""))

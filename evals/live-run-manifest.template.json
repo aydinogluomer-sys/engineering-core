@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "status": "PROPOSED_NOT_AUTHORIZED",
+  "purpose": "confirmatory cross-model reliability run",
+  "models": ["haiku", "sonnet", "opus", "fable"],
+  "served_model_identity_required": true,
+  "cells": ["activation", "mode_selection", "core_l4", "team_l4", "long_horizon"],
+  "pilot_separate_from_confirmatory": true,
+  "critical_positive_prompts_per_model_category": 20,
+  "representative_run_repetitions": 3,
+  "confidence_interval": "Wilson 95%",
+  "estimated_max_invocations": 500,
+  "per_call_budget_usd": 0.50,
+  "total_budget_usd": 250.00,
+  "timeout_seconds": 600,
+  "execution_permitted": false,
+  "authorized_by": null,
+  "authorization_evidence": null,
+  "stopping_rules": [
+    "stop before reservation would exceed total budget",
+    "stop on effective-model fallback or unobserved identity for family gate",
+    "stop on repeated infrastructure failure",
+    "never silently add pilot results to confirmatory samples"
+  ]
+}

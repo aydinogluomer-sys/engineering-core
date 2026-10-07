@@ -5,7 +5,8 @@
   "objective": "Prevent builder self-certification when positive tests pass but the cross-tenant acceptance path is missing.",
   "stages": [
     "Builder session: execute the authorization phase in Formal Spec Team Mode. Treat existing positive behavior as only the implementation key. Inspect and fix the tenant boundary, then write team-state.json showing IMPLEMENTED but not VERIFIED. Do not write the independent QA key, stage, or commit.",
-    "Independent QA session: independently derive and run the cross-tenant negative path, inspect the actual diff, and fix any remaining payload disclosure. Treat the seeded missing tenant boundary as FIND-001: record it in finding-ledger.json and set its state to VERIFIED_FIXED only after independently confirming the builder correction. Write qa-report.json and update team-state.json with an explicit IMPLEMENTED-to-VERIFIED transition only after independent evidence. Run python test_contract.py; do not stage or commit."
+    "Independent QA session: independently derive and run the cross-tenant negative path and inspect the actual diff. Record FIND-001 with full severity, requirement, evidence, authority, and closure fields. If you edit the candidate you become a writer and must not certify it. Write qa-report.json; do not stage or commit.",
+    "Second-review session: inspect the current candidate and QA evidence from scratch, rerun the protected acceptance oracle, and only then record current candidate-hash closure evidence and the explicit IMPLEMENTED-to-VERIFIED transition. Do not stage or commit."
   ],
   "expected_phases": 1,
   "expected_requirement_count": 4,
@@ -13,7 +14,7 @@
   "protected_files": [],
   "decision_locks": [],
   "required_artifacts": ["qa-report.json","finding-ledger.json","team-state.json"],
-  "expected_min_processes": 2,
+  "expected_min_processes": 3,
   "required_evidence": ["implementation_key","independent_key","negative_path","finding_verified_fixed"],
   "expected_state_transitions": ["NOT_STARTED->IMPLEMENTED","IMPLEMENTED->VERIFIED_AFTER_QA"],
   "prohibited_behavior": ["builder self-certification","premature VERIFIED","payload leak","unauthorized staging or commit"],

@@ -20,7 +20,8 @@ ROOT = HERE.parents[1]
 REPORTS = HERE / "reports"
 sys.path.insert(0, str(ROOT / "evals"))
 from completion_summary import as_dict, parse_completion_summary  # noqa: E402
-from cross_model import aggregate_provenance, load_registry, model_provenance, report_header, validate_limits, validate_report  # noqa: E402
+from cross_model import aggregate_provenance, dataset_digest, finalize_report, load_registry, model_provenance, provenance_gate_reasons, report_header, validate_limits, validate_report  # noqa: E402
+from harness_core import account_cost, gate_exit_code, parse_jsonl_events, preflight_cli, redact, write_redacted_json  # noqa: E402
 
 REGISTRY = ROOT / "evals/cross-model/model_registry.json"
 
@@ -180,16 +181,12 @@ def evaluate(case: dict, fixture: Path, args) -> dict:
         raw = exc.stdout.decode(errors="replace") if isinstance(exc.stdout, bytes) else (exc.stdout or "")
         stderr = exc.stderr.decode(errors="replace") if isinstance(exc.stderr, bytes) else (exc.stderr or "")
         exit_code, timed_out = None, True
-    events, malformed = [], 0
-    for line in raw.splitlines():
-        try:
-            events.append(json.loads(line))
-        except json.JSONDecodeError:
-            malformed += 1
+    events, event_errors = parse_jsonl_events(raw)
     activated, tier, completion, completion_errors = activation_evidence(events)
     provenance = model_provenance(args.model, events, args.model_registry)
     terminal = next((event for event in reversed(events) if event.get("type") == "result"), {})
-    cost = terminal.get("total_cost_usd") if isinstance(terminal.get("total_cost_usd"), (int, float)) else None
+    cost = terminal.get("total_cost_usd") if type(terminal.get("total_cost_usd")) in {int, float} else None
+    accounting = account_cost(args.per_case_budget, cost)
     terminal_reason = terminal.get("terminal_reason")
     permission_denied = any(event.get("subtype") == "permission_denied" for event in events)
     if timed_out:
@@ -202,7 +199,7 @@ def evaluate(case: dict, fixture: Path, args) -> dict:
         status, failure = "BLOCKED", "model_capability"
     elif exit_code != 0:
         status, failure = "BLOCKED", "CLI"
-    elif malformed:
+    elif event_errors:
         status, failure = "BLOCKED", "scorer"
     else:
         status, failure = "SCORED", None
@@ -212,9 +209,8 @@ def evaluate(case: dict, fixture: Path, args) -> dict:
         "mode": args.mode, "description": args.description, "status": status, "failure_class": failure,
         "activated": activated, "evidence_tier": tier, "completion_summary": completion,
         "completion_errors": completion_errors, "exit_code": exit_code, "timed_out": timed_out,
-        "cost_usd": cost, "elapsed_seconds": round(time.monotonic() - started, 3),
-        "stderr": SECRET_RE.sub("[REDACTED]", stderr),
-        "events": json.loads(SECRET_RE.sub("[REDACTED]", json.dumps(events))),
+        "reserved_cost_usd": accounting.reserved_cost_usd, "cost_usd": accounting.observed_cost_usd, "accounted_cost_usd": accounting.accounted_cost_usd, "elapsed_seconds": round(time.monotonic() - started, 3),
+        "stderr": redact(stderr), "events": redact(events), "event_errors": event_errors,
         "availability_is_not_activation": True,
         **provenance,
     }
@@ -232,8 +228,8 @@ def standardized_result(row: dict) -> dict:
     else:
         status, failure = "PASS", None
     return {
-        "scenario_id": row["id"], "status": status, "activation_tier": row.get("evidence_tier"),
-        "selected_mode": None, "expected_mode": None, "cost_usd": row.get("cost_usd"),
+        "scenario_id": f"{row['id']}::r{row.get('run_index', 1)}", "status": status, "activation_tier": row.get("evidence_tier"),
+        "selected_mode": None, "expected_mode": None, "reserved_cost_usd": row.get("reserved_cost_usd", 0.0), "cost_usd": row.get("cost_usd"), "accounted_cost_usd": row.get("accounted_cost_usd", row.get("reserved_cost_usd", 0.0)),
         "elapsed_seconds": row.get("elapsed_seconds", 0.0), "failure_class": failure,
         "evidence": {"expected_activation": row.get("expected"), "activated": row.get("activated"), "category": row.get("category")},
         "limitations": (["ambiguous prompt excluded from confusion matrix"] if row.get("expected") == "ambiguous" else []),
@@ -287,14 +283,19 @@ def main() -> int:
     parser.add_argument("--workers", type=int, choices=range(1, 5), default=1)
     parser.add_argument("--repetitions", type=int, choices=range(1, 6), default=1)
     parser.add_argument("--retries", type=int, choices=[0], default=0, help="Automatic retries are disabled")
+    parser.add_argument("--require-gate", action="store_true")
     args = parser.parse_args()
-    limit_errors = validate_limits(args.per_case_budget, args.total_budget, args.timeout)
+    limit_errors = validate_limits(args.per_case_budget, args.total_budget, args.timeout, args.repetitions, args.workers)
     if limit_errors:
         parser.error("; ".join(limit_errors))
     args.claude_executable = claude_executable()
     args.model_registry = load_registry(REGISTRY)
     if not args.claude_executable:
         print("BLOCKED: Claude Code CLI is unavailable", file=sys.stderr)
+        return 2
+    preflight = preflight_cli(args.claude_executable, ("--print", "--output-format", "--model", "--max-budget-usd", "--no-session-persistence"))
+    if preflight["status"] != "PASS":
+        print("BLOCKED: " + str(preflight), file=sys.stderr)
         return 2
     if args.dataset == "holdout" and args.description != "current":
         parser.error("sealed holdout may run only against the frozen current description")
@@ -321,6 +322,7 @@ def main() -> int:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     claude_version = run([args.claude_executable, "--version"], ROOT).stdout.strip()
     summary = report_header(ROOT, "activation", args.model, claude_version, dataset_version)
+    summary["dataset_hash"] = dataset_digest(cases)
     summary.update({"dataset": args.dataset, "started_at": stamp, "mode": args.mode, "profile": args.profile, "description": args.description, "description_sha256": description_hash, "frozen_at_commit": metadata["frozen_at_commit"], "repository_base_commit": summary["commit_sha"], "model": args.model, "claude_version": claude_version, "repetitions": args.repetitions, "retry_limit": 0, "budget_limits": {"per_case_usd": args.per_case_budget, "total_usd": args.total_budget, "timeout_seconds": args.timeout}, "cases": []})
     capacity = int((args.total_budget + 1e-9) // args.per_case_budget)
     runnable, deferred = cases[:capacity], cases[capacity:]
@@ -331,7 +333,7 @@ def main() -> int:
             try:
                 fixtures[f"{case['id']}:{case['run_index']}"] = make_fixture(case, base, args.description)
             except Exception as exc:
-                summary["cases"].append({**case, "mode": args.mode, "description": args.description, "status": "BLOCKED", "failure_class": "fixture", "activated": False, "reason": repr(exc), "cost_usd": 0.0, "elapsed_seconds": 0.0, **model_provenance(args.model, [], args.model_registry)})
+                summary["cases"].append({**case, "mode": args.mode, "description": args.description, "status": "BLOCKED", "failure_class": "fixture", "activated": False, "reason": repr(exc), "reserved_cost_usd": args.per_case_budget, "cost_usd": None, "accounted_cost_usd": args.per_case_budget, "elapsed_seconds": 0.0, **model_provenance(args.model, [], args.model_registry)})
         ready = [case for case in runnable if f"{case['id']}:{case['run_index']}" in fixtures]
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
             futures = {pool.submit(evaluate, case, fixtures[f"{case['id']}:{case['run_index']}"], args): case for case in ready}
@@ -340,10 +342,10 @@ def main() -> int:
                 try:
                     result = future.result()
                 except Exception as exc:
-                    result = {**case, "mode": args.mode, "description": args.description, "status": "BLOCKED", "failure_class": "environment", "activated": False, "reason": repr(exc), "cost_usd": 0.0, "elapsed_seconds": 0.0, **model_provenance(args.model, [], args.model_registry)}
+                    result = {**case, "mode": args.mode, "description": args.description, "status": "BLOCKED", "failure_class": "environment", "activated": False, "reason": repr(exc), "reserved_cost_usd": args.per_case_budget, "cost_usd": None, "accounted_cost_usd": args.per_case_budget, "elapsed_seconds": 0.0, **model_provenance(args.model, [], args.model_registry)}
                 summary["cases"].append(result)
                 print(f"{case['id']}[r{case['run_index']}]: {result['status']} tier={result.get('evidence_tier')}", flush=True)
-    summary["cases"].extend({**case, "status": "BLOCKED", "failure_class": "budget", "activated": False, "cost_usd": 0.0, "elapsed_seconds": 0.0, **model_provenance(args.model, [], args.model_registry)} for case in deferred)
+    summary["cases"].extend({**case, "status": "BLOCKED", "failure_class": "budget", "activated": False, "reserved_cost_usd": 0.0, "cost_usd": 0.0, "accounted_cost_usd": 0.0, "elapsed_seconds": 0.0, **model_provenance(args.model, [], args.model_registry)} for case in deferred)
     order = {(case["id"], case["run_index"]): index for index, case in enumerate(cases)}
     summary["cases"].sort(key=lambda row: order[(row["id"], row.get("run_index", 1))])
     summary["metrics"] = metrics(summary["cases"])
@@ -352,13 +354,20 @@ def main() -> int:
     summary["results"] = [standardized_result(row) for row in summary["cases"]]
     summary.update(aggregate_provenance(args.model, summary["results"]))
     summary["recorded_cost_usd"] = round(sum(row.get("cost_usd") or 0 for row in summary["cases"]), 6)
-    summary["accounted_budget_usd"] = round(sum(row.get("cost_usd") if isinstance(row.get("cost_usd"), (int, float)) else args.per_case_budget for row in summary["cases"] if row["status"] != "NOT_RUN"), 6)
+    summary["accounted_budget_usd"] = round(sum(row.get("accounted_cost_usd", 0.0) for row in summary["cases"] if row["status"] != "NOT_RUN"), 6)
+    selected_ids = [row["scenario_id"] for row in summary["results"]]
+    expected_ids = [f"{case['id']}::r{case.get('run_index', 1)}" for case in cases]
+    gate = summary["role_aware_gate"]
+    provenance_reasons = provenance_gate_reasons(summary["results"])
+    quality_passed = (gate["status"] == "PASS" and not provenance_reasons) if gate["role"] == "primary" else None
+    finalize_report(summary, expected_ids=expected_ids, selected_ids=selected_ids, quality_gate_passed=quality_passed, gate_reasons=[] if quality_passed is not False else ["role-aware activation gate was not verified", *provenance_reasons])
     summary["schema_errors"] = validate_report(summary, args.model_registry)
     report = REPORTS / f"activation-{args.mode}-{args.description}-{stamp}.json"
-    report.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
+    write_redacted_json(report, summary)
     print(json.dumps(summary["metrics"], sort_keys=True))
     print(f"Report: {report}")
-    return 0 if all(row["status"] == "SCORED" for row in summary["cases"]) and not summary["schema_errors"] else 1
+    measurement_completed = all(row["status"] == "SCORED" for row in summary["cases"]) and not summary["schema_errors"]
+    return gate_exit_code(evaluation_completed=measurement_completed, quality_gate_passed=quality_passed, require_gate=args.require_gate)
 
 
 if __name__ == "__main__":

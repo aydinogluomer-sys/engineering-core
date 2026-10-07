@@ -1,5 +1,7 @@
 # L4 Evaluation Record
 
+> Historical evidence record. Results below were produced by earlier harness/scorer versions and are not current validation under schema v3. Use [current-status.md](current-status.md) for current claims; this file is retained for audit history.
+
 L4 means observed behavior from a live Claude Code process in a disposable repository. It does not establish L5 longitudinal reliability.
 
 ## Historical attempt retained

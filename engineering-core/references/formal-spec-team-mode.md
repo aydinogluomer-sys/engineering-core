@@ -94,6 +94,8 @@ Specialists are conditional:
 
 Specialists own domain mechanics. The core retains scope, authorization, evidence, user-work safety, completion semantics, and Decision Locks.
 
+Every required specialist is an explicit obligation with requirement linkage, availability, requested deliverable, evidence pointer, and resolution. If unavailable, use requirement-equivalent evidence only when it offers the same assurance; otherwise the unit remains `BLOCKED`.
+
 ## 6. Finding Ledger
 <!-- policy-id: finding-ledger -->
 
@@ -102,6 +104,8 @@ Each finding records `FIND-ID`, source/reviewer, severity, requirement/work-unit
 States are `OPEN`, `ACCEPTED`, `FIXED`, `VERIFIED_FIXED`, `REJECTED_WITH_EVIDENCE`, and `DEFERRED_AUTHORIZED`. Plain rejection, silent deletion, or “not important” without evidence is forbidden. Severity does not erase acceptance criteria.
 
 If an equivalent finding returns twice, classify implementation defect, requirement ambiguity, architecture mismatch, broken oracle, environment problem, specialist disagreement, or stale evidence. A third equivalent cycle requires explicit adjudication—architecture change, oracle correction, clarification, escalation, authorized deferral, or user decision—before another blind patch.
+
+Define a bounded phase budget before starting: maximum patch cycles, verification scope, and a stop condition. Stop when the same failure class repeats without new evidence, required capability is unavailable, the remaining budget cannot cover verification, or authority/scope becomes ambiguous. More agent activity is not progress.
 
 ## 7. Two-Key Phase Closure
 <!-- policy-id: two-key-closure -->
@@ -112,6 +116,8 @@ For every Moderate/High/Critical Team Mode phase, `PHASE_VERIFIED` requires both
 2. **Independent key:** QA/reviewer acceptance mapping passes, required negative paths pass, and required specialist evidence is resolved.
 
 With either key missing, the phase may be `IMPLEMENTED` but not `VERIFIED`. A purely Low-risk phase may close without a second agent when independent review adds no material assurance and repository policy does not require it. Independence is about evidence and perspective, not agent theater.
+
+An independent reviewer who edits the candidate becomes a writer for that candidate hash. The edit may resolve a finding, but a fresh reviewer or equivalent independent check must establish the independent key for the resulting hash.
 
 `PHASE_VERIFIED != RELEASE_VERIFIED`. Phase evidence can be reopened only by new evidence, changed requirements, stale state, dependent regression, or release-audit finding—not speculative churn.
 

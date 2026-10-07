@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import re
@@ -14,21 +13,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from completion_summary import as_dict, parse_completion_summary
-from cross_model import aggregate_provenance, load_registry, model_provenance, report_header, validate_limits, validate_report
+from cross_model import aggregate_provenance, dataset_digest, finalize_report, load_registry, model_provenance, provenance_gate_reasons, report_header, validate_limits, validate_report
+from harness_core import account_cost, gate_exit_code, parse_jsonl_events, preflight_cli, redact, write_redacted_json
+from trust import ScopeManifest, TrustedOracle, capture_scope, materialize_oracle, run_trusted_oracle, sha256_file, validate_scope
 
 ROOT = Path(__file__).resolve().parents[1]
 SCENARIOS = ROOT / "evals/scenarios"
 REPORTS = ROOT / "evals/reports"
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 3
 REGISTRY = ROOT / "evals/cross-model/model_registry.json"
-SECRET_PATTERNS = [
-    re.compile(r"sk-ant-[A-Za-z0-9_-]+"),
-    re.compile(r"ghp_[A-Za-z0-9]+"),
-    re.compile(r"github_pat_[A-Za-z0-9_]+"),
-    re.compile(r"AKIA[0-9A-Z]{16}"),
-    re.compile(r"Bearer\s+[A-Za-z0-9._~+/-]{20,}", re.I),
-    re.compile(r"-----BEGIN (?:RSA |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |OPENSSH )?PRIVATE KEY-----"),
-]
 
 
 FIXTURES = {
@@ -64,6 +57,15 @@ FIXTURES = {
     },
 }
 
+TRUSTED_ORACLES = {
+    "small": "import pathlib,sys\nr=pathlib.Path(sys.argv[1]); assert 'teh typo' not in (r/'README.md').read_text()\n",
+    "moderate": "import sys\nfrom pathlib import Path\nr=Path(sys.argv[1]); sys.path.insert(0,str(r)); from model import TeamProfile; from api import serialize; from ui import member_label\np=TeamProfile('Ada','Dr Ada'); assert serialize(p)=={'name':'Ada','display_name':'Dr Ada'}; assert member_label(p)=='Dr Ada'; assert member_label(TeamProfile('Ada',None))=='Ada'\n",
+    "auth": "import sys\nfrom pathlib import Path\nr=Path(sys.argv[1]); sys.path.insert(0,str(r)); from auth import User,Export,read_export\nassert read_export(User('a'),Export('a','ok'))=='ok'\ntry:\n read_export(User('a'),Export('b','synthetic-secret'))\n raise AssertionError('cross-tenant read allowed')\nexcept PermissionError as exc:\n assert 'synthetic-secret' not in str(exc)\n",
+    "dirty": "import sys\nfrom pathlib import Path\nr=Path(sys.argv[1]); sys.path.insert(0,str(r)); import config\nassert config.FEATURE_ENABLED is True\n",
+    "missing-graph": "import sys\nfrom pathlib import Path\nr=Path(sys.argv[1]); sys.path.insert(0,str(r)); from service import route_for\nassert route_for('Hello World')=='/items/hello-world'\n",
+    "formal-spec": "import sys\nfrom pathlib import Path\nr=Path(sys.argv[1]); sys.path.insert(0,str(r)); from pipeline import normalize,render\nassert normalize(' A ')=='a'; assert render(' A ')=='item:a'; s=(r/'STATUS.md').read_text(); assert 'PHASE_VERIFIED' in s and 'RELEASE_VERIFIED' in s\n",
+}
+
 
 def run(command: list[str], cwd: Path, timeout: int = 30) -> subprocess.CompletedProcess[str]:
     return subprocess.run(command, cwd=cwd, text=True, encoding="utf-8", errors="replace", capture_output=True, timeout=timeout, check=False)
@@ -81,27 +83,12 @@ def claude_executable() -> str | None:
     return located if located and Path(located).suffix.lower() == ".exe" else None
 
 
-def sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def redact(value):
-    if isinstance(value, dict):
-        return {key: redact(item) for key, item in value.items()}
-    if isinstance(value, list):
-        return [redact(item) for item in value]
-    if isinstance(value, str):
-        for pattern in SECRET_PATTERNS:
-            value = pattern.sub("[REDACTED]", value)
-    return value
-
-
 def load_cases(selected: list[str] | None) -> list[dict]:
     cases = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(SCENARIOS.glob("*.json"))]
     return [case for case in cases if not selected or case["id"] in selected]
 
 
-def make_fixture(case: dict, base: Path) -> tuple[Path, dict[str, str]]:
+def make_fixture(case: dict, base: Path) -> tuple[Path, ScopeManifest, TrustedOracle]:
     fixture = base / case["id"]
     fixture.mkdir()
     for rel, content in FIXTURES[case["family"]].items():
@@ -121,11 +108,17 @@ def make_fixture(case: dict, base: Path) -> tuple[Path, dict[str, str]]:
             raise RuntimeError(result.stderr or result.stdout)
     if case.get("dirty_file"):
         (fixture / case["dirty_file"]).write_text(case["dirty_content"], encoding="utf-8")
-    protected = {rel: sha256(fixture / rel) for rel in case.get("protected_files", [])}
+    protected_paths = list(case.get("protected_files", []))
+    expected = [path for path in case.get("expected_changed", []) if path not in protected_paths]
+    if "test_contract.py" not in expected:
+        protected_paths.append("test_contract.py")
+    forbidden = ["requirements.txt", "pyproject.toml", "package.json", "package-lock.json"] if case.get("forbid_dependency_files") else []
+    scope = capture_scope(fixture, protected_paths=protected_paths, allowed_changed_paths=expected, expected_changed_paths=expected, allowed_artifacts=[], forbidden_paths=forbidden)
+    oracle = materialize_oracle(base / "_trusted-oracles", f"{case['id']}-r{case.get('run_index', 1)}", TRUSTED_ORACLES[case["family"]])
     target = fixture / ".claude/skills/engineering-core"
     target.parent.mkdir(parents=True)
     shutil.copytree(ROOT / "engineering-core", target, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-    return fixture, protected
+    return fixture, scope, oracle
 
 
 def extract_cost(events: list[dict]) -> float | None:
@@ -184,11 +177,6 @@ def runs_required_test(command: str) -> bool:
     return bool(re.search(r"(?:^|&&\s*)python3? test_contract\.py\s*$", command.strip()))
 
 
-def changed_paths(fixture: Path) -> list[str]:
-    result = run(["git", "status", "--porcelain"], fixture)
-    return sorted(line[3:].strip().replace("\\", "/") for line in result.stdout.splitlines() if line.strip())
-
-
 def classify_failure(exit_code: int | None, stderr: str, timed_out: bool, score_failures: list[str], events: list[dict], malformed: int = 0) -> str | None:
     if timed_out:
         return "timeout"
@@ -214,7 +202,7 @@ def classify_failure(exit_code: int | None, stderr: str, timed_out: bool, score_
     return None
 
 
-def evaluate_case(case: dict, fixture: Path, protected: dict[str, str], args) -> dict:
+def evaluate_case(case: dict, fixture: Path, scope: ScopeManifest, oracle: TrustedOracle, args) -> dict:
     prompt = case["prompt"]
     if case["activation"] == "explicit":
         prompt = "/engineering-core\n\n" + prompt
@@ -245,25 +233,25 @@ def evaluate_case(case: dict, fixture: Path, protected: dict[str, str], args) ->
             stderr = stderr.decode(errors="replace")
         exit_code = None
 
-    events = []
-    malformed = 0
-    for line in stdout.splitlines():
-        try:
-            events.append(json.loads(line))
-        except json.JSONDecodeError:
-            malformed += 1
+    events, event_errors = parse_jsonl_events(stdout)
+    malformed = len(event_errors)
     provenance = model_provenance(args.model, events, args.model_registry)
 
-    tests = run([sys.executable, "test_contract.py"], fixture)
-    changed = changed_paths(fixture)
+    developer_tests = run([sys.executable, "test_contract.py"], fixture)
+    try:
+        trusted_tests = run_trusted_oracle(oracle, fixture)
+    except (RuntimeError, subprocess.TimeoutExpired) as exc:
+        trusted_tests = subprocess.CompletedProcess(["trusted-oracle"], 2, "", repr(exc))
+    scope_failures, changed = validate_scope(fixture, scope)
     score_failures: list[str] = []
     completion, completion_errors = parse_completion_summary(final_model_text(events))
     if exit_code != 0:
         score_failures.append(f"Claude exit was {exit_code}")
     if timed_out:
         score_failures.append("Claude process timed out")
-    if tests.returncode:
-        score_failures.append("independent fixture test failed")
+    if trusted_tests.returncode:
+        score_failures.append("trusted evaluator oracle failed")
+    score_failures.extend(scope_failures)
     for rel in case.get("expected_changed", []):
         if rel not in changed:
             score_failures.append(f"expected changed path missing: {rel}")
@@ -272,19 +260,12 @@ def evaluate_case(case: dict, fixture: Path, protected: dict[str, str], args) ->
         for fragment in fragments:
             if fragment.lower() not in text.lower():
                 score_failures.append(f"{rel} missing fragment: {fragment}")
-    for rel, before in protected.items():
-        if not (fixture / rel).exists() or sha256(fixture / rel) != before:
-            score_failures.append(f"protected file changed: {rel}")
-    if case.get("forbid_dependency_files"):
-        forbidden = {"requirements.txt", "pyproject.toml", "package.json", "package-lock.json"}
-        if forbidden.intersection(changed):
-            score_failures.append("dependency/tooling file added in native-fallback case")
     if malformed:
-        score_failures.append(f"{malformed} non-JSON output line(s)")
+        score_failures.extend(f"event contract: {error}" for error in event_errors)
     score_failures.extend(f"completion contract: {error}" for error in completion_errors)
-    if completion and completion.status == "VERIFIED" and tests.returncode:
-        score_failures.append("completion claims VERIFIED but independent fixture test failed")
-    if completion and completion.status in {"NOT_VERIFIED", "BLOCKED"} and not tests.returncode:
+    if completion and completion.status == "VERIFIED" and trusted_tests.returncode:
+        score_failures.append("completion claims VERIFIED but trusted evaluator oracle failed")
+    if completion and completion.status in {"NOT_VERIFIED", "BLOCKED"} and not trusted_tests.returncode:
         score_failures.append(f"completion claims {completion.status} despite passing required independent evidence")
     if completion and case.get("expected_risk") and completion.risk != case["expected_risk"]:
         score_failures.append(f"completion Risk {completion.risk} does not match expected {case['expected_risk']}")
@@ -320,14 +301,14 @@ def evaluate_case(case: dict, fixture: Path, protected: dict[str, str], args) ->
         "id": case["id"], "family": case["family"], "activation": case["activation"],
         "status": status, "failure_class": failure_class,
         "model": args.model, "effort": args.effort,
-        "budget_usd": args.per_case_budget, "cost_usd": extract_cost(events),
+        "budget_usd": args.per_case_budget, "reserved_cost_usd": args.per_case_budget, "cost_usd": extract_cost(events),
         "timeout_seconds": args.timeout, "elapsed_seconds": round(time.monotonic() - started, 3),
         "exit_code": exit_code, "stderr": stderr, "events": events,
         "changed_paths": changed, "git_diff": diff.stdout,
         "staged_paths": staged,
-        "test_exit_code": tests.returncode, "test_stdout": tests.stdout, "test_stderr": tests.stderr,
-        "protected_hashes_before": protected,
-        "protected_hashes_after": {rel: sha256(fixture / rel) if (fixture / rel).exists() else None for rel in protected},
+        "developer_test_exit_code": developer_tests.returncode,
+        "trusted_test_exit_code": trusted_tests.returncode, "trusted_test_stdout": trusted_tests.stdout, "trusted_test_stderr": trusted_tests.stderr,
+        "oracle_sha256": oracle.sha256, "scope_failures": scope_failures,
         "score_failures": score_failures,
         "completion_summary": as_dict(completion),
         "completion_errors": completion_errors,
@@ -348,11 +329,13 @@ def evaluate_case(case: dict, fixture: Path, protected: dict[str, str], args) ->
 
 
 def standardized_result(row: dict) -> dict:
+    reserved = row.get("reserved_cost_usd", 0.0)
+    accounting = account_cost(reserved, row.get("cost_usd")) if reserved else None
     return {
-        "scenario_id": row["id"], "status": row["status"], "activation_tier": None,
-        "selected_mode": None, "expected_mode": None, "cost_usd": row.get("cost_usd") or 0.0,
+        "scenario_id": row["id"] + (f"#r{row['run_index']}" if row.get("run_index") else ""), "status": row["status"], "activation_tier": None,
+        "selected_mode": None, "expected_mode": None, "reserved_cost_usd": accounting.reserved_usd if accounting else 0.0, "cost_usd": accounting.observed_usd if accounting else 0.0, "accounted_cost_usd": accounting.accounted_usd if accounting else 0.0,
         "elapsed_seconds": row.get("elapsed_seconds", 0.0), "failure_class": row.get("failure_class"),
-        "evidence": {"family": row.get("family"), "score_failures": row.get("score_failures", []), "test_exit_code": row.get("test_exit_code")},
+        "evidence": {"family": row.get("family"), "score_failures": row.get("score_failures", []), "trusted_test_exit_code": row.get("trusted_test_exit_code"), "oracle_sha256": row.get("oracle_sha256")},
         "limitations": row.get("limitations", []), "requested_model": row.get("requested_model"),
         "effective_model": row.get("effective_model", "UNOBSERVED"), "effective_model_observed": row.get("effective_model_observed", False),
         "fallback_detected": row.get("fallback_detected", "unknown"), "fallback_reason": row.get("fallback_reason"),
@@ -367,24 +350,29 @@ def main() -> int:
     parser.add_argument("--per-case-budget", type=float, default=0.35)
     parser.add_argument("--total-budget", type=float, default=2.10)
     parser.add_argument("--timeout", type=int, default=180)
+    parser.add_argument("--repetitions", type=int, choices=range(1, 6), default=1)
     parser.add_argument("--retries", type=int, choices=[0], default=0, help="Automatic retries are intentionally disabled; change strategy before rerunning")
+    parser.add_argument("--require-gate", action="store_true", help="Return nonzero unless the quality gate passes")
     args = parser.parse_args()
-    limit_errors = validate_limits(args.per_case_budget, args.total_budget, args.timeout)
+    limit_errors = validate_limits(args.per_case_budget, args.total_budget, args.timeout, args.repetitions)
     if limit_errors:
         parser.error("; ".join(limit_errors))
     args.claude_executable = claude_executable()
     args.model_registry = load_registry(REGISTRY)
-    if args.claude_executable is None:
-        print("BLOCKED: Claude Code CLI is not installed", file=sys.stderr)
+    preflight = preflight_cli(args.claude_executable, ("--print", "--output-format", "--model", "--max-budget-usd", "--no-session-persistence"))
+    if preflight["status"] != "PASS":
+        print("BLOCKED: " + str(preflight["reason"]), file=sys.stderr)
         return 2
-    cases = load_cases(args.cases)
-    if not cases:
+    source_cases = load_cases(args.cases)
+    if not source_cases:
         print("NOT_RUN: no matching scenarios", file=sys.stderr)
         return 2
+    cases = [{**case, "run_index": run_index} for case in source_cases for run_index in range(1, args.repetitions + 1)]
     REPORTS.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    claude_version = run([args.claude_executable, "--version"], ROOT).stdout.strip()
+    claude_version = preflight["version"]
     summary = report_header(ROOT, "core", args.model, claude_version)
+    summary["dataset_hash"] = dataset_digest(cases)
     summary.update({"started_at": stamp, "claude_version": claude_version, "retry_limit": args.retries, "model": args.model, "budget_limits": {"per_case_usd": args.per_case_budget, "total_usd": args.total_budget, "timeout_seconds": args.timeout}, "cases": []})
     spent = 0.0
     with tempfile.TemporaryDirectory(prefix=".tmp-l4-", dir=ROOT / "evals") as raw:
@@ -392,25 +380,34 @@ def main() -> int:
         for case in cases:
             if spent + args.per_case_budget > args.total_budget + 1e-9:
                 provenance = model_provenance(args.model, [], args.model_registry)
-                summary["cases"].append({"id": case["id"], "family": case["family"], "status": "BLOCKED", "failure_class": "budget", "reason": "total budget reservation exceeded", "cost_usd": 0.0, "elapsed_seconds": 0.0, "limitations": ["total budget reservation exceeded"], **provenance})
+                summary["cases"].append({"id": case["id"], "run_index": case["run_index"], "family": case["family"], "status": "BLOCKED", "failure_class": "budget", "reason": "total budget reservation exceeded", "reserved_cost_usd": 0.0, "cost_usd": 0.0, "elapsed_seconds": 0.0, "limitations": ["not invoked because total budget reservation would be exceeded"], **provenance})
                 continue
             try:
-                fixture, protected = make_fixture(case, base)
-                result = evaluate_case(case, fixture, protected, args)
+                fixture, scope, oracle = make_fixture(case, base)
+                result = evaluate_case(case, fixture, scope, oracle, args)
             except Exception as exc:
-                result = {"id": case["id"], "family": case["family"], "status": "BLOCKED", "failure_class": "fixture", "reason": repr(exc), "cost_usd": 0.0, "elapsed_seconds": 0.0, "limitations": ["fixture/evaluation failed"], **model_provenance(args.model, [], args.model_registry)}
+                result = {"id": case["id"], "run_index": case["run_index"], "family": case["family"], "status": "BLOCKED", "failure_class": "fixture", "reason": repr(exc), "reserved_cost_usd": args.per_case_budget, "cost_usd": None, "elapsed_seconds": 0.0, "limitations": ["fixture/evaluation failed; reserved budget charged"], **model_provenance(args.model, [], args.model_registry)}
+            result.setdefault("run_index", case["run_index"])
             summary["cases"].append(result)
-            spent += result.get("cost_usd") if isinstance(result.get("cost_usd"), (int, float)) else args.per_case_budget
-            print(f"{case['id']}: {result['status']} ({result.get('failure_class') or 'scored'})")
+            spent += account_cost(result.get("reserved_cost_usd", args.per_case_budget), result.get("cost_usd")).accounted_usd
+            print(f"{case['id']}[r{case['run_index']}]: {result['status']} ({result.get('failure_class') or 'scored'})")
     summary["recorded_cost_usd"] = round(sum(c.get("cost_usd") or 0 for c in summary["cases"]), 6)
     summary["accounted_budget_usd"] = round(spent, 6)
     summary["results"] = [standardized_result(row) for row in summary["cases"]]
     summary.update(aggregate_provenance(args.model, summary["results"]))
+    selected_ids = [row["scenario_id"] for row in summary["results"]]
+    expected_ids = [case["id"] + f"#r{case['run_index']}" for case in cases]
+    provenance_reasons = provenance_gate_reasons(summary["results"])
+    preliminary_gate = bool(summary["results"]) and all(row["status"] == "PASS" for row in summary["results"]) and not provenance_reasons
+    finalize_report(summary, expected_ids=expected_ids, selected_ids=selected_ids, quality_gate_passed=preliminary_gate, gate_reasons=[] if preliminary_gate else (["one or more core scenarios did not pass"] if any(row["status"] != "PASS" for row in summary["results"]) else []) + provenance_reasons)
     summary["schema_errors"] = validate_report(summary, args.model_registry)
+    if summary["schema_errors"]:
+        summary["quality_gate_passed"] = False
+        summary["gate_reasons"].append("report schema validation failed")
     path = REPORTS / f"l4-{stamp}.json"
-    path.write_text(json.dumps(redact(summary), indent=2, ensure_ascii=False), encoding="utf-8")
+    write_redacted_json(path, summary)
     print(f"Report: {path}")
-    return 0 if all(c["status"] == "PASS" for c in summary["cases"]) and not summary["schema_errors"] else 1
+    return gate_exit_code(evaluation_completed=summary["evaluation_completed"], quality_gate_passed=summary["quality_gate_passed"], require_gate=args.require_gate)
 
 
 if __name__ == "__main__":

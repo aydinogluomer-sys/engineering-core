@@ -29,3 +29,5 @@ python evals/cross-model/test_cross_model_matrix.py
 ```
 
 Raw reports under `reports/` are ignored because they may contain model output and local paths. Inspect and redact before publishing evidence summaries.
+
+Raw reports remain local, access-controlled by the host filesystem, and are not CI artifacts by default. Delete them according to the maintainer's local retention policy only after preserving any authorized sanitized summary. Recursive redaction and secret scanning reduce known leakage patterns but are not complete DLP; never place production credentials, private source, or personal data into an evaluation prompt.
