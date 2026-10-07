@@ -132,7 +132,11 @@ def materialize_oracle(directory: Path, name: str, source: str) -> TrustedOracle
 def run_trusted_oracle(oracle: TrustedOracle, candidate_root: Path, *, timeout: int = 30) -> subprocess.CompletedProcess[str]:
     if not oracle.path.is_file() or sha256_file(oracle.path) != oracle.sha256:
         raise RuntimeError("trusted oracle integrity changed")
-    env = {"PATH": os.environ.get("PATH", ""), "PYTHONNOUSERSITE": "1", "PYTHONDONTWRITEBYTECODE": "1"}
+    # Keep the candidate environment narrow, but retain the Windows variables
+    # CPython 3.10 needs to locate system components and temporary storage.
+    allowed_environment = {"PATH", "SYSTEMROOT", "WINDIR", "COMSPEC", "PATHEXT", "TEMP", "TMP"}
+    env = {key: value for key, value in os.environ.items() if key.upper() in allowed_environment}
+    env.update({"PYTHONNOUSERSITE": "1", "PYTHONDONTWRITEBYTECODE": "1"})
     result = subprocess.run([sys.executable, "-I", str(oracle.path), str(candidate_root.resolve())], cwd=candidate_root, env=env, text=True, encoding="utf-8", errors="replace", capture_output=True, timeout=timeout, check=False)
     if sha256_file(oracle.path) != oracle.sha256:
         raise RuntimeError("trusted oracle changed during execution")

@@ -30,7 +30,8 @@ class TrustBoundaryTests(unittest.TestCase):
         result = run_trusted_oracle(oracle, root)
         self.assertNotEqual(result.returncode, 0)
         (root / "app.py").write_text("def allowed(x):\n    return x != 'denied'\n", encoding="utf-8")
-        self.assertEqual(run_trusted_oracle(oracle, root).returncode, 0)
+        accepted = run_trusted_oracle(oracle, root)
+        self.assertEqual(accepted.returncode, 0, accepted.stderr)
 
     def test_scope_rejects_unrelated_staged_ignored_and_protected_changes(self):
         root = self.repo()
