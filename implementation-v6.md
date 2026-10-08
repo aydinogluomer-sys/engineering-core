@@ -119,4 +119,5 @@ Gate: no tag or release exists unless every mandatory current gate is supported 
 | 2026-10-08 | 1 | Corrected evaluator scalar parsing without changing the fixture/gate; reran once; TypeScript 7.0.2, PostgreSQL 17.6/RLS, and Playwright 1.64.0 + Chrome 154.0.8037.98 all showed bad-fails/good-passes polarity | PASS |
 | 2026-10-08 | 2–3 | Canonical 11-command suite, 6 failure-resistance tests, repository mutation tests, repository validator, compileall, evidence builder, diff check, and artifact scan | PASS |
 | 2026-10-08 | 3 | Deterministic candidate committed as `4de42795e3343c0bc0d81a32627ab3dbff17dc1a`; real integrations rerun against its clean checkout | PASS |
-| 2026-10-08T17:27:27.7905650Z | 2 | L5 ledger started for candidate `4de42795e3343c0bc0d81a32627ab3dbff17dc1a`; earliest possible seven-day completion `2026-10-15T17:27:27.7905650Z`; zero post-freeze tasks captured | IN_PROGRESS |
+| 2026-10-08T17:27:27.790565Z | 2 | L5 ledger started for candidate `4de42795e3343c0bc0d81a32627ab3dbff17dc1a`; earliest possible seven-day completion `2026-10-15T17:27:27.790565Z`; zero post-freeze tasks captured | IN_PROGRESS |
+| 2026-10-08 | 3 | Hosted run `37817095051`: Ubuntu/Python 3.14 passed; three cells exposed CRLF-sensitive protected hashes and Python 3.10 rejection of seven-digit fractional timestamps | FAIL — environment/scorer portability |

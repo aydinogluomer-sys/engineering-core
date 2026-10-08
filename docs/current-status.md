@@ -37,7 +37,7 @@ The evidence bundle records its repository parent commit plus a complete candida
 | PostgreSQL/RLS integration | PASS | Real PostgreSQL 17.6 in disposable `postgres:17.6-alpine`; evaluator-owned role, grant, policy, owner, tenant read/write, and service probes; container removed after run |
 | Browser interaction | PASS | Playwright 1.64.0 with real Chrome 154.0.8037.98; evaluator-owned DOM, click, disabled state, keyboard/focus, navigation, and console probes |
 | Live Haiku/Sonnet/Opus/Fable reliability matrix | NOT_RUN | Manifest requires runtime alias discovery, observed served identity, pressure cells, repetitions, provenance, and bounded spend |
-| Seven-day longitudinal field reliability | IN_PROGRESS | Started `2026-10-08T17:27:27.7905650Z` for candidate `4de42795e3343c0bc0d81a32627ab3dbff17dc1a`; earliest completion `2026-10-15T17:27:27.7905650Z`; zero post-freeze tasks currently captured |
+| Seven-day longitudinal field reliability | IN_PROGRESS | Started `2026-10-08T17:27:27.790565Z` for candidate `4de42795e3343c0bc0d81a32627ab3dbff17dc1a`; earliest completion `2026-10-15T17:27:27.790565Z`; zero post-freeze tasks currently captured |
 | GitHub branch protection | NOT_APPLIED | This request authorizes the defined policy; application/read-back waits for the frozen candidate and hosted required-check contexts |
 | Tag / GitHub release | BLOCKED | Authorized only after all release gates; current live-model campaign lacks `MAX_TOTAL_SPEND_USD`, so no tag or prerelease may be created |
 | Repository push to `main` | PASS | Authorized implementation commit pushed; hosted matrix passed; final status-record commit is verified after its push |

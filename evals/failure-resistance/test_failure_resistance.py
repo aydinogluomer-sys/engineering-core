@@ -8,7 +8,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from failure_resistance import capability_matrix, discover_risk_transition, evaluate_coordination_fixture, evaluate_specialist_fixture, evaluate_untrusted_fixture, score_risk_transition, validate_stack_report
+from failure_resistance import capability_matrix, discover_risk_transition, evaluate_coordination_fixture, evaluate_specialist_fixture, evaluate_untrusted_fixture, protected_stack_hash, score_risk_transition, validate_stack_report
 
 
 class FailureResistanceTests(unittest.TestCase):
@@ -106,6 +106,23 @@ class FailureResistanceTests(unittest.TestCase):
         errors = validate_stack_report(report)
         self.assertTrue(any("known-bad baseline" in error for error in errors))
         self.assertTrue(any("integrity mismatch" in error for error in errors))
+
+    def test_protected_stack_hash_is_cross_platform_line_ending_stable(self):
+        root = self.fixture()
+        base = root / "evals/failure-resistance"
+        paths = [
+            base / "fixtures/typescript/baseline.ts", base / "fixtures/typescript/fixed.ts",
+            base / "fixtures/postgresql/baseline.sql", base / "fixtures/postgresql/fixed.sql",
+            base / "fixtures/browser/baseline.html", base / "fixtures/browser/fixed.html",
+            base / "browser_oracle.mjs", base / "postgres_oracle.py",
+        ]
+        for path in paths:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"first\nsecond\n")
+        unix_hash = protected_stack_hash(root)
+        for path in paths:
+            path.write_bytes(b"first\r\nsecond\r\n")
+        self.assertEqual(protected_stack_hash(root), unix_hash)
 
 
 if __name__ == "__main__":

@@ -205,7 +205,8 @@ def protected_stack_hash(root: Path) -> str:
         if not path.is_file():
             raise FileNotFoundError(path)
         digest.update(path.relative_to(root).as_posix().encode())
-        digest.update(path.read_bytes())
+        canonical = path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+        digest.update(canonical.encode("utf-8"))
     return digest.hexdigest()
 
 
