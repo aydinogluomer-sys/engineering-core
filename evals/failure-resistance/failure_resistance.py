@@ -159,6 +159,56 @@ def capability_matrix() -> dict[str, dict]:
     }
 
 
+def validate_stack_report(report: dict) -> list[str]:
+    """Reject integration PASS claims that lack real-tool polarity and integrity evidence."""
+    errors: list[str] = []
+    if report.get("schema_version") != 1:
+        errors.append("unsupported stack report schema")
+    cells = report.get("cells")
+    if not isinstance(cells, dict):
+        return errors + ["stack report cells are missing"]
+    for name in ("typescript", "postgresql_rls", "browser"):
+        cell = cells.get(name)
+        if not isinstance(cell, dict):
+            errors.append(f"missing integration cell: {name}")
+            continue
+        if cell.get("status") != "PASS":
+            errors.append(f"integration cell is not PASS: {name}")
+        if cell.get("tool_observed") is not True or not cell.get("tool_version"):
+            errors.append(f"real tool evidence is missing: {name}")
+        baseline = cell.get("baseline")
+        fixed = cell.get("fixed")
+        if not isinstance(baseline, dict) or baseline.get("exit_code") == 0:
+            errors.append(f"known-bad baseline did not fail: {name}")
+        if not isinstance(fixed, dict) or fixed.get("exit_code") != 0:
+            errors.append(f"corrected candidate did not pass: {name}")
+        integrity = cell.get("integrity")
+        if not isinstance(integrity, dict) or integrity.get("before") != integrity.get("after"):
+            errors.append(f"protected fixture/oracle integrity mismatch: {name}")
+    if report.get("all_integrations_passed") is not True:
+        errors.append("aggregate integration gate is not PASS")
+    return errors
+
+
+def protected_stack_hash(root: Path) -> str:
+    root = root.resolve()
+    base = root / "evals/failure-resistance"
+    paths = [
+        *sorted((base / "fixtures/typescript").glob("*")),
+        *sorted((base / "fixtures/postgresql").glob("*")),
+        *sorted((base / "fixtures/browser").glob("*")),
+        base / "browser_oracle.mjs",
+        base / "postgres_oracle.py",
+    ]
+    digest = hashlib.sha256()
+    for path in paths:
+        if not path.is_file():
+            raise FileNotFoundError(path)
+        digest.update(path.relative_to(root).as_posix().encode())
+        digest.update(path.read_bytes())
+    return digest.hexdigest()
+
+
 def manifest_hash(root: Path) -> str:
     digest = hashlib.sha256()
     for path in sorted(item for item in root.rglob("*") if item.is_file()):

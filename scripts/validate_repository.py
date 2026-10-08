@@ -51,6 +51,15 @@ REQUIRED = {
     "evals/trust.py",
     "evals/failure-resistance/README.md",
     "evals/failure-resistance/test_failure_resistance.py",
+    "evals/failure-resistance/run_stack_integrations.py",
+    "evals/failure-resistance/browser_oracle.mjs",
+    "evals/failure-resistance/postgres_oracle.py",
+    "evals/failure-resistance/fixtures/typescript/baseline.ts",
+    "evals/failure-resistance/fixtures/typescript/fixed.ts",
+    "evals/failure-resistance/fixtures/postgresql/baseline.sql",
+    "evals/failure-resistance/fixtures/postgresql/fixed.sql",
+    "evals/failure-resistance/fixtures/browser/baseline.html",
+    "evals/failure-resistance/fixtures/browser/fixed.html",
     "evals/live-run-manifest.template.json",
     "evals/run_manifest.py",
     "evals/sampling.py",
@@ -58,6 +67,8 @@ REQUIRED = {
     "evals/test_sampling.py",
     "evidence/current/evidence.json",
     "evidence/current/SHA256SUMS.json",
+    "evidence/current/integrations.json",
+    "evidence/longitudinal/README.md",
     "evals/formal-spec-team/README.md",
     "evals/formal-spec-team/run_team_eval.py",
     "evals/formal-spec-team/test_team_eval.py",
@@ -294,9 +305,27 @@ def validate(root: Path) -> list[str]:
         errors.append("Formal Spec Team Mode fixtures do not match the required set")
 
     gitignore = (root / ".gitignore").read_text(encoding="utf-8") if (root / ".gitignore").exists() else ""
-    for marker in ("evals/activation/reports/", "evals/formal-spec-team/reports/", "evals/cross-model/reports/"):
+    for marker in ("evals/activation/reports/", "evals/formal-spec-team/reports/", "evals/cross-model/reports/", "node_modules/", ".playwright/", ".postgres-data/"):
         if marker not in gitignore:
             errors.append(f"raw report directory is not ignored: {marker}")
+
+    forbidden_parts = {"node_modules", ".playwright", ".postgres-data", "pgdata"}
+    for path in root.rglob("*"):
+        if path.is_file() and forbidden_parts.intersection(path.parts):
+            errors.append(f"generated tool/database artifact in repository: {path.relative_to(root)}")
+
+    integration_path = root / "evidence/current/integrations.json"
+    if integration_path.exists():
+        try:
+            report = json.loads(integration_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"invalid integration evidence: {exc}")
+        else:
+            sys.path.insert(0, str(root / "evals/failure-resistance"))
+            from failure_resistance import protected_stack_hash, validate_stack_report
+            errors.extend(f"integration evidence: {error}" for error in validate_stack_report(report))
+            if report.get("protected_inputs_sha256") != protected_stack_hash(root):
+                errors.append("integration evidence does not match protected fixtures/oracles")
 
     registry = root / "evals/cross-model/model_registry.json"
     if registry.exists():
@@ -318,11 +347,12 @@ def validate(root: Path) -> list[str]:
             if not isinstance(modes, list) or len(modes) < 10 or not any(row.get("abort") for row in modes if isinstance(row, dict)):
                 errors.append("mode-selection dataset must contain ten cases including Fast-Exit abort")
 
-    for path in (root / "evals").rglob("*"):
-        if path.is_file() and "reports" not in path.parts and "__pycache__" not in path.parts:
-            text = path.read_text(encoding="utf-8", errors="ignore")
-            if re.search(r"(sk-ant-[A-Za-z0-9_-]+|ghp_[A-Za-z0-9]+|github_pat_[A-Za-z0-9_]+|AKIA[0-9A-Z]{16}|BEGIN (RSA |OPENSSH )?PRIVATE KEY)", text):
-                errors.append(f"secret-like material in {path.relative_to(root)}")
+    for scan_root in (root / "evals", root / "evidence"):
+        for path in scan_root.rglob("*"):
+            if path.is_file() and "reports" not in path.parts and "__pycache__" not in path.parts:
+                text = path.read_text(encoding="utf-8", errors="ignore")
+                if re.search(r"(sk-ant-[A-Za-z0-9_-]+|ghp_[A-Za-z0-9]+|github_pat_[A-Za-z0-9_]+|AKIA[0-9A-Z]{16}|BEGIN (RSA |OPENSSH )?PRIVATE KEY)", text):
+                    errors.append(f"secret-like material in {path.relative_to(root)}")
     return errors
 
 

@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "evals"))
 from harness_core import redact, tracked_secret_findings  # noqa: E402
 sys.path.insert(0, str(ROOT / "evals/failure-resistance"))
-from failure_resistance import capability_matrix  # noqa: E402
+from failure_resistance import capability_matrix, protected_stack_hash, validate_stack_report  # noqa: E402
 
 COMMANDS = [
     [sys.executable, "engineering-core/scripts/validate_skill.py", "engineering-core"],
@@ -59,6 +59,18 @@ def build(output: Path) -> int:
     source_paths = [ROOT / "engineering-core/SKILL.md", *sorted((ROOT / "engineering-core/references").glob("*.md"))]
     manifest = candidate_manifest(output)
     manifest_digest = hashlib.sha256(json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    integration_path = output / "integrations.json"
+    integration_report = None
+    integration_errors = ["integration report is missing"]
+    if integration_path.is_file():
+        try:
+            integration_report = json.loads(integration_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            integration_errors = [f"integration report is invalid JSON: {exc}"]
+        else:
+            integration_errors = validate_stack_report(integration_report)
+            if integration_report.get("protected_inputs_sha256") != protected_stack_hash(ROOT):
+                integration_errors.append("integration report does not match current protected fixtures/oracles")
     cells = {
         "skill_structure": command_rows[0]["exit_code"] == 0 and command_rows[1]["exit_code"] == 0,
         "core_harness": command_rows[2]["exit_code"] == 0,
@@ -70,6 +82,7 @@ def build(output: Path) -> int:
         "workflow_mutations": command_rows[8]["exit_code"] == 0,
         "repository_hygiene": command_rows[9]["exit_code"] == 0,
         "compile": command_rows[10]["exit_code"] == 0,
+        "stack_integrations": not integration_errors,
     }
     evidence = {
         "schema_version": 1,
@@ -79,24 +92,34 @@ def build(output: Path) -> int:
         "source_manifest": {path.relative_to(ROOT).as_posix(): sha256(path) for path in source_paths},
         "candidate_manifest_sha256": manifest_digest,
         "candidate_manifest": manifest,
-        "active_spec_sha256": sha256(ROOT / "implementation-v5.md"),
+        "active_spec_sha256": sha256(ROOT / "implementation-v6.md"),
         "commands": command_rows,
         "local_cells": {name: "PASS" if passed else "FAIL" for name, passed in cells.items()},
         "all_local_commands_passed": all(row["exit_code"] == 0 for row in command_rows),
+        "all_current_local_gates_passed": all(row["exit_code"] == 0 for row in command_rows) and not integration_errors,
         "observed_model_identity": "NOT_OBSERVED_NO_LIVE_RUN",
-        "stack_capabilities": capability_matrix(),
+        "stack_capabilities": ({
+            name: {
+                "status": cell["status"],
+                "actual_tool_version": cell["tool_version"],
+                "evidence": "evidence/current/integrations.json",
+            }
+            for name, cell in integration_report["cells"].items()
+        } if integration_report and not integration_errors else capability_matrix()),
+        "stack_integration_report_sha256": sha256(integration_path) if integration_path.is_file() else None,
+        "stack_integration_validation_errors": integration_errors,
         "live_model_matrix": "NOT_RUN",
         "pressure_harness_static": "PASS" if cells["core_harness"] else "FAIL",
         "pressure_live": "NOT_RUN",
-        "longitudinal_field": "NOT_RUN",
+        "longitudinal_field": "IN_PROGRESS",
         "github_governance": "NOT_APPLIED",
         "publication": "NOT_AUTHORIZED",
-        "limitations": ["local deterministic evidence only", "hashes prove integrity, not semantic correctness", "PostgreSQL/browser/TypeScript integration capability may be blocked"],
+        "limitations": ["live-model campaign is not authorized without MAX_TOTAL_SPEND_USD", "hashes prove integrity, not semantic correctness", "seven-day L5 field evidence is in progress"],
     }
     evidence = redact(evidence)
     evidence_path = output / "evidence.json"
     evidence_path.write_text(json.dumps(evidence, indent=2, ensure_ascii=False, allow_nan=False), encoding="utf-8")
-    manifest = {evidence_path.name: sha256(evidence_path)}
+    manifest = {path.name: sha256(path) for path in sorted(output.glob("*.json")) if path.name != "SHA256SUMS.json"}
     (output / "SHA256SUMS.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     findings = tracked_secret_findings(ROOT)
     if findings:

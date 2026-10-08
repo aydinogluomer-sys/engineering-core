@@ -34,4 +34,8 @@ Live runners expose model/scenario filters, per-case or per-process budget, tota
 
 L5 longitudinal reliability remains unclaimed.
 
+## Current v6 campaign boundary
+
+No current Haiku/Sonnet/Opus/Fable call has been made for the v6 candidate. `MAX_TOTAL_SPEND_USD` has not been supplied, so activation, mode-selection, Core L4, Team L4, and pressure results remain `NOT_AUTHORIZED`/`NOT_RUN`. Historical tables above remain historical and cannot satisfy the current release gate.
+
 The frozen non-executable manifest now includes eight pressure categories—adversarial decision, gate integrity, stale evidence, skipped QA, release audit, sunk cost, authority, and orchestration—with at least three repetitions per model/category. Runtime alias discovery and observed served identity are mandatory. Static scorer tests do not satisfy this live cell.

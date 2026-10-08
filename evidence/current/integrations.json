@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-08T17:21:26.649809+00:00",
+  "candidate_commit": "713f76e9444079186a5d6a9fa9e3a85188c015be",
+  "candidate_worktree_clean": false,
+  "protected_inputs_sha256": "c42754658701e481c595d1cbcabc7bc6b10a4f910efb02abadd444b4f15146c5",
+  "environment": {
+    "node": "v26.3.0",
+    "npm": "11.16.0",
+    "typescript": "7.0.2",
+    "playwright": "1.64.0"
+  },
+  "cells": {
+    "typescript": {
+      "status": "PASS",
+      "tool_observed": true,
+      "tool_version": "Version 7.0.2",
+      "provision_method": "isolated npm exact-version cache",
+      "baseline": {
+        "exit_code": 1,
+        "expected_diagnostic": "TS2322",
+        "diagnostic_observed": true,
+        "diagnostic_tail": "evals/failure-resistance/fixtures/typescript/baseline.ts(3,3): error TS2322: Type 'unknown' is not assignable to type 'Account'."
+      },
+      "fixed": {
+        "exit_code": 0,
+        "suppression_directive": false
+      },
+      "integrity": {
+        "before": "c42754658701e481c595d1cbcabc7bc6b10a4f910efb02abadd444b4f15146c5",
+        "after": "c42754658701e481c595d1cbcabc7bc6b10a4f910efb02abadd444b4f15146c5"
+      }
+    },
+    "postgresql_rls": {
+      "status": "PASS",
+      "tool_observed": true,
+      "tool_version": "PostgreSQL 17.6",
+      "provision_method": "disposable Docker container",
+      "image": "postgres:17.6-alpine",
+      "image_digest": "postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94",
+      "container_port": 5432,
+      "host_port": null,
+      "database": "engineering_core_eval",
+      "baseline": {
+        "exit_code": 1,
+        "oracle": {
+          "checks": {
+            "authorized_service_reads_all": true,
+            "authorized_service_writes": true,
+            "owner_subject_to_force_rls": false,
+            "policy_complete": false,
+            "public_grants_absent": true,
+            "rls_enabled_and_forced": false,
+            "tenant_a_reads_own": true,
+            "tenant_a_writes_own": true,
+            "tenant_b_cannot_read_a": false,
+            "tenant_b_cannot_write_a": false
+          },
+          "passed": false
+        }
+      },
+      "fixed": {
+        "exit_code": 0,
+        "oracle": {
+          "checks": {
+            "authorized_service_reads_all": true,
+            "authorized_service_writes": true,
+            "owner_subject_to_force_rls": true,
+            "policy_complete": true,
+            "public_grants_absent": true,
+            "rls_enabled_and_forced": true,
+            "tenant_a_reads_own": true,
+            "tenant_a_writes_own": true,
+            "tenant_b_cannot_read_a": true,
+            "tenant_b_cannot_write_a": true
+          },
+          "passed": true
+        }
+      },
+      "integrity": {
+        "before": "c42754658701e481c595d1cbcabc7bc6b10a4f910efb02abadd444b4f15146c5",
+        "after": "c42754658701e481c595d1cbcabc7bc6b10a4f910efb02abadd444b4f15146c5"
+      }
+    },
+    "browser": {
+      "status": "PASS",
+      "tool_observed": true,
+      "tool_version": "Playwright 1.64.0; Chromium 154.0.8037.98",
+      "browser_executable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "provision_method": "isolated npm exact-version Playwright with discovered local browser",
+      "baseline": {
+        "exit_code": 1,
+        "oracle": {
+          "passed": false,
+          "browser_version": "154.0.8037.98",
+          "checks": {
+            "rendered": true,
+            "disabled": false,
+            "reason": null,
+            "secret_initially_hidden": true,
+            "click_blocked": false,
+            "secret_after_click_hidden": false,
+            "keyboard_focus": "",
+            "keyboard_navigation": "",
+            "console_errors": [],
+            "authorization_signal": false
+          }
+        }
+      },
+      "fixed": {
+        "exit_code": 0,
+        "oracle": {
+          "passed": true,
+          "browser_version": "154.0.8037.98",
+          "checks": {
+            "rendered": true,
+            "disabled": true,
+            "reason": "Not authorized",
+            "secret_initially_hidden": true,
+            "click_blocked": true,
+            "secret_after_click_hidden": true,
+            "keyboard_focus": "help",
+            "keyboard_navigation": "#reason",
+            "console_errors": [],
+            "authorization_signal": true
+          }
+        }
+      },
+      "integrity": {
+        "before": "c42754658701e481c595d1cbcabc7bc6b10a4f910efb02abadd444b4f15146c5",
+        "after": "c42754658701e481c595d1cbcabc7bc6b10a4f910efb02abadd444b4f15146c5"
+      }
+    }
+  },
+  "all_integrations_passed": true,
+  "validation_errors": []
+}

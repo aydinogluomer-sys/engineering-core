@@ -8,7 +8,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from failure_resistance import capability_matrix, discover_risk_transition, evaluate_coordination_fixture, evaluate_specialist_fixture, evaluate_untrusted_fixture, score_risk_transition
+from failure_resistance import capability_matrix, discover_risk_transition, evaluate_coordination_fixture, evaluate_specialist_fixture, evaluate_untrusted_fixture, score_risk_transition, validate_stack_report
 
 
 class FailureResistanceTests(unittest.TestCase):
@@ -85,6 +85,27 @@ class FailureResistanceTests(unittest.TestCase):
         self.assertEqual(set(matrix), {"typescript", "postgresql", "browser"})
         self.assertTrue(all(row["status"] in {"AVAILABLE", "BLOCKED"} for row in matrix.values()))
         self.assertTrue(all(row["executable"] or row["status"] == "BLOCKED" for row in matrix.values()))
+
+    def test_stack_report_requires_real_tool_polarity_and_integrity(self):
+        cell = {
+            "status": "PASS",
+            "tool_observed": True,
+            "tool_version": "observed 1.0",
+            "baseline": {"exit_code": 1},
+            "fixed": {"exit_code": 0},
+            "integrity": {"before": "same", "after": "same"},
+        }
+        report = {
+            "schema_version": 1,
+            "cells": {name: dict(cell) for name in ("typescript", "postgresql_rls", "browser")},
+            "all_integrations_passed": True,
+        }
+        self.assertEqual(validate_stack_report(report), [])
+        report["cells"]["typescript"]["baseline"] = {"exit_code": 0}
+        report["cells"]["browser"]["integrity"] = {"before": "a", "after": "b"}
+        errors = validate_stack_report(report)
+        self.assertTrue(any("known-bad baseline" in error for error in errors))
+        self.assertTrue(any("integrity mismatch" in error for error in errors))
 
 
 if __name__ == "__main__":

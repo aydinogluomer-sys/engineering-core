@@ -1,12 +1,12 @@
 # Current validation status
 
-Canonical status owner. Updated 2026-10-07 for the v5 failure-resistance candidate. Contract baseline, validated working-tree bytes, published Git identity, and hosted CI are deliberately separate.
+Canonical status owner. Updated 2026-10-08 during v6 evidence closure. Contract baseline, validated working-tree bytes, published Git identity, integration evidence, hosted CI, live-model evidence, governance, publication, and L5 are deliberately separate.
 
 ## Identity and evidence state
 
 | Identity | Current value | Meaning |
 |---|---|---|
-| Contract baseline | `ea65af9e81ef9f7c595c2fd1f05d13a3f08a5c45` | Clean `main` / `origin/main` observed before v5 implementation |
+| Contract baseline | `713f76e9444079186a5d6a9fa9e3a85188c015be` | Clean `main` / `origin/main` observed before v6 evidence closure |
 | Validated candidate | `evidence/current/evidence.json` candidate manifest and SHA-256 digest | Exact repository bytes covered by the latest local bundle; not a Git commit identity |
 | Published v5 implementation commit | `daa92b55f784a23210bce84b8ff10b42bf8c5131` | Pushed to `origin/main` after local gates and fresh audit |
 | Hosted CI for v5 implementation | GitHub Actions run `37747462471`, PASS | All Ubuntu/Windows × Python 3.10/3.14 jobs passed |
@@ -33,13 +33,13 @@ The evidence bundle records its repository parent commit plus a complete candida
 | Installer behavior | PASS | Fresh/no-op/update/drift/failure/rollback/anti-nesting tests |
 | README architecture contract | PASS | Exactly fourteen numbered Mermaid blocks, local links, declarations, before/after table, evidence boundaries, and non-goals; mutation-tested validator |
 | Fresh independent v5 audit | PASS | Final re-audit reconciled all prior pressure/provenance/manifest/evidence blockers and found no new blocker |
-| TypeScript integration fixture | BLOCKED | Node exists; `tsc` command not found; no install attempted and no typecheck PASS claimed |
-| PostgreSQL/RLS integration fixture | BLOCKED | `psql` command not found; no database PASS claimed |
-| Browser interaction fixture | BLOCKED | Chrome/Edge/Chromium executable commands not detected; no browser PASS claimed |
+| TypeScript integration | PASS | Real TypeScript 7.0.2 from an isolated npm cache; bad fixture fails with TS2322, fixed fixture passes strict no-emit compilation, no suppression directive |
+| PostgreSQL/RLS integration | PASS | Real PostgreSQL 17.6 in disposable `postgres:17.6-alpine`; evaluator-owned role, grant, policy, owner, tenant read/write, and service probes; container removed after run |
+| Browser interaction | PASS | Playwright 1.64.0 with real Chrome 154.0.8037.98; evaluator-owned DOM, click, disabled state, keyboard/focus, navigation, and console probes |
 | Live Haiku/Sonnet/Opus/Fable reliability matrix | NOT_RUN | Manifest requires runtime alias discovery, observed served identity, pressure cells, repetitions, provenance, and bounded spend |
-| Seven-day longitudinal field reliability | NOT_RUN | Protocol exists; seven elapsed days and independent field audit not performed |
-| GitHub branch protection | NOT_APPLIED | Prepared governance profile only; settings mutation was not requested |
-| Tag / GitHub release | NOT_AUTHORIZED | No tag or release is created by this work |
+| Seven-day longitudinal field reliability | IN_PROGRESS | Sanitized ledger is started for the frozen candidate; seven elapsed days and independent field audit are not yet complete |
+| GitHub branch protection | NOT_APPLIED | This request authorizes the defined policy; application/read-back waits for the frozen candidate and hosted required-check contexts |
+| Tag / GitHub release | BLOCKED | Authorized only after all release gates; current live-model campaign lacks `MAX_TOTAL_SPEND_USD`, so no tag or prerelease may be created |
 | Repository push to `main` | PASS | Authorized implementation commit pushed; hosted matrix passed; final status-record commit is verified after its push |
 
 ## Current local validation
@@ -57,6 +57,6 @@ One earlier ad-hoc invocation used direct `unittest` module paths incompatible w
 - Static fixtures and mutation tests do not prove live-agent or cross-model reliability.
 - Requested aliases do not prove the effective served model.
 - Hashes prove byte integrity, not semantics or reviewer independence.
-- No unavailable stack, live, governance, publication, or longitudinal cell is promoted to PASS.
+- No unavailable live, governance, publication, or longitudinal cell is promoted to PASS. Stack PASS is backed by the real tool report in `evidence/current/integrations.json`.
 
 See the sanitized local bundle in [`../evidence/current/`](../evidence/current/) after generation and its `SHA256SUMS.json` manifest.

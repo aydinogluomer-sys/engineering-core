@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-08T08:07:01.526628+00:00",
-  "repository_commit": "daa92b55f784a23210bce84b8ff10b42bf8c5131",
+  "generated_at": "2026-10-08T17:27:15.706105+00:00",
+  "repository_commit": "713f76e9444079186a5d6a9fa9e3a85188c015be",
   "environment": {
     "python": "3.14.6",
     "platform": "Windows-11-10.0.26200-SP0"
@@ -19,21 +19,21 @@
     "engineering-core/references/source-synthesis.md": "4b6085f06d6aefe26021c0c475ae52f5fd3c9d7fadab0a54549c43df7c33d130",
     "engineering-core/references/verification-review.md": "5763e58825720f8bfbb96db3ff4352b315aaae06c2002b26fbdf7a8188c236eb"
   },
-  "candidate_manifest_sha256": "5b7533ac44ba3b4ca964bfdce1043f56d7adecbc80ae7a4daed4f15948b7fbf1",
+  "candidate_manifest_sha256": "139e499d7afb4387b66e5b8d5c65ae9851a15fc41744147bebd44caae0c3c8b5",
   "candidate_manifest": {
     ".github/CODEOWNERS": "37c7e5939f75773920cc62d771368d72e55e4df6890cc780cf6b7c8076750368",
     ".github/pull_request_template.md": "dd9b9d7cf723f2b28feb13a5fab14d945e311baec8f96a7dce4094e62cd31612",
     ".github/workflows/validate.yml": "c75c84755671fc01d5bf414218329f30c0db90b7297fe1dd2de6a2fd332fc230",
-    ".gitignore": "aed25ca38766a94f243e4aadfd90215b7e73c03b79c8d496bda3cda59d5fe396",
-    "CHANGELOG.md": "f9a455f6419b17cad70be9b224059e245dae5f487bdadbdfec281f6d378f8dcd",
+    ".gitignore": "b24063cfd3e31bfa67d4320a200ac48a2ceeeb77a7f527a760716367a133fb5e",
+    "CHANGELOG.md": "ecb9aa4fd18c400aa37133932a049c6b3aa2d32e8bbd24c1d690ee6a661959ca",
     "CONTRIBUTING.md": "c04d113c62b7d25a3f0703ff2892bd055e8f3dba1dbab8fc7ce95df51d20c037",
     "docs/claude-router.md": "37c726993535e22b8d73adfaab10abc3a1933cc0953587d2182ccc3dc0ceded4",
-    "docs/cross-model-reliability.md": "132914ed5b7868ede22614b1a128b5929782a762750842f181160ac201d7c5bc",
-    "docs/current-status.md": "00af66b0a80ad49fef1dd98e7a3e412daeed594876e0ccf6edc6d06648020442",
+    "docs/cross-model-reliability.md": "1fbee9a0805a48ad90d9e345ccfee5ed0efa05218bb5e1c7ac2c22ab1347fb9e",
+    "docs/current-status.md": "c0f04275bff4645412db10b897ede5b0c2e8405e86092eef0ede665daaf100e0",
     "docs/deterministic-enforcement.md": "78072282d6f1b048f1aca9f8dc3f2d5415f9fb8bd13434cff103d9c07bfd89db",
     "docs/governance.md": "abe3dfb66a8626d823b3835ca75dbe39bb360e72b149b1a0f1b85f7f26bf30ce",
-    "docs/l4-evaluation.md": "d956175690693c2e718df7be27ff0dc7e093a9e9e9e41b706719dcf68e6a5a3a",
-    "docs/longitudinal-protocol.md": "f8f1acb42cc9199b9df53b0d9b8cef6f2225db57b3e557c1ab7b9bb4b609cca3",
+    "docs/l4-evaluation.md": "88c2d667d40f6c1e398fb8e3c424b3104a0f52a23c9600048709d587ea77e602",
+    "docs/longitudinal-protocol.md": "f13f010205f0156ea9ef166ef62b45f56e00d15a7a13525f7da66add950bbdf3",
     "engineering-core/examples/fast-exit-abort.md": "913ae32fb24cd4f0bde8e15c313075c36e9948a6d5b63ebe908cf4e402254386",
     "engineering-core/examples/high-risk-change.md": "2ebb104ff7c4b0c2b3e5d89e2e3c192ea57a58a18d04a2bed9911d0b5fc94689",
     "engineering-core/examples/large-spec-execution.md": "549fb2423aba880f5334c922d8824c87d3dee9cacf33dc97e222559f87d97f66",
@@ -73,15 +73,18 @@
     "evals/cross-model/test_cross_model_matrix.py": "783ae0b1a5a45b3cde2f716fdf0b7af148f15a38376b43d3230541c5272a838c",
     "evals/cross_model.py": "b7a1b6d3f3fe4c22b256a94f1012948a92d8bf9d510278e0d3e19a4a6efedc98",
     "evals/evidence_state.py": "f2894b215f3de7da9ac988880db13dc05127a361823ab866faaddea31b9f7f33",
-    "evals/failure-resistance/failure_resistance.py": "211139d61c80add453d6f9c4f1e95b3b18348eb9f651bc9b30dafeffc424ae49",
-    "evals/failure-resistance/fixtures/browser/baseline.html": "1b8fe250385529155d9de74137eb0092ed123d58709781ccd16a5693dda93c18",
-    "evals/failure-resistance/fixtures/browser/fixed.html": "cbe5df4bcf62f192783831e746c6bead54bfeea5afae905cfe2291b26143babc",
-    "evals/failure-resistance/fixtures/postgresql/baseline.sql": "b17c2e371e83589d81b2d9e813d9dc03364f824694f1c04b2090bf35f568220e",
-    "evals/failure-resistance/fixtures/postgresql/fixed.sql": "e2c90b7b9ad90218dfd545f86174387a6d30126acf0b2653b6bf5bb3993a27d2",
-    "evals/failure-resistance/fixtures/typescript/baseline.ts": "7c7fb4e17e28ea711e4ed016e8b324c1ee43d3bdddbc6eb3c7d45829cc776a8a",
+    "evals/failure-resistance/browser_oracle.mjs": "00b45d42d28049a67604eca02cbf57d7bbbec4b8f5a0631b87fc7def7610c14d",
+    "evals/failure-resistance/failure_resistance.py": "2f777ede6db7acf5f9d9ebef2eb7e508745804c784ac554d766d5ef1c684659d",
+    "evals/failure-resistance/fixtures/browser/baseline.html": "7a226cd566322d4a8f85a4f1a13b016fecade8793ba1a3e1d95a73f359f36e51",
+    "evals/failure-resistance/fixtures/browser/fixed.html": "e15a321df7f49ce9950381959ea054693d7048cb9e37f03ddc231e41dedae0ab",
+    "evals/failure-resistance/fixtures/postgresql/baseline.sql": "87d3c5568e81873430b0ad71355ccc84299bd80e40a9c1e87959e22464407b45",
+    "evals/failure-resistance/fixtures/postgresql/fixed.sql": "1d1f415052aed2d5364224e3f41348ec3db319da7f98e8a72e7725dd6579fcb5",
+    "evals/failure-resistance/fixtures/typescript/baseline.ts": "22b84e839e4547d6b655a0361a79245ec5463d28fa454db6148847747e685514",
     "evals/failure-resistance/fixtures/typescript/fixed.ts": "752ef7c6bd0e46c31ba990c5439e001448f30828b784fdbb4254dc6c4738b9ca",
-    "evals/failure-resistance/README.md": "6ba63972d245d66494b7f215fb247c31d957b784a2dd65e4fc57d72faf3ec1db",
-    "evals/failure-resistance/test_failure_resistance.py": "a6c1992797c95ddef571220492d84ac96f44e6ff4d091015e8d3d219176adbaa",
+    "evals/failure-resistance/postgres_oracle.py": "55ace5f7a78e768849486f39c4d0d43f1541906bf6af52be5f576acd0263a00b",
+    "evals/failure-resistance/README.md": "19f12707a9e660a748e19285a9b82ffc6aaaa998636635d93c2e126be9430db1",
+    "evals/failure-resistance/run_stack_integrations.py": "dd0e0d7fb667bbcd4eb3cde46b3f14de1a36a3a921e2b9dff9878d3b3a522a22",
+    "evals/failure-resistance/test_failure_resistance.py": "a03200e9f50ca3569366d6330d8a0e8bf6d692f7d3e296c7f7817d0bc3640b03",
     "evals/formal-spec-team/fixtures/cross-session-resume/implementation.md": "d729001887780589d457afb39db618791f1231473dcb97ff4d6be3aa216885e9",
     "evals/formal-spec-team/fixtures/cross-session-resume/pipeline.py": "ba41e733aade08724d345ac841856c8a1154581d34bf2db17d88caa2a721a964",
     "evals/formal-spec-team/fixtures/cross-session-resume/test_contract.py": "6bd05e3abd22460dbf207ccb2ae5d70c886cd8292d41a64c614d9c74493afc6b",
@@ -144,22 +147,24 @@
     "evals/test_team_trust.py": "58ac87d691847f9272ff4152ddad525354fb1d0ecf81d5fe65e38aaffa6ff9f5",
     "evals/test_trust.py": "08782a4da1aec1d6606f88df0f9ca371bc66883ec7eb250bafb3581240c8096e",
     "evals/trust.py": "bbfc4ac23794ed5672463c9e62797528126bd54224f02e698bd9583256346aee",
+    "evidence/longitudinal/README.md": "6fa96a4fc48c1d51083f848bc2e46bd911655de388e44439c0d6c7c3d461502e",
     "implementation-v4.md": "e42eea509665602aafe5c5da8d186c19a96646b6850f0da55a37b39f769ae2ab",
     "implementation-v5.md": "ef9b77b3cdfcda08e64f1800234519a8be70e2cb34846215e722851704cc65bb",
+    "implementation-v6.md": "389eb38c4f2cc7e665d649acbe3092d149d1b29da09dc916e5474a2324cf4cb2",
     "implementation.md": "dcf83394e662f89946006dfeb30220a545377da65a27337a69bf601586882721",
     "LICENSE": "f7a7f9e742c0c0819c6d8b41572f84903aabe966163bfc9ad9206641d93c656b",
-    "README.md": "26dbc2dfc4fe6b58b94e32d6d4b2b8b479a64f65fb0802fa5214851990ff61c6",
-    "scripts/build_evidence_bundle.py": "f8a506218fc6ac836bf715803d5f3da76d17452023f61f2db0dcc52d1600bdfa",
+    "README.md": "af0e26e642ddd8687ed0218f2411148d8a634b9841fa2c3a0494e7a45ab43d1b",
+    "scripts/build_evidence_bundle.py": "8cc5e50e4ff406b70ac991b2c3b86f872d9286d6808f5f6f35cac5d84548f5e9",
     "scripts/install.ps1": "5aba097c3ad42e95d82c61592749e838daaa8f44c539912d33413546936c4b74",
     "scripts/install.py": "4d530d2b8452104ac4eef8aa4afdb539263377dc26865d3c7e6ec6ce3c6959a1",
     "scripts/install.sh": "1d31fca1dc383e19724caa14bd31e0d0f01da9db9f50e3deb3a1b52541ecade5",
     "scripts/test_install.py": "87265a56dfa1d320160d4f35846587e00cc7768b9d9d4f90b817cd16e3342e06",
     "scripts/test_validate_repository.py": "9dbf0b547636d9cc289b5aba4745df3f1bd4018f3ab94c5caac226465f926a1b",
-    "scripts/validate_repository.py": "8e8aae49d7f5728e8077b231abdb4266c605f100c4b83da1a3fd19743ed75db4",
+    "scripts/validate_repository.py": "20bcf625183ab125678f9dd104abca88591ee87d6a0707d4667b831653ab64e3",
     "SECURITY.md": "455db4efa5b5517fb3c163eb0c3f9edea00a05efbfb4e705ec26ed9591ace1f8",
     "VERSION": "5c9c112fc83af1a2f8c196a676c8f81d1a28aab1ffe9bacd0e8265a150e2e20e"
   },
-  "active_spec_sha256": "ef9b77b3cdfcda08e64f1800234519a8be70e2cb34846215e722851704cc65bb",
+  "active_spec_sha256": "389eb38c4f2cc7e665d649acbe3092d149d1b29da09dc916e5474a2324cf4cb2",
   "commands": [
     {
       "command": [
@@ -178,7 +183,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "test_activation_guarantee (__main__.ValidatorTests.test_activation_guarantee) ... ok\ntest_active_mcp_config (__main__.ValidatorTests.test_active_mcp_config) ... ok\ntest_arbitrary_unknown_external_import_is_rejected (__main__.ValidatorTests.test_arbitrary_unknown_external_import_is_rejected) ... ok\ntest_broken_local_link (__main__.ValidatorTests.test_broken_local_link) ... ok\ntest_common_external_imports_are_rejected (__main__.ValidatorTests.test_common_external_imports_are_rejected) ... ok\ntest_deterministic_safety_guarantee (__main__.ValidatorTests.test_deterministic_safety_guarantee) ... ok\ntest_duplicate_policy_id_fails (__main__.ValidatorTests.test_duplicate_policy_id_fails) ... ok\ntest_eval_tree_cannot_enter_runtime_package (__main__.ValidatorTests.test_eval_tree_cannot_enter_runtime_package) ... ok\ntest_external_tool_made_mandatory (__main__.ValidatorTests.test_external_tool_made_mandatory) ... ok\ntest_future_and_builtin_imports_are_accepted (__main__.ValidatorTests.test_future_and_builtin_imports_are_accepted) ... ok\ntest_hardening_policy_ids_are_owned_and_unique (__main__.ValidatorTests.test_hardening_policy_ids_are_owned_and_unique) ... ok\ntest_hardening_policy_wrong_owner_fails (__main__.ValidatorTests.test_hardening_policy_wrong_owner_fails) ... ok\ntest_heading_rename_with_policy_id_passes (__main__.ValidatorTests.test_heading_rename_with_policy_id_passes) ... ok\ntest_invalid_frontmatter (__main__.ValidatorTests.test_invalid_frontmatter) ... ok\ntest_local_validator_import_is_accepted (__main__.ValidatorTests.test_local_validator_import_is_accepted) ... ok\ntest_malformed_policy_id_fails (__main__.ValidatorTests.test_malformed_policy_id_fails) ... ok\ntest_missing_example (__main__.ValidatorTests.test_missing_example) ... ok\ntest_missing_policy_id_fails (__main__.ValidatorTests.test_missing_policy_id_fails) ... ok\ntest_missing_reference (__main__.ValidatorTests.test_missing_reference) ... ok\ntest_missing_team_mode_policy_id_fails (__main__.ValidatorTests.test_missing_team_mode_policy_id_fails) ... ok\ntest_over_broad_frontmatter (__main__.ValidatorTests.test_over_broad_frontmatter) ... ok\ntest_oversized_entrypoint (__main__.ValidatorTests.test_oversized_entrypoint) ... ok\ntest_prose_rewrite_with_policy_id_passes (__main__.ValidatorTests.test_prose_rewrite_with_policy_id_passes) ... ok\ntest_real_package (__main__.ValidatorTests.test_real_package) ... ok\ntest_stdlib_and_nested_stdlib_imports_are_accepted (__main__.ValidatorTests.test_stdlib_and_nested_stdlib_imports_are_accepted) ... ok\ntest_team_mode_heading_and_prose_rewrite_passes (__main__.ValidatorTests.test_team_mode_heading_and_prose_rewrite_passes) ... ok\ntest_team_mode_policy_id_wrong_owner_fails (__main__.ValidatorTests.test_team_mode_policy_id_wrong_owner_fails) ... ok\ntest_unknown_extra_policy_id_is_allowed (__main__.ValidatorTests.test_unknown_extra_policy_id_is_allowed) ... ok\ntest_validator_uses_no_fuzzy_semantics (__main__.ValidatorTests.test_validator_uses_no_fuzzy_semantics) ... ok\ntest_wrong_policy_owner_fails (__main__.ValidatorTests.test_wrong_policy_owner_fails) ... ok\n\n----------------------------------------------------------------------\nRan 30 tests in 11.703s\n\nOK\n"
+      "stderr_tail": "test_activation_guarantee (__main__.ValidatorTests.test_activation_guarantee) ... ok\ntest_active_mcp_config (__main__.ValidatorTests.test_active_mcp_config) ... ok\ntest_arbitrary_unknown_external_import_is_rejected (__main__.ValidatorTests.test_arbitrary_unknown_external_import_is_rejected) ... ok\ntest_broken_local_link (__main__.ValidatorTests.test_broken_local_link) ... ok\ntest_common_external_imports_are_rejected (__main__.ValidatorTests.test_common_external_imports_are_rejected) ... ok\ntest_deterministic_safety_guarantee (__main__.ValidatorTests.test_deterministic_safety_guarantee) ... ok\ntest_duplicate_policy_id_fails (__main__.ValidatorTests.test_duplicate_policy_id_fails) ... ok\ntest_eval_tree_cannot_enter_runtime_package (__main__.ValidatorTests.test_eval_tree_cannot_enter_runtime_package) ... ok\ntest_external_tool_made_mandatory (__main__.ValidatorTests.test_external_tool_made_mandatory) ... ok\ntest_future_and_builtin_imports_are_accepted (__main__.ValidatorTests.test_future_and_builtin_imports_are_accepted) ... ok\ntest_hardening_policy_ids_are_owned_and_unique (__main__.ValidatorTests.test_hardening_policy_ids_are_owned_and_unique) ... ok\ntest_hardening_policy_wrong_owner_fails (__main__.ValidatorTests.test_hardening_policy_wrong_owner_fails) ... ok\ntest_heading_rename_with_policy_id_passes (__main__.ValidatorTests.test_heading_rename_with_policy_id_passes) ... ok\ntest_invalid_frontmatter (__main__.ValidatorTests.test_invalid_frontmatter) ... ok\ntest_local_validator_import_is_accepted (__main__.ValidatorTests.test_local_validator_import_is_accepted) ... ok\ntest_malformed_policy_id_fails (__main__.ValidatorTests.test_malformed_policy_id_fails) ... ok\ntest_missing_example (__main__.ValidatorTests.test_missing_example) ... ok\ntest_missing_policy_id_fails (__main__.ValidatorTests.test_missing_policy_id_fails) ... ok\ntest_missing_reference (__main__.ValidatorTests.test_missing_reference) ... ok\ntest_missing_team_mode_policy_id_fails (__main__.ValidatorTests.test_missing_team_mode_policy_id_fails) ... ok\ntest_over_broad_frontmatter (__main__.ValidatorTests.test_over_broad_frontmatter) ... ok\ntest_oversized_entrypoint (__main__.ValidatorTests.test_oversized_entrypoint) ... ok\ntest_prose_rewrite_with_policy_id_passes (__main__.ValidatorTests.test_prose_rewrite_with_policy_id_passes) ... ok\ntest_real_package (__main__.ValidatorTests.test_real_package) ... ok\ntest_stdlib_and_nested_stdlib_imports_are_accepted (__main__.ValidatorTests.test_stdlib_and_nested_stdlib_imports_are_accepted) ... ok\ntest_team_mode_heading_and_prose_rewrite_passes (__main__.ValidatorTests.test_team_mode_heading_and_prose_rewrite_passes) ... ok\ntest_team_mode_policy_id_wrong_owner_fails (__main__.ValidatorTests.test_team_mode_policy_id_wrong_owner_fails) ... ok\ntest_unknown_extra_policy_id_is_allowed (__main__.ValidatorTests.test_unknown_extra_policy_id_is_allowed) ... ok\ntest_validator_uses_no_fuzzy_semantics (__main__.ValidatorTests.test_validator_uses_no_fuzzy_semantics) ... ok\ntest_wrong_policy_owner_fails (__main__.ValidatorTests.test_wrong_policy_owner_fails) ... ok\n\n----------------------------------------------------------------------\nRan 30 tests in 9.486s\n\nOK\n"
     },
     {
       "command": [
@@ -193,7 +198,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": ".........................................................................\n----------------------------------------------------------------------\nRan 73 tests in 22.597s\n\nOK\n"
+      "stderr_tail": ".........................................................................\n----------------------------------------------------------------------\nRan 73 tests in 23.122s\n\nOK\n"
     },
     {
       "command": [
@@ -208,7 +213,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.023s\n\nOK\n"
+      "stderr_tail": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.019s\n\nOK\n"
     },
     {
       "command": [
@@ -223,7 +228,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "................\n----------------------------------------------------------------------\nRan 16 tests in 12.081s\n\nOK\n"
+      "stderr_tail": "................\n----------------------------------------------------------------------\nRan 16 tests in 8.132s\n\nOK\n"
     },
     {
       "command": [
@@ -238,7 +243,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "....................\n----------------------------------------------------------------------\nRan 20 tests in 0.966s\n\nOK\n"
+      "stderr_tail": "....................\n----------------------------------------------------------------------\nRan 20 tests in 0.613s\n\nOK\n"
     },
     {
       "command": [
@@ -253,7 +258,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": ".....\n----------------------------------------------------------------------\nRan 5 tests in 0.856s\n\nOK\n"
+      "stderr_tail": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.603s\n\nOK\n"
     },
     {
       "command": [
@@ -262,7 +267,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "....\n----------------------------------------------------------------------\nRan 4 tests in 12.820s\n\nOK\n"
+      "stderr_tail": "....\n----------------------------------------------------------------------\nRan 4 tests in 13.249s\n\nOK\n"
     },
     {
       "command": [
@@ -271,7 +276,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.026s\n\nOK\n"
+      "stderr_tail": "........\n----------------------------------------------------------------------\nRan 8 tests in 0.018s\n\nOK\n"
     },
     {
       "command": [
@@ -308,36 +313,40 @@
     "installer": "PASS",
     "workflow_mutations": "PASS",
     "repository_hygiene": "PASS",
-    "compile": "PASS"
+    "compile": "PASS",
+    "stack_integrations": "PASS"
   },
   "all_local_commands_passed": true,
+  "all_current_local_gates_passed": true,
   "observed_model_identity": "NOT_OBSERVED_NO_LIVE_RUN",
   "stack_capabilities": {
     "typescript": {
-      "status": "BLOCKED",
-      "executable": null,
-      "reason": "typescript tooling unavailable"
+      "status": "PASS",
+      "actual_tool_version": "Version 7.0.2",
+      "evidence": "evidence/current/integrations.json"
     },
-    "postgresql": {
-      "status": "BLOCKED",
-      "executable": null,
-      "reason": "postgresql tooling unavailable"
+    "postgresql_rls": {
+      "status": "PASS",
+      "actual_tool_version": "PostgreSQL 17.6",
+      "evidence": "evidence/current/integrations.json"
     },
     "browser": {
-      "status": "BLOCKED",
-      "executable": null,
-      "reason": "browser tooling unavailable"
+      "status": "PASS",
+      "actual_tool_version": "Playwright 1.64.0; Chromium 154.0.8037.98",
+      "evidence": "evidence/current/integrations.json"
     }
   },
+  "stack_integration_report_sha256": "e66d7ed03e7d3ab095dc487be9e27c7a2247a232a0bf85cd061bc6a8337f9ed1",
+  "stack_integration_validation_errors": [],
   "live_model_matrix": "NOT_RUN",
   "pressure_harness_static": "PASS",
   "pressure_live": "NOT_RUN",
-  "longitudinal_field": "NOT_RUN",
+  "longitudinal_field": "IN_PROGRESS",
   "github_governance": "NOT_APPLIED",
   "publication": "NOT_AUTHORIZED",
   "limitations": [
-    "local deterministic evidence only",
+    "live-model campaign is not authorized without MAX_TOTAL_SPEND_USD",
     "hashes prove integrity, not semantic correctness",
-    "PostgreSQL/browser/TypeScript integration capability may be blocked"
+    "seven-day L5 field evidence is in progress"
   ]
 }

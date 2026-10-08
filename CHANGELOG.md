@@ -13,5 +13,7 @@ All notable changes are recorded here. This repository has not published a stabl
 - Added adversarial decision challenge, gate-integrity/quality-ratchet, external-provenance, one-hop orchestration-provenance, and bounded competing-hypothesis policies.
 - Extended the existing L4 harness with eight static pressure profiles and mutation-resistant scoring; the live pressure campaign remains unrun pending explicit spend authority.
 - Added a mechanically validated fourteen-diagram architecture and evidence map.
+- Added evaluator-owned real TypeScript, PostgreSQL/RLS, and browser integration runners with exact-version isolated tooling, bad/good polarity, protected-oracle hashing, and sanitized evidence.
+- Started the seven-day longitudinal evidence protocol as `IN_PROGRESS`; no elapsed-time PASS is claimed.
 
 Tags and GitHub releases are separate publication actions and have not been created by this change.

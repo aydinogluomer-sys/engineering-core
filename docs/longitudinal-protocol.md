@@ -1,6 +1,6 @@
 # Seven-day longitudinal reliability protocol
 
-Status: `NOT_RUN`. This protocol is prepared but no paid invocation or elapsed field observation is authorized by the local implementation task.
+Status: `IN_PROGRESS`. The current ledger begins only when the deterministic candidate is frozen. Seven real elapsed days cannot be compressed; until the time and independent-analysis gates pass, no L5 PASS is claimed.
 
 1. Freeze a separately authorized live-run manifest, repository commit, dataset hashes, model registry, and environment fingerprint.
 2. For seven elapsed calendar days, record each eligible real engineering task without selecting only successes. Store task class, risk, chosen mode, mode transitions, loop events, stale-state events, specialist obligations, scope changes, verification, final outcome, effective model, cost, and limitations.
@@ -11,3 +11,5 @@ Status: `NOT_RUN`. This protocol is prepared but no paid invocation or elapsed f
 7. A fresh reviewer reconciles recorded outcomes with source evidence and checks survivorship bias, missing failures, fallback identity, and unsupported `PASS` claims.
 
 No L5 or longitudinal reliability claim is valid until the full elapsed protocol and independent audit complete.
+
+The sanitized active ledger lives in [`../evidence/longitudinal/`](../evidence/longitudinal/). An empty task list means the protocol has started but no qualifying real task has yet been captured; synthetic tasks are not added to inflate the sample.

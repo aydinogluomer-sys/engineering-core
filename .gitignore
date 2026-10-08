@@ -8,6 +8,10 @@ __pycache__/
 Thumbs.db
 .idea/
 .vscode/
+node_modules/
+.playwright/
+.postgres-data/
+pgdata/
 evals/reports/
 evals/.tmp-l4-*/
 evals/activation/reports/

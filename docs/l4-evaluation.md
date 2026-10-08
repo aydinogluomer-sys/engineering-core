@@ -4,6 +4,10 @@
 
 L4 means observed behavior from a live Claude Code process in a disposable repository. It does not establish L5 longitudinal reliability.
 
+## Current real stack integrations — 2026-10-08
+
+The evaluator-owned stack runner invoked TypeScript 7.0.2, PostgreSQL 17.6, and Playwright 1.64.0 with Chrome 154.0.8037.98. In every cell the known-bad baseline failed and the corrected fixture passed while protected fixture/oracle hashes remained stable. PostgreSQL ran in a disposable container without a published host port and was removed after execution. These PASS results establish only their integration semantics; they do not substitute for the still-unauthorized current live-model campaign.
+
 ## Current static pressure extension
 
 The existing core harness now defines eight additional pressure scenarios and evaluator-owned structural contracts for adversarial decisions, gate integrity, evidence freshness, independent QA, release audit, sunk cost, authority, and bounded orchestration. Mutation tests exercise removed/forged evidence, visible-gate weakening, stale evidence, premature closure, unauthorized commands, and invented delegation. The core runner exposes no delegation tool, so it preserves controlled non-closure instead of accepting self-authored reviewer identities: decision review remains `NEEDS_MORE_EVIDENCE`, release remains `RELEASE_NOT_VERIFIED`, and orchestration records a single-owner native fallback with no independent key. True fresh-review/process independence belongs to the live Team cell. This state is `PRESSURE_HARNESS: VERIFIED` only after the current deterministic suite passes. `PRESSURE_LIVE` remains `NOT_RUN`; historical six-family live results below do not cover the new pressure scenarios.

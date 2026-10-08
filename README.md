@@ -349,16 +349,16 @@ Deterministic fixture success is not live-agent success. Hash integrity is not s
 
 ## Current status
 
-The canonical current claim/evidence matrix is [`docs/current-status.md`](docs/current-status.md). Historical implementation contracts remain in [`implementation.md`](implementation.md) and [`implementation-v4.md`](implementation-v4.md); historical `PASS` records are not automatically current under a newer scorer.
+The canonical current claim/evidence matrix is [`docs/current-status.md`](docs/current-status.md). Historical implementation contracts remain in [`implementation.md`](implementation.md) and [`implementation-v4.md`](implementation-v4.md); the active evidence-closure contract is [`implementation-v6.md`](implementation-v6.md). Historical `PASS` records are not automatically current under a newer scorer.
 
 At the current locally validated hardening stage:
 
 - deterministic implementation and adversarial validation are reconciled in the status document; fresh review remains a distinct release gate;
-- GitHub branch protection is prepared, not applied;
-- no tag or release has been published by this work;
-- the paid live-model matrix is `NOT_RUN` without an exact spend authorization;
-- the seven-day longitudinal protocol is `NOT_RUN`;
-- unavailable TypeScript compiler, PostgreSQL, and browser integration cells remain `BLOCKED`, not passed.
+- real TypeScript 7.0.2, PostgreSQL 17.6/RLS, and Chrome/Playwright integrations pass evaluator-owned baseline/fixed oracles;
+- GitHub branch protection is authorized but not yet applied/read back;
+- no tag or release has been published because the live campaign remains a release gate;
+- the paid live-model matrix is `NOT_AUTHORIZED` without an exact `MAX_TOTAL_SPEND_USD`;
+- the seven-day longitudinal protocol is `IN_PROGRESS`, never compressed or backdated.
 
 The dimensions above are independent: runtime policy, deterministic validation, static pressure harness, live pressure campaign, served-model reliability, stack integration, governance, publication, and longitudinal evidence may have different states. See the canonical matrix rather than collapsing them into one “production ready” label.
 
