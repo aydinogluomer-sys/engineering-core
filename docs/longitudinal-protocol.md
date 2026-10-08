@@ -1,6 +1,6 @@
 # Seven-day longitudinal reliability protocol
 
-Status: `IN_PROGRESS`. The current ledger begins only when the deterministic candidate is frozen. Seven real elapsed days cannot be compressed; until the time and independent-analysis gates pass, no L5 PASS is claimed.
+Status: `IN_PROGRESS`. The current ledger began at `2026-10-08T17:27:27.7905650Z` for deterministic candidate `4de42795e3343c0bc0d81a32627ab3dbff17dc1a`. Its earliest possible seven-day completion is `2026-10-15T17:27:27.7905650Z`. Seven real elapsed days cannot be compressed; until the time and independent-analysis gates pass, no L5 PASS is claimed.
 
 1. Freeze a separately authorized live-run manifest, repository commit, dataset hashes, model registry, and environment fingerprint.
 2. For seven elapsed calendar days, record each eligible real engineering task without selecting only successes. Store task class, risk, chosen mode, mode transitions, loop events, stale-state events, specialist obligations, scope changes, verification, final outcome, effective model, cost, and limitations.

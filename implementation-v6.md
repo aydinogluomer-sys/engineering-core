@@ -51,7 +51,7 @@ Gate: each PASS originates from the real system that owns the semantics. Missing
 - [x] Teach repository validation to require the integration runner, trusted oracles, protected fixtures, ignored tool caches, and sanitized current evidence.
 - [x] Extend the evidence builder so current integration results are imported only when schema-valid, hash-valid, tool-observed, and bound to the candidate tree/commit.
 - [x] Update failure-resistance documentation, current status, L4/cross-model reports, changelog, and README evidence sections without changing the fourteen architecture diagrams.
-- [ ] Start the L5 ledger with a real UTC timestamp, candidate identity, required fields, and state `IN_PROGRESS`; do not backdate or claim seven elapsed days.
+- [x] Start the L5 ledger with a real UTC timestamp, candidate identity, required fields, and state `IN_PROGRESS`; do not backdate or claim seven elapsed days.
 
 Gate: the canonical local suite passes, secret/cache scan is clean, and generated evidence distinguishes local, integration, live-model, governance, publication, and longitudinal states.
 
@@ -59,7 +59,7 @@ Gate: the canonical local suite passes, secret/cache scan is clean, and generate
 
 - [x] Run the complete canonical validation command set and all three real integrations.
 - [x] Inspect `git diff`, generated evidence, ignored/untracked files, and tracked content for secrets, binaries, caches, database files, and transcripts.
-- [ ] Commit deterministic implementation and evidence schema changes, record the candidate SHA, and ensure a clean worktree.
+- [x] Commit deterministic implementation and evidence schema changes, record the candidate SHA, and ensure a clean worktree.
 - [ ] Push the candidate to `main` and require the four hosted OS/Python jobs to pass for that exact SHA.
 
 Gate: expensive/live evidence may only attach to the frozen candidate SHA. Runtime-policy changes invalidate affected evidence.
@@ -118,3 +118,5 @@ Gate: no tag or release exists unless every mandatory current gate is supported 
 | 2026-10-08 | 1 | First real stack run: TypeScript and browser passed; PostgreSQL fixed behavior passed eight of nine checks, but scalar output parsing misread `SET` command output | FAIL — scorer classification |
 | 2026-10-08 | 1 | Corrected evaluator scalar parsing without changing the fixture/gate; reran once; TypeScript 7.0.2, PostgreSQL 17.6/RLS, and Playwright 1.64.0 + Chrome 154.0.8037.98 all showed bad-fails/good-passes polarity | PASS |
 | 2026-10-08 | 2–3 | Canonical 11-command suite, 6 failure-resistance tests, repository mutation tests, repository validator, compileall, evidence builder, diff check, and artifact scan | PASS |
+| 2026-10-08 | 3 | Deterministic candidate committed as `4de42795e3343c0bc0d81a32627ab3dbff17dc1a`; real integrations rerun against its clean checkout | PASS |
+| 2026-10-08T17:27:27.7905650Z | 2 | L5 ledger started for candidate `4de42795e3343c0bc0d81a32627ab3dbff17dc1a`; earliest possible seven-day completion `2026-10-15T17:27:27.7905650Z`; zero post-freeze tasks captured | IN_PROGRESS |

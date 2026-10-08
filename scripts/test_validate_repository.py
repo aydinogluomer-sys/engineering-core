@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import unittest
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
-from validate_repository import validate_readme, validate_workflow
+from validate_repository import validate_longitudinal_ledger, validate_readme, validate_workflow
 from build_evidence_bundle import candidate_manifest
 
 
@@ -76,6 +77,30 @@ class EvidenceManifestTests(unittest.TestCase):
             (transient / "copied-runtime.md").write_text("ignored", encoding="utf-8")
             manifest = candidate_manifest(output, root)
             self.assertEqual(set(manifest), {"tracked.txt"})
+
+
+class LongitudinalLedgerTests(unittest.TestCase):
+    def ledger(self) -> dict:
+        fields = {"timestamp", "repository_task", "task_class", "risk", "expected_mode", "observed_mode", "completion_state", "verification_evidence", "regressions", "human_correction_required", "false_completion", "scope_drift", "cost", "notes"}
+        return {
+            "schema_version": 1, "state": "IN_PROGRESS",
+            "start_timestamp": "2026-10-08T00:00:00+00:00", "earliest_valid_completion_timestamp": "2026-10-15T00:00:00+00:00",
+            "candidate_sha": "a" * 40, "skill_version": "0.1.0-rc.1", "claude_code_version": "UNAVAILABLE",
+            "models_used": [], "required_task_fields": sorted(fields), "tasks": [],
+            "independent_final_analysis": "NOT_RUN", "limitations": ["in progress"],
+        }
+
+    def test_in_progress_seven_day_contract_is_valid(self):
+        self.assertEqual(validate_longitudinal_ledger(self.ledger(), now=datetime(2026, 10, 8, tzinfo=timezone.utc)), [])
+
+    def test_early_pass_and_short_window_are_rejected(self):
+        ledger = self.ledger()
+        ledger["state"] = "PASS"
+        ledger["earliest_valid_completion_timestamp"] = "2026-10-14T23:59:59+00:00"
+        errors = validate_longitudinal_ledger(ledger, now=datetime(2026, 10, 9, tzinfo=timezone.utc))
+        self.assertTrue(any("shorter" in error for error in errors))
+        self.assertTrue(any("predates" in error for error in errors))
+        self.assertTrue(any("independent" in error for error in errors))
 
 
 if __name__ == "__main__":

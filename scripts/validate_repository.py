@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 MIN_PYTHON = (3, 10)
@@ -69,6 +70,7 @@ REQUIRED = {
     "evidence/current/SHA256SUMS.json",
     "evidence/current/integrations.json",
     "evidence/longitudinal/README.md",
+    "evidence/longitudinal/current-run.json",
     "evals/formal-spec-team/README.md",
     "evals/formal-spec-team/run_team_eval.py",
     "evals/formal-spec-team/test_team_eval.py",
@@ -86,6 +88,40 @@ REQUIRED = {
 }
 CORE_FAMILIES = {"small", "moderate", "auth", "dirty", "missing-graph", "formal-spec"}
 PRESSURE_PROFILES = {"adversarial-decision", "gate-integrity", "stale-evidence", "skip-qa", "release-audit", "sunk-cost", "authority", "orchestration"}
+LONGITUDINAL_TASK_FIELDS = {"timestamp", "repository_task", "task_class", "risk", "expected_mode", "observed_mode", "completion_state", "verification_evidence", "regressions", "human_correction_required", "false_completion", "scope_drift", "cost", "notes"}
+
+
+def validate_longitudinal_ledger(data: dict, *, now: datetime | None = None) -> list[str]:
+    errors: list[str] = []
+    required = {"schema_version", "state", "start_timestamp", "earliest_valid_completion_timestamp", "candidate_sha", "skill_version", "claude_code_version", "models_used", "required_task_fields", "tasks", "independent_final_analysis", "limitations"}
+    if not isinstance(data, dict) or not required <= set(data):
+        return ["longitudinal ledger is missing required fields"]
+    if data["schema_version"] != 1 or data["state"] not in {"IN_PROGRESS", "PASS", "BLOCKED"}:
+        errors.append("longitudinal ledger schema/state is invalid")
+    try:
+        start = datetime.fromisoformat(data["start_timestamp"].replace("Z", "+00:00"))
+        earliest = datetime.fromisoformat(data["earliest_valid_completion_timestamp"].replace("Z", "+00:00"))
+    except (AttributeError, ValueError):
+        errors.append("longitudinal timestamps are invalid")
+    else:
+        if earliest - start < timedelta(days=7):
+            errors.append("longitudinal completion window is shorter than seven elapsed days")
+        observed_now = now or datetime.now(timezone.utc)
+        if data["state"] == "PASS" and observed_now < earliest:
+            errors.append("longitudinal PASS predates the seven-day gate")
+    if not re.fullmatch(r"[0-9a-f]{40}", str(data["candidate_sha"])):
+        errors.append("longitudinal candidate SHA is invalid")
+    if set(data["required_task_fields"]) != LONGITUDINAL_TASK_FIELDS:
+        errors.append("longitudinal task field contract is incomplete")
+    if not isinstance(data["tasks"], list):
+        errors.append("longitudinal tasks must be a list")
+    else:
+        for index, task in enumerate(data["tasks"]):
+            if not isinstance(task, dict) or not LONGITUDINAL_TASK_FIELDS <= set(task):
+                errors.append(f"longitudinal task {index} is incomplete")
+    if data["state"] == "PASS" and data["independent_final_analysis"] != "PASS":
+        errors.append("longitudinal PASS lacks independent final analysis")
+    return errors
 
 
 def validate_readme(text: str) -> list[str]:
@@ -326,6 +362,15 @@ def validate(root: Path) -> list[str]:
             errors.extend(f"integration evidence: {error}" for error in validate_stack_report(report))
             if report.get("protected_inputs_sha256") != protected_stack_hash(root):
                 errors.append("integration evidence does not match protected fixtures/oracles")
+
+    longitudinal_path = root / "evidence/longitudinal/current-run.json"
+    if longitudinal_path.exists():
+        try:
+            ledger = json.loads(longitudinal_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"invalid longitudinal ledger: {exc}")
+        else:
+            errors.extend(validate_longitudinal_ledger(ledger))
 
     registry = root / "evals/cross-model/model_registry.json"
     if registry.exists():
