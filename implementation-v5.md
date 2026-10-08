@@ -32,7 +32,7 @@ Source contract: `implementation (5).md`, supplied 2026-10-07. This ledger exten
 - [x] Capability probes do not install missing TypeScript/PostgreSQL/browser tooling; unavailable cells remain `BLOCKED`.
 - [x] Every required local command passes after the final relevant edit and the evidence bundle hashes that candidate.
 - [x] Fresh independent review finds no unresolved blocking defect.
-- [ ] `main` is pushed and the resulting hosted Ubuntu/Windows × Python 3.10/3.14 matrix passes.
+- [x] `main` is pushed and the resulting hosted Ubuntu/Windows × Python 3.10/3.14 matrix passes.
 
 ## Execution record
 
@@ -44,3 +44,4 @@ No command or gate is recorded `PASS` until it has actually run. Command results
 - 2026-10-07: Evidence-bundle build exited 0 with all ten local cells `PASS`; the final regenerated digest is recorded in `evidence/current/evidence.json` and `SHA256SUMS.json`.
 - 2026-10-08: First fresh audit returned `RELEASE_NOT_VERIFIED` with seven blocking findings. Pressure fixtures/scoring, disposition vocabulary, external-provenance evidence fields, manifest freezing, evidence sanitization, README claim language, and competing-hypothesis detail were remediated; re-audit is required before closing the independent-review gate.
 - 2026-10-08: Final fresh re-audit returned `RELEASE_VERIFIED`: all prior blockers resolved, scenario-aware controlled non-closure verified, no new blocker found, and the current local evidence/diff reconciled.
+- 2026-10-08: Implementation commit `daa92b55f784a23210bce84b8ff10b42bf8c5131` was pushed to `origin/main`; GitHub Actions run `37747462471` passed all four Ubuntu/Windows × Python 3.10/3.14 jobs.

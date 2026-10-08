@@ -8,9 +8,9 @@ Canonical status owner. Updated 2026-10-07 for the v5 failure-resistance candida
 |---|---|---|
 | Contract baseline | `ea65af9e81ef9f7c595c2fd1f05d13a3f08a5c45` | Clean `main` / `origin/main` observed before v5 implementation |
 | Validated candidate | `evidence/current/evidence.json` candidate manifest and SHA-256 digest | Exact repository bytes covered by the latest local bundle; not a Git commit identity |
-| Published HEAD at contract baseline | `ea65af9e81ef9f7c595c2fd1f05d13a3f08a5c45` | Last remote identity observed before this candidate is pushed |
-| Latest hosted CI for that published baseline | GitHub Actions run `37639401514`, PASS | Ubuntu/Windows × Python 3.10/3.14 evidence for the baseline, not for unpushed candidate bytes |
-| Final v5 published HEAD / hosted CI | Pending publication and post-push observation | Must be read from Git/GitHub after push; no pre-commit document can truthfully predict its own final commit hash |
+| Published v5 implementation commit | `daa92b55f784a23210bce84b8ff10b42bf8c5131` | Pushed to `origin/main` after local gates and fresh audit |
+| Hosted CI for v5 implementation | GitHub Actions run `37747462471`, PASS | All Ubuntu/Windows × Python 3.10/3.14 jobs passed |
+| Final status-record commit | This document's commit, followed by post-push observation | A committed file cannot embed its own future Git object ID; final remote equality and CI are reported from GitHub after push |
 
 The evidence bundle records its repository parent commit plus a complete candidate byte manifest. A later commit changes Git metadata and may change the evidence files themselves; therefore local evidence binds candidate bytes rather than pretending to be evidence for an unknown future commit.
 
@@ -40,7 +40,7 @@ The evidence bundle records its repository parent commit plus a complete candida
 | Seven-day longitudinal field reliability | NOT_RUN | Protocol exists; seven elapsed days and independent field audit not performed |
 | GitHub branch protection | NOT_APPLIED | Prepared governance profile only; settings mutation was not requested |
 | Tag / GitHub release | NOT_AUTHORIZED | No tag or release is created by this work |
-| Repository push to `main` | AUTHORIZED_PENDING | User authorized this exact push; it occurs only after local gates and fresh audit |
+| Repository push to `main` | PASS | Authorized implementation commit pushed; hosted matrix passed; final status-record commit is verified after its push |
 
 ## Current local validation
 
