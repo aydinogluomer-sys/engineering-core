@@ -74,6 +74,11 @@ REQUIRED_POLICY_OWNERS = {
     "two-key-closure": "references/formal-spec-team-mode.md",
     "cross-session-state": "references/formal-spec-team-mode.md",
     "fresh-release-auditor": "references/formal-spec-team-mode.md",
+    "adversarial-decision-challenge": "references/verification-review.md",
+    "gate-integrity": "references/verification-review.md",
+    "external-provenance": "references/repository-investigation.md",
+    "orchestration-provenance": "references/collaboration-state.md",
+    "competing-hypotheses": "references/implementation-debugging.md",
 }
 
 POLICY_ID_RE = re.compile(r"<!--\s*policy-id:\s*([a-z0-9]+(?:-[a-z0-9]+)*)\s*-->")

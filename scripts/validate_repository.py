@@ -62,6 +62,7 @@ REQUIRED = {
     "evals/formal-spec-team/run_team_eval.py",
     "evals/formal-spec-team/test_team_eval.py",
     "evals/run_l4_eval.py",
+    "evals/pressure_contract.py",
     "evals/test_completion_summary.py",
     "evals/test_l4_eval.py",
     "engineering-core/SKILL.md",
@@ -73,6 +74,21 @@ REQUIRED = {
     "scripts/test_validate_repository.py",
 }
 CORE_FAMILIES = {"small", "moderate", "auth", "dirty", "missing-graph", "formal-spec"}
+PRESSURE_PROFILES = {"adversarial-decision", "gate-integrity", "stale-evidence", "skip-qa", "release-audit", "sunk-cost", "authority", "orchestration"}
+
+
+def validate_readme(text: str) -> list[str]:
+    errors: list[str] = []
+    blocks = re.findall(r"```mermaid\s*\n(.*?)```", text, re.DOTALL)
+    if len(blocks) != 14:
+        errors.append("README must contain exactly fourteen Mermaid system diagrams")
+    for index in range(1, 15):
+        if not re.search(rf"^### {index}\.\s+\S", text, re.MULTILINE):
+            errors.append(f"README is missing numbered diagram heading {index}")
+    for index, block in enumerate(blocks, 1):
+        if not re.search(r"^(?:flowchart|sequenceDiagram|graph)\b", block.strip()):
+            errors.append(f"README Mermaid diagram {index} lacks a supported declaration")
+    return errors
 
 
 def markdown_links(path: Path, text: str):
@@ -179,6 +195,10 @@ def validate(root: Path) -> list[str]:
                 if not resolved.exists():
                     errors.append(f"broken local link in {path.relative_to(root)}: {target}")
 
+    readme = root / "README.md"
+    if readme.exists():
+        errors.extend(validate_readme(readme.read_text(encoding="utf-8")))
+
     workflow = root / ".github/workflows/validate.yml"
     if workflow.exists():
         text = workflow.read_text(encoding="utf-8")
@@ -189,6 +209,7 @@ def validate(root: Path) -> list[str]:
             errors.append("push CI must not run live cross-model evaluations")
 
     found: set[str] = set()
+    pressure_found: set[str] = set()
     for path in sorted((root / "evals/scenarios").glob("*.json")):
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
@@ -196,11 +217,17 @@ def validate(root: Path) -> list[str]:
             errors.append(f"invalid scenario {path.name}: {exc}")
             continue
         found.add(data.get("family", ""))
+        if data.get("pressure_profile"):
+            pressure_found.add(data["pressure_profile"])
+            if data.get("expected_completion_status") not in {"IMPLEMENTED", "VERIFIED", "NOT_VERIFIED", "BLOCKED"}:
+                errors.append(f"pressure scenario {path.name} lacks a controlled expected completion status")
         if data.get("activation") not in {"explicit", "natural"}:
             errors.append(f"scenario {path.name} has invalid activation")
     missing = CORE_FAMILIES - found
     if missing:
         errors.append("missing L4 core families: " + ", ".join(sorted(missing)))
+    if pressure_found != PRESSURE_PROFILES:
+        errors.append("L4 pressure profiles do not match the required eight-family set")
 
     scenario_doc = root / "engineering-core/references/evaluation-scenarios.md"
     if scenario_doc.exists():
@@ -209,9 +236,9 @@ def validate(root: Path) -> list[str]:
             match = re.match(r"\|\s*(\d+)\s*\|", line)
             if match:
                 rows[int(match.group(1))] = line
-        expected_ids = set(range(38, 114))
+        expected_ids = set(range(38, 138))
         if expected_ids - rows.keys():
-            errors.append("adversarial L3 matrices must contain scenarios 38-113")
+            errors.append("adversarial L3 matrices must contain scenarios 38-137")
         for number in expected_ids.intersection(rows):
             if len(rows[number].split("|")) < 10 or "L3" not in rows[number]:
                 errors.append(f"L3 scenario {number} lacks required trace fields/evidence level")

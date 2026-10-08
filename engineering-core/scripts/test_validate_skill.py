@@ -166,6 +166,31 @@ class ValidatorTests(unittest.TestCase):
         p.write_text(text, encoding="utf-8")
         self.assertEqual(validate(root), [])
 
+    def test_hardening_policy_ids_are_owned_and_unique(self):
+        owners = {
+            "adversarial-decision-challenge": "references/verification-review.md",
+            "gate-integrity": "references/verification-review.md",
+            "external-provenance": "references/repository-investigation.md",
+            "orchestration-provenance": "references/collaboration-state.md",
+            "competing-hypotheses": "references/implementation-debugging.md",
+        }
+        for policy_id, owner in owners.items():
+            with self.subTest(policy_id=policy_id):
+                root = self.copy_skill()
+                source = root / owner
+                marker = f"<!-- policy-id: {policy_id} -->"
+                source.write_text(source.read_text(encoding="utf-8").replace(marker, ""), encoding="utf-8")
+                self.assertTrue(any(policy_id in error for error in validate(root)))
+
+    def test_hardening_policy_wrong_owner_fails(self):
+        root = self.copy_skill()
+        source = root / "references/repository-investigation.md"
+        target = root / "references/integrations.md"
+        marker = "<!-- policy-id: external-provenance -->"
+        source.write_text(source.read_text(encoding="utf-8").replace(marker, ""), encoding="utf-8")
+        target.write_text(target.read_text(encoding="utf-8") + "\n" + marker + "\n", encoding="utf-8")
+        self.assertTrue(any("misplaced policy-id: external-provenance" in error for error in validate(root)))
+
     def test_eval_tree_cannot_enter_runtime_package(self):
         def mutate(r):
             path = r / "evals/team.json"

@@ -40,6 +40,8 @@ all work units
 
 Each unit names one writer, allowed files, forbidden changes, artifacts, checks, stop conditions, specialist need, and evidence. Parallelize only independent non-overlapping ownership; do not spawn agents to make the topology look busy.
 
+The orchestrator gives each leaf direct pointers to the controlling requirement, allowed surface, and relevant diff/test artifact. A leaf returns evidence to that orchestrator and does not create a nested review tree. If code and an acceptance gate change together, a separate gate-integrity review checks removed assertions, skips, suppressions, threshold changes, and exception expansion before either phase key can close.
+
 ## 3. Execute with independent QA
 
 The builder implements `WORK-003` and records current targeted tests. Independent QA receives the original authorization requirement, acceptance, lock, actual diff, and tests—not “the builder says it passes.” QA discovers that same-tenant success is covered but cross-tenant denial is missing.

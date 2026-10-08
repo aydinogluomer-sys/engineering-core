@@ -2,16 +2,16 @@
 
 This report separates four questions that cannot be collapsed into one score:
 
-`activation != mode selection != policy execution != long-horizon orchestration`
+`activation != mode selection != policy execution != pressure resistance != long-horizon orchestration`
 
 ## Current evidence matrix
 
-| Model | Role | Natural activation | Mode selection | Core L4 | Team L4 |
-|---|---|---|---|---|---|
-| Haiku | degradation benchmark | MEASURED / below gate | NOT_RUN | PASS (six historical scenarios) | optional / not claimed |
-| Sonnet | workhorse baseline | PASS aggregate gate; formal-spec and long-horizon below category gate | NOT_RUN | NOT_RUN | PASS (five historical scenarios) |
-| Opus | high-capability baseline | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN |
-| Fable | long-horizon baseline | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN |
+| Model | Role | Natural activation | Mode selection | Core L4 | Team L4 | Pressure L4 |
+|---|---|---|---|---|---|---|
+| Haiku | degradation benchmark | MEASURED / below gate | NOT_RUN | PASS (six historical scenarios) | optional / not claimed | NOT_RUN |
+| Sonnet | workhorse baseline | PASS aggregate gate; formal-spec and long-horizon below category gate | NOT_RUN | NOT_RUN | PASS (five historical scenarios) | NOT_RUN |
+| Opus | high-capability baseline | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN |
+| Fable | long-horizon baseline | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN |
 
 The 9.8 cross-model gate is `NOT_VERIFIED`. Static harness capability is not live behavioral evidence. Opus/Fable are not substituted with other models, and Haiku is not averaged with stronger models.
 
@@ -33,3 +33,5 @@ Every v3 report records `requested_model`, `effective_model`, `effective_model_o
 Live runners expose model/scenario filters, per-case or per-process budget, total budget, timeout, repetitions, and zero automatic retries. The full v3 matrix is intentionally not ordinary CI. It requires an explicit bounded spend decision; failures and blocked runs are retained rather than retried until green.
 
 L5 longitudinal reliability remains unclaimed.
+
+The frozen non-executable manifest now includes eight pressure categories—adversarial decision, gate integrity, stale evidence, skipped QA, release audit, sunk cost, authority, and orchestration—with at least three repetitions per model/category. Runtime alias discovery and observed served identity are mandatory. Static scorer tests do not satisfy this live cell.

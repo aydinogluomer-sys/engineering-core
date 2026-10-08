@@ -1,55 +1,62 @@
 # Current validation status
 
-Canonical status owner. Updated 2026-10-06 against the final pre-commit candidate based on `6940e92aa1164c6b857d4bf7de9fbc622806ec17`. The evidence bundle records the final validated candidate manifest; publication and remote controls remain separate claims.
+Canonical status owner. Updated 2026-10-07 for the v5 failure-resistance candidate. Contract baseline, validated working-tree bytes, published Git identity, and hosted CI are deliberately separate.
+
+## Identity and evidence state
+
+| Identity | Current value | Meaning |
+|---|---|---|
+| Contract baseline | `ea65af9e81ef9f7c595c2fd1f05d13a3f08a5c45` | Clean `main` / `origin/main` observed before v5 implementation |
+| Validated candidate | `evidence/current/evidence.json` candidate manifest and SHA-256 digest | Exact repository bytes covered by the latest local bundle; not a Git commit identity |
+| Published HEAD at contract baseline | `ea65af9e81ef9f7c595c2fd1f05d13a3f08a5c45` | Last remote identity observed before this candidate is pushed |
+| Latest hosted CI for that published baseline | GitHub Actions run `37639401514`, PASS | Ubuntu/Windows × Python 3.10/3.14 evidence for the baseline, not for unpushed candidate bytes |
+| Final v5 published HEAD / hosted CI | Pending publication and post-push observation | Must be read from Git/GitHub after push; no pre-commit document can truthfully predict its own final commit hash |
+
+The evidence bundle records its repository parent commit plus a complete candidate byte manifest. A later commit changes Git metadata and may change the evidence files themselves; therefore local evidence binds candidate bytes rather than pretending to be evidence for an unknown future commit.
 
 ## Claim matrix
 
 | Claim | Status | Current evidence / limitation |
 |---|---|---|
-| Runtime skill structure and policy lint | PASS | `validate_skill.py`; 28 validator mutation tests |
-| Completion/report/event strictness | PASS | schema v3, completion, common harness, cross-model adversarial tests |
-| Trusted oracle and scope integrity | PASS | evaluator-owned oracle and Git/scope negative controls |
-| Evidence freshness and continuation state | PASS | relevant/unrelated staleness, resume identity, CAS, recovery, graph, ownership tests |
-| Team stage provenance and Two-Key scorer | PASS | evaluator-owned stage records, QA/auditor authorship chain, oracle trajectory, role/stage/artifact-bound finding closure, semantic coverage validation; final targeted independent re-audit PASS |
-| Deterministic failure-resistance fixtures | PASS | source-risk transition, coordination, specialist, and injection baseline/fixed tests |
-| Installer behavior | PASS | fresh, no-op, equal-content provenance refresh, drift refusal, explicit replace, failure-safe staging, backup/rollback, anti-nesting tests |
-| CI/repository structure | PASS | structural workflow parser, mutations, SHA pins, repository validator |
-| TypeScript integration fixture | BLOCKED | Node exists; a real `tsc` compiler is not installed, so no typecheck PASS is claimed |
-| PostgreSQL/RLS integration fixture | BLOCKED | local `psql`/disposable PostgreSQL capability unavailable |
-| Browser interaction fixture | BLOCKED | supported local browser executable not detected |
-| GitHub branch protection | NOT_APPLIED | profile prepared in `docs/governance.md`; no settings mutation authorized |
-| Tag / GitHub release / publication | NOT_AUTHORIZED | prerelease metadata exists locally only |
-| Live Haiku/Sonnet/Opus/Fable reliability matrix | NOT_RUN | concrete manifest is frozen as a non-executable proposal; no exact spend authorization/evidence was granted |
-| Seven-day longitudinal field reliability | NOT_RUN | protocol prepared; seven elapsed days and independent field audit not performed |
+| Runtime skill structure and policy lint | PASS | Lean 82-line `SKILL.md`; five new policy IDs have canonical ownership; 30 validator mutation tests |
+| Adversarial decision and gate-integrity policy | PASS | Canonical verification/review policies, worked example, L3 positive/negative traces |
+| External and orchestration provenance | PASS | Version-sensitive source reconciliation and one-hop/direct-evidence rules at canonical owners |
+| Competing-hypothesis policy | PASS | Narrow eligibility, discriminating matrix, bounded stop rule, native fallback |
+| L3 failure-resistance matrix | PASS | Scenarios 114–137 are structurally required by the repository validator |
+| Core L4 harness | PASS (STATIC) | Existing evaluator/oracle/scope harness plus deterministic scorer tests |
+| Pressure harness | PASS (STATIC) | Eight pressure profiles; mutation tests for forged dispositions, visible-gate edits, stale evidence, skipped QA, release evidence, sunk cost, authority, and orchestration |
+| Pressure campaign | NOT_RUN | Frozen live plan exists; no paid model call or exact spend authorization |
+| Completion/report/event strictness | PASS | Existing schema-v3 completion and event contracts remain green |
+| Trusted oracle and scope integrity | PASS | Evaluator-owned oracle and Git/scope negative controls remain green |
+| Evidence freshness and continuation state | PASS | Relevant/unrelated staleness, resume identity, CAS, recovery, graph, and ownership tests |
+| Team stage provenance and Two-Key scorer | PASS | Evaluator-owned stage records and fresh audit semantics remain green |
+| Installer behavior | PASS | Fresh/no-op/update/drift/failure/rollback/anti-nesting tests |
+| README architecture contract | PASS | Exactly fourteen numbered Mermaid blocks, local links, declarations, before/after table, evidence boundaries, and non-goals; mutation-tested validator |
+| Fresh independent v5 audit | PASS | Final re-audit reconciled all prior pressure/provenance/manifest/evidence blockers and found no new blocker |
+| TypeScript integration fixture | BLOCKED | Node exists; `tsc` command not found; no install attempted and no typecheck PASS claimed |
+| PostgreSQL/RLS integration fixture | BLOCKED | `psql` command not found; no database PASS claimed |
+| Browser interaction fixture | BLOCKED | Chrome/Edge/Chromium executable commands not detected; no browser PASS claimed |
+| Live Haiku/Sonnet/Opus/Fable reliability matrix | NOT_RUN | Manifest requires runtime alias discovery, observed served identity, pressure cells, repetitions, provenance, and bounded spend |
+| Seven-day longitudinal field reliability | NOT_RUN | Protocol exists; seven elapsed days and independent field audit not performed |
+| GitHub branch protection | NOT_APPLIED | Prepared governance profile only; settings mutation was not requested |
+| Tag / GitHub release | NOT_AUTHORIZED | No tag or release is created by this work |
+| Repository push to `main` | AUTHORIZED_PENDING | User authorized this exact push; it occurs only after local gates and fresh audit |
 
-## Local validation commands
+## Current local validation
 
-The evidence bundle records exit codes and redacted output tails for:
+The canonical command set was executed after the implementation and documentation edits. It passed: skill validator; 30 skill-validator tests; 73 core eval tests; 14 activation tests; 16 Team tests; 20 cross-model tests; 5 failure-resistance tests; 4 installer tests; 8 repository-validator tests; repository validation; and compileall. The final evidence-bundle generation reruns this full set and becomes the current byte-level record.
 
-```text
-python engineering-core/scripts/validate_skill.py engineering-core
-python engineering-core/scripts/test_validate_skill.py
-python -m unittest discover -s evals -p test_*.py
-python -m unittest discover -s evals/activation -p test_*.py
-python -m unittest discover -s evals/formal-spec-team -p test_*.py
-python -m unittest discover -s evals/cross-model -p test_*.py
-python -m unittest discover -s evals/failure-resistance -p test_*.py
-python scripts/test_install.py
-python scripts/test_validate_repository.py
-python scripts/validate_repository.py .
-python -m compileall -q engineering-core scripts evals
-```
-
-Passing these commands demonstrates deterministic local behavior of the package and harness. It does not demonstrate served-model identity, paid live-model reliability, production database/browser behavior, applied GitHub controls, or longitudinal effectiveness.
+One earlier ad-hoc invocation used direct `unittest` module paths incompatible with this repository's import layout and produced two import errors. The canonical discovery invocations immediately replaced it and passed; the failed command is not reported as a product or gate PASS.
 
 ## Evidence boundaries
 
-- Model-authored artifacts are claims until reconciled with evaluator-owned records and protected checks.
-- A candidate-visible test is developer feedback, not the trusted acceptance oracle.
-- `evaluation_completed` and `quality_gate_passed` are separate fields and exit semantics.
-- Unknown post-invocation cost consumes the reserved budget.
-- Historical reports remain historical; schema adapters do not grant current quality-gate status.
-- Deterministic simulations and live-agent measurements are never merged.
-- Hashes demonstrate byte integrity, not correctness or reviewer independence.
+- Behavioral policy is not deterministic prevention; optional hooks/control-plane enforcement is separate.
+- Observability is execution visibility, not correctness proof.
+- CodeGraph, Cartographer, Graphify, and similar providers are optional context sources with native fallbacks.
+- Model-authored artifacts are claims until evaluator-owned records and protected checks reconcile them.
+- Static fixtures and mutation tests do not prove live-agent or cross-model reliability.
+- Requested aliases do not prove the effective served model.
+- Hashes prove byte integrity, not semantics or reviewer independence.
+- No unavailable stack, live, governance, publication, or longitudinal cell is promoted to PASS.
 
 See the sanitized local bundle in [`../evidence/current/`](../evidence/current/) after generation and its `SHA256SUMS.json` manifest.

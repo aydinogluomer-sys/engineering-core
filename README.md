@@ -38,6 +38,205 @@ The package separates four concerns:
 
 The installed runtime package is [`engineering-core/`](engineering-core/). Its [`SKILL.md`](engineering-core/SKILL.md) is lean and routes to detailed references only when relevant.
 
+## System maps
+
+These diagrams describe separate responsibilities; arrows mean information or control flow, not proof of correctness.
+
+### 1. System layers
+
+```mermaid
+flowchart TB
+  U[User and repository authority] --> S[Behavioral skill]
+  S --> C[Claude Code execution]
+  H[Optional hooks / control plane] --> C
+  C --> O[Optional observability]
+  I[Optional codebase intelligence] --> S
+  C --> E[Evidence]
+```
+
+The skill guides behavior, hooks can block selected actions, observability exposes events, and intelligence providers accelerate context. Every optional component has a native fallback or a controlled limitation.
+
+### 2. Dispatcher
+
+```mermaid
+flowchart LR
+  R[Request] --> K{Risk, scope, uncertainty}
+  K -->|Low, local, reversible| F[Adaptive Fast-Exit]
+  K -->|Ordinary substantive work| N[Standard mode]
+  K -->|Large, phased, consequential| T[Formal Spec Team mode]
+  F -->|Abort condition| N
+  N -->|Scope or risk expands| T
+```
+
+### 3. Reversible operating loop
+
+```mermaid
+flowchart LR
+  C[Classify] --> D[Discover]
+  D --> I[Investigate]
+  I --> P[Plan]
+  P --> M[Implement]
+  M --> V[Verify]
+  V --> R[Review]
+  R --> X[Complete]
+  V -->|failure evidence| I
+  R -->|defect| M
+  X -->|new requirement| C
+```
+
+### 4. Formal Team topology
+
+```mermaid
+flowchart TB
+  O[Owning orchestrator] --> B[Builder leaf]
+  O --> Q[Independent QA leaf]
+  O --> S[Conditional specialist leaf]
+  B -->|direct artifacts| O
+  Q -->|direct findings| O
+  S -->|domain evidence| O
+```
+
+Leaves do not silently create deeper agent trees, and router-only roles do not count as coverage.
+
+### 5. Specification compiler
+
+```mermaid
+flowchart LR
+  S[Source sections] --> R[Requirements]
+  R --> W[Work units]
+  W --> A[Acceptance evidence]
+  A --> C[Coverage matrix]
+  S --> L[Decision locks]
+  L --> W
+```
+
+### 6. Coverage and orphan scan
+
+```mermaid
+flowchart TB
+  R[Executable requirements] --> M{Mapped?}
+  M -->|No| OR[Orphan requirement: block]
+  M -->|Yes| W[Work and evidence]
+  D[Meaningful diff] --> J{Justified?}
+  J -->|No| OC[Orphan change: review]
+  J -->|Yes| W
+```
+
+### 7. Two-Key closure
+
+```mermaid
+flowchart LR
+  I[Implementation key] --> G{Both current?}
+  Q[Independent key] --> G
+  G -->|Yes| P[PHASE_VERIFIED]
+  G -->|No| N[IMPLEMENTED / NOT_VERIFIED]
+```
+
+### 8. Selective staleness
+
+```mermaid
+flowchart LR
+  C[Requirement change] --> A[Affected nodes]
+  A --> D[Downstream evidence]
+  A -->|mark| S[STALE]
+  U[Unaffected evidence] -->|preserve| V[Current verified state]
+  S --> R[Reverify impacted path]
+```
+
+### 9. Cross-session sequence
+
+```mermaid
+sequenceDiagram
+  participant A as Previous session
+  participant S as Compact State
+  participant B as Resuming session
+  A->>S: repo/spec identity, findings, evidence pointers
+  B->>S: read untrusted resume record
+  B->>B: verify branch, HEAD, diff, spec and freshness
+  B->>S: CAS update after new evidence
+```
+
+### 10. Fresh release auditor
+
+```mermaid
+flowchart TB
+  S[Original spec] --> A[Fresh auditor]
+  D[Base-to-HEAD diff] --> A
+  P[Phase evidence and findings] --> A
+  G[Cross-cutting gates] --> A
+  A -->|all current| R[RELEASE_VERIFIED]
+  A -->|defect or gap| B[RELEASE_NOT_VERIFIED / BLOCKED]
+```
+
+### 11. Trusted evaluator
+
+```mermaid
+flowchart LR
+  M[Model-visible fixture] --> C[Candidate change]
+  C --> O[Evaluator-owned oracle]
+  C --> S[Scope manifest]
+  C --> E[Event and completion contract]
+  O --> G{Quality gate}
+  S --> G
+  E --> G
+```
+
+### 12. Failure-resistance controls
+
+```mermaid
+flowchart TB
+  D[Consequential uncertainty] --> A[Adversarial decision challenge]
+  W[Code plus gate change] --> G[Gate-integrity review]
+  X[Version-sensitive semantics] --> P[External provenance]
+  H[Costly plausible causes] --> C[Competing hypotheses]
+  T[Delegated work] --> O[One-hop provenance]
+```
+
+### 13. Evidence ladder
+
+```mermaid
+flowchart BT
+  L1[L1 structure] --> L2[L2 policy lint]
+  L2 --> L3[L3 deterministic scenarios]
+  L3 --> L4[L4 live disposable fixtures]
+  L4 --> L5[L5 longitudinal field evidence]
+```
+
+A lower layer cannot be renamed into a higher one. Static pressure checks remain static until an authorized live campaign runs.
+
+### 14. Cross-model matrix
+
+```mermaid
+flowchart LR
+  M[Haiku / Sonnet / Opus / Fable aliases] --> A[Activation]
+  M --> R[Mode routing]
+  M --> C[Core L4]
+  M --> T[Team L4]
+  M --> P[Pressure L4]
+  M --> H[Long horizon]
+  A --> Q[Per-family provenance and quality gates]
+  R --> Q
+  C --> Q
+  T --> Q
+  P --> Q
+  H --> Q
+```
+
+Alias discovery happens at runtime and the served model identity must be observed. The frozen manifest is non-executable until exact budget authority is recorded.
+
+## Hardening delta
+
+| Before | After |
+|---|---|
+| Fresh review could seek confirmation | Consequential uncertainty uses bounded adversarial challenge and controlled dispositions |
+| Test changes were reviewed generally | Code-plus-gate changes trigger explicit gate-integrity and quality-ratchet checks |
+| External guidance was a generic optional input | Version-sensitive semantics use version detection and reconciled provenance states |
+| Delegation rules allowed evidence handoff | One-hop provenance rejects nested/router-only and summary-of-summary closure |
+| Debugging used hypotheses sequentially | Expensive ambiguity may use bounded, discriminating competing hypotheses |
+| L4 covered six core fixtures | The same harness includes eight pressure families and evaluator-owned structural contracts |
+
+These controls improve resistance to confirmation bias, gate weakening, stale evidence, sunk cost, authority drift, and orchestration theater. They do not make unsafe actions impossible and do not convert an unrun live campaign into evidence.
+
 ## Three operating modes
 
 ### Adaptive Fast-Exit
@@ -154,12 +353,18 @@ The canonical current claim/evidence matrix is [`docs/current-status.md`](docs/c
 
 At the current locally validated hardening stage:
 
-- deterministic implementation, adversarial validation, and targeted fresh review are reconciled in the status document;
+- deterministic implementation and adversarial validation are reconciled in the status document; fresh review remains a distinct release gate;
 - GitHub branch protection is prepared, not applied;
 - no tag or release has been published by this work;
 - the paid live-model matrix is `NOT_RUN` without an exact spend authorization;
 - the seven-day longitudinal protocol is `NOT_RUN`;
 - unavailable TypeScript compiler, PostgreSQL, and browser integration cells remain `BLOCKED`, not passed.
+
+The dimensions above are independent: runtime policy, deterministic validation, static pressure harness, live pressure campaign, served-model reliability, stack integration, governance, publication, and longitudinal evidence may have different states. See the canonical matrix rather than collapsing them into one “production ready” label.
+
+## Non-goals
+
+This repository does not replace repository-specific instructions, make final product decisions, grant authority, install external tools automatically, operate a hosted observability backend, enforce branch protection by itself, publish releases, or promise universal model behavior. It provides reusable policy, deterministic local checks, and explicit evidence boundaries.
 
 ## Documentation map
 

@@ -2,6 +2,20 @@
 
 Read this reference for moderate, high, or critical-risk work; removals; review; testing; release preparation; and completion claims.
 
+## Adversarial decision challenge
+<!-- policy-id: adversarial-decision-challenge -->
+
+Use this only when a consequential decision remains materially uncertain. Follow `CLAIM -> EXTRACT -> DOUBT -> RECONCILE -> STOP`: identify the proposed decision and consequence internally; extract the smallest controlling contract and evidence; give a fresh reviewer that material without the builder's or orchestrator's verdict; instruct it to falsify unstated assumptions, hidden coupling, missing negative paths, contradictions, and unsupported conclusions; then reconcile every finding as `CONTRACT_MISREAD`, `VALID_ACTIONABLE`, `VALID_TRADEOFF`, `NOISE_WITH_EVIDENCE`, or `NEEDS_MORE_EVIDENCE`. Stop when evidence resolves uncertainty or no material new finding appears. After two substantive cycles another requires an explicit reason; a third equivalent cycle requires classification/adjudication rather than another blind review loop.
+
+Fresh review receives the artifact, controlling contract, acceptance criteria, and minimum direct evidence. Team findings go into the canonical finding ledger. Reviewer prose, confidence, or agreement is not proof.
+
+## Gate integrity and quality ratchet
+<!-- policy-id: gate-integrity -->
+
+Whenever implementation and its proving mechanism change together, inspect the gate independently. Look for removed or weakened assertions, skips, suppressions, threshold movement, broader exceptions or allowlists, unfinished-work masking, altered fixtures, and relabeled outcomes. Fix implementation first. Change a gate only with independent evidence that the old gate is wrong, and apply Two-Key or fresh release review when the gate controls phase/release closure.
+
+Quality thresholds follow this precedence: explicit user/project contract; repository/CI policy; authoritative external requirement; measured baseline with non-regression; only then a justified new threshold. An existing valid threshold wins over a convenient replacement. Lowering it invokes gate-integrity review and cannot be justified by making the current candidate pass.
+
 ## 1. Verification scales with risk
 
 Start focused, then broaden only when blast radius justifies it.

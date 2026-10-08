@@ -56,6 +56,8 @@ At minimum:
 
 Use a fresh reviewer when available. Give the reviewer the request, relevant instructions, actual diff, surrounding authorization path, and test evidence.
 
+Because the boundary decision is consequential, the reviewer challenges rather than echoes it: the claim is “tenant equality at this trusted boundary is sufficient”; the extracted contract is the ownership invariant and administrative exception; the doubt is a direct-object reference with a mismatched tenant; reconciliation accepts the denial finding and records the new negative test. If a second fresh challenge still conflicts, a third cycle requires adjudication rather than another reviewer loop.
+
 ## Completion
 
 “High-risk fix implemented” and “verified” remain separate until current negative-path evidence exists.

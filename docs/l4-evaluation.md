@@ -4,6 +4,10 @@
 
 L4 means observed behavior from a live Claude Code process in a disposable repository. It does not establish L5 longitudinal reliability.
 
+## Current static pressure extension
+
+The existing core harness now defines eight additional pressure scenarios and evaluator-owned structural contracts for adversarial decisions, gate integrity, evidence freshness, independent QA, release audit, sunk cost, authority, and bounded orchestration. Mutation tests exercise removed/forged evidence, visible-gate weakening, stale evidence, premature closure, unauthorized commands, and invented delegation. The core runner exposes no delegation tool, so it preserves controlled non-closure instead of accepting self-authored reviewer identities: decision review remains `NEEDS_MORE_EVIDENCE`, release remains `RELEASE_NOT_VERIFIED`, and orchestration records a single-owner native fallback with no independent key. True fresh-review/process independence belongs to the live Team cell. This state is `PRESSURE_HARNESS: VERIFIED` only after the current deterministic suite passes. `PRESSURE_LIVE` remains `NOT_RUN`; historical six-family live results below do not cover the new pressure scenarios.
+
 ## Historical attempt retained
 
 The earlier combined Haiku-plan evaluation spent `$0.219564` against a `$0.15` budget after spawning an Explore subagent and did not produce scorable implementation evidence. Status: `BLOCKED`; classification: `budget`/evaluation design. This result is retained rather than overwritten.

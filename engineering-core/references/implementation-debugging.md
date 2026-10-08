@@ -1,5 +1,12 @@
 # Implementation and Debugging
 
+## Bounded competing hypotheses
+<!-- policy-id: competing-hypotheses -->
+
+Use parallel or explicitly separated hypotheses only when at least two causes are plausible, uncertainty is material, the cost of a wrong fix is high, discriminating evidence exists, and each investigation can add independent value. Record a compact matrix of hypothesis, predicted observation, discriminating check, result, and disposition. Bound investigators, time, and cycles; stop when one hypothesis uniquely explains the evidence or remaining uncertainty no longer changes the action.
+
+With collaboration capability, the owning investigator gives bounded leaf investigators distinct hypotheses and requires each to try to falsify both its own and competing causes; leaves return direct evidence rather than debate or delegate. Without it, run the same matrix sequentially using native inspection. Track each hypothesis as `PLAUSIBLE`, `SUPPORTED`, `WEAKENED`, `FALSIFIED`, `UNRESOLVED`, or `ROOT_CAUSE_CONFIRMED`. Do not invoke this pattern for an obvious reproduction, to create activity, or when every branch would run the same check. `ROOT_CAUSE_CONFIRMED` requires discriminating evidence, not the most confident narrative.
+
 Read this reference for implementation tactics, bug fixing, failing tests, uncertain causes, repeated failures, and failure classification.
 
 ## 1. Minimum-correct implementation

@@ -34,10 +34,10 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def candidate_manifest(output: Path) -> dict[str, str]:
+def candidate_manifest(output: Path, root: Path = ROOT) -> dict[str, str]:
     rows: dict[str, str] = {}
-    for path in sorted(item for item in ROOT.rglob("*") if item.is_file()):
-        if ".git" in path.parts or "__pycache__" in path.parts or "reports" in path.parts:
+    for path in sorted(item for item in root.rglob("*") if item.is_file()):
+        if ".git" in path.parts or "__pycache__" in path.parts or "reports" in path.parts or any(part.startswith(".tmp-") for part in path.parts):
             continue
         try:
             path.relative_to(output)
@@ -45,7 +45,7 @@ def candidate_manifest(output: Path) -> dict[str, str]:
             pass
         else:
             continue
-        rows[path.relative_to(ROOT).as_posix()] = sha256(path)
+        rows[path.relative_to(root).as_posix()] = sha256(path)
     return rows
 
 
@@ -79,13 +79,15 @@ def build(output: Path) -> int:
         "source_manifest": {path.relative_to(ROOT).as_posix(): sha256(path) for path in source_paths},
         "candidate_manifest_sha256": manifest_digest,
         "candidate_manifest": manifest,
-        "active_spec_sha256": sha256(ROOT / "implementation-v4.md"),
+        "active_spec_sha256": sha256(ROOT / "implementation-v5.md"),
         "commands": command_rows,
         "local_cells": {name: "PASS" if passed else "FAIL" for name, passed in cells.items()},
         "all_local_commands_passed": all(row["exit_code"] == 0 for row in command_rows),
         "observed_model_identity": "NOT_OBSERVED_NO_LIVE_RUN",
         "stack_capabilities": capability_matrix(),
         "live_model_matrix": "NOT_RUN",
+        "pressure_harness_static": "PASS" if cells["core_harness"] else "FAIL",
+        "pressure_live": "NOT_RUN",
         "longitudinal_field": "NOT_RUN",
         "github_governance": "NOT_APPLIED",
         "publication": "NOT_AUTHORIZED",

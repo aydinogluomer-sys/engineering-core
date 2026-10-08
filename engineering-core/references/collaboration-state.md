@@ -1,5 +1,12 @@
 # Collaboration and State
 
+## One-hop orchestration provenance
+<!-- policy-id: orchestration-provenance -->
+
+Use one owning orchestrator and bounded leaf roles. A leaf may investigate or review its assigned surface, but must not silently create another review tree; it returns a recommendation to the owning orchestrator when more work is needed. Reject router-only roles that add no independent evidence. Every handoff names the owned requirement/surface and direct evidence pointers; a summary of a summary cannot close a finding or gate.
+
+The owning orchestrator reconciles conflicting reports against direct artifacts, preserves one-writer ownership, and records the disposition in the canonical ledger. Agent count, role labels, or invocation logs are not evidence of coverage or independence.
+
 Read this reference for subagents, specialist skills, parallel work, independent review, long-running tasks, compaction, resume, and handoffs.
 
 ## 1. Delegate only bounded work
