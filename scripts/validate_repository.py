@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -97,6 +98,36 @@ REQUIRED_CHECK_CONTEXTS = {
     "static-validation (windows-latest, 3.10)",
     "static-validation (windows-latest, 3.14)",
 }
+INTEGRATION_POST_CANDIDATE_PATHS = {
+    ".github/workflows/validate.yml",
+    "README.md", "CHANGELOG.md", "implementation-v6.md",
+    "scripts/build_evidence_bundle.py", "scripts/validate_repository.py", "scripts/test_validate_repository.py",
+}
+
+
+def integration_binding_scope_errors(paths: list[str]) -> list[str]:
+    return [path for path in paths if not (path.startswith("evidence/") or path.startswith("docs/") or path in INTEGRATION_POST_CANDIDATE_PATHS)]
+
+
+def validate_integration_candidate_binding(root: Path, report: dict) -> list[str]:
+    errors: list[str] = []
+    candidate = str(report.get("candidate_commit", ""))
+    if report.get("candidate_worktree_clean") is not True:
+        errors.append("integration evidence was not produced from a clean candidate worktree")
+    if not re.fullmatch(r"[0-9a-f]{40}", candidate):
+        return errors + ["integration candidate commit is invalid"]
+    ancestor = subprocess.run(["git", "merge-base", "--is-ancestor", candidate, "HEAD"], cwd=root, capture_output=True, check=False)
+    if ancestor.returncode != 0:
+        errors.append("integration candidate commit is not an ancestor of HEAD")
+        return errors
+    changed = subprocess.run(["git", "diff", "--name-only", f"{candidate}..HEAD"], cwd=root, text=True, encoding="utf-8", errors="replace", capture_output=True, check=False)
+    if changed.returncode != 0:
+        errors.append("integration candidate diff could not be inspected")
+    else:
+        disallowed = integration_binding_scope_errors([line.strip().replace("\\", "/") for line in changed.stdout.splitlines() if line.strip()])
+        if disallowed:
+            errors.append("integration candidate is stale for changed runtime/evaluator paths: " + ", ".join(disallowed))
+    return errors
 
 
 def validate_longitudinal_ledger(data: dict, *, now: datetime | None = None) -> list[str]:
@@ -414,6 +445,7 @@ def validate(root: Path) -> list[str]:
             errors.extend(f"integration evidence: {error}" for error in validate_stack_report(report))
             if report.get("protected_inputs_sha256") != protected_stack_hash(root):
                 errors.append("integration evidence does not match protected fixtures/oracles")
+            errors.extend(validate_integration_candidate_binding(root, report))
 
     longitudinal_path = root / "evidence/longitudinal/current-run.json"
     if longitudinal_path.exists():

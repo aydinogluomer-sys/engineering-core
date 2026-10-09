@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-08T17:33:28.331372+00:00",
-  "candidate_commit": "2f60dfec3d76102d16c4f92b2af81dd4abf57e3c",
-  "candidate_worktree_clean": false,
+  "generated_at": "2026-10-09T05:10:58.650024+00:00",
+  "candidate_commit": "2230311706a9ab84ab3f07eae3b88c90e54f6ab1",
+  "candidate_worktree_clean": true,
   "protected_inputs_sha256": "c42754658701e481c595d1cbcabc7bc6b10a4f910efb02abadd444b4f15146c5",
   "environment": {
     "node": "v26.3.0",
