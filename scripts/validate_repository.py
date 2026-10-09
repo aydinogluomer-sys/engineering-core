@@ -99,6 +99,7 @@ REQUIRED_CHECK_CONTEXTS = {
     "static-validation (windows-latest, 3.14)",
 }
 INTEGRATION_POST_CANDIDATE_PATHS = {
+    ".github/workflows/validate.yml",
     "README.md", "CHANGELOG.md", "implementation-v6.md",
     "scripts/build_evidence_bundle.py", "scripts/validate_repository.py", "scripts/test_validate_repository.py",
 }

@@ -145,7 +145,7 @@ class LivePreflightTests(unittest.TestCase):
 
 class IntegrationBindingTests(unittest.TestCase):
     def test_only_evidence_and_reconciliation_paths_may_follow_candidate(self):
-        allowed = ["evidence/current/integrations.json", "docs/current-status.md", "README.md", "implementation-v6.md", "scripts/validate_repository.py"]
+        allowed = [".github/workflows/validate.yml", "evidence/current/integrations.json", "docs/current-status.md", "README.md", "implementation-v6.md", "scripts/validate_repository.py"]
         self.assertEqual(integration_binding_scope_errors(allowed), [])
         changed = [*allowed, "engineering-core/SKILL.md", "evals/failure-resistance/browser_oracle.mjs"]
         self.assertEqual(integration_binding_scope_errors(changed), ["engineering-core/SKILL.md", "evals/failure-resistance/browser_oracle.mjs"])

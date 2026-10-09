@@ -126,3 +126,4 @@ Gate: no tag or release exists unless every mandatory current gate is supported 
 | 2026-10-09 | 4 | Claude Code 2.1.289/auth capability and `--max-budget-usd` observed without model invocation; manifest worst-case `$250.00`; numeric user cap remains unset; paid calls/spend remain zero | NOT_AUTHORIZED |
 | 2026-10-09 | 6 | First fresh audit found integration evidence bound to a dirty/stale pre-final checkout; no release verdict was promoted | RELEASE_BLOCKED — evidence binding |
 | 2026-10-09 | 2–3 | Real stack integrations rerun from clean commit `2230311706a9ab84ab3f07eae3b88c90e54f6ab1`; validator now rejects dirty, non-ancestor, or runtime/evaluator-diverged candidate bindings | PASS |
+| 2026-10-09 | 3 | PR #3 first hosted attempt could not prove ancestry because checkout history was depth 1; checkout remains SHA-pinned but now fetches full history for the non-weakened ancestry gate | FAIL — CI fixture corrected |
