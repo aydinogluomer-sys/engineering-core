@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-09T04:59:43.298657Z",
+  "repository": "aydinogluomer-sys/engineering-core",
+  "branch": "main",
+  "pre_mutation": {
+    "status": "NOT_APPLIED",
+    "http_status": 404,
+    "provider_message": "Branch not protected"
+  },
+  "source_check_run": {
+    "run_id": 37817693386,
+    "candidate_sha": "295e452986a5c4d9afae3d1d01083eb539092579",
+    "conclusion": "success"
+  },
+  "readback": {
+    "strict": true,
+    "required_status_checks": [
+      "static-validation (ubuntu-latest, 3.10)",
+      "static-validation (ubuntu-latest, 3.14)",
+      "static-validation (windows-latest, 3.10)",
+      "static-validation (windows-latest, 3.14)"
+    ],
+    "check_app_id": 15368,
+    "enforce_admins": true,
+    "required_pull_request_reviews": null,
+    "required_linear_history": true,
+    "allow_force_pushes": false,
+    "allow_deletions": false,
+    "lock_branch": false
+  },
+  "status": "APPLIED"
+}

@@ -5,7 +5,7 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from validate_repository import validate_longitudinal_ledger, validate_readme, validate_workflow
+from validate_repository import validate_governance_report, validate_longitudinal_ledger, validate_readme, validate_workflow
 from build_evidence_bundle import candidate_manifest
 
 
@@ -101,6 +101,33 @@ class LongitudinalLedgerTests(unittest.TestCase):
         self.assertTrue(any("shorter" in error for error in errors))
         self.assertTrue(any("predates" in error for error in errors))
         self.assertTrue(any("independent" in error for error in errors))
+
+
+class GovernanceReportTests(unittest.TestCase):
+    def report(self) -> dict:
+        return {
+            "schema_version": 1, "status": "APPLIED", "repository": "aydinogluomer-sys/engineering-core", "branch": "main",
+            "source_check_run": {"run_id": 1, "candidate_sha": "a" * 40, "conclusion": "success"},
+            "readback": {
+                "strict": True, "enforce_admins": True, "required_pull_request_reviews": None,
+                "allow_force_pushes": False, "allow_deletions": False,
+                "required_status_checks": [
+                    "static-validation (ubuntu-latest, 3.10)", "static-validation (ubuntu-latest, 3.14)",
+                    "static-validation (windows-latest, 3.10)", "static-validation (windows-latest, 3.14)",
+                ],
+            },
+        }
+
+    def test_applied_readback_is_valid(self):
+        self.assertEqual(validate_governance_report(self.report()), [])
+
+    def test_weakened_protection_is_rejected(self):
+        report = self.report()
+        report["readback"]["allow_force_pushes"] = True
+        report["readback"]["required_status_checks"].pop()
+        errors = validate_governance_report(report)
+        self.assertTrue(any("required checks" in error for error in errors))
+        self.assertTrue(any("force push" in error for error in errors))
 
 
 if __name__ == "__main__":

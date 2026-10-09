@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-08T17:34:40.698110+00:00",
-  "repository_commit": "2f60dfec3d76102d16c4f92b2af81dd4abf57e3c",
+  "generated_at": "2026-10-09T05:01:20.962039+00:00",
+  "repository_commit": "295e452986a5c4d9afae3d1d01083eb539092579",
   "environment": {
     "python": "3.14.6",
     "platform": "Windows-11-10.0.26200-SP0"
@@ -19,7 +19,7 @@
     "engineering-core/references/source-synthesis.md": "4b6085f06d6aefe26021c0c475ae52f5fd3c9d7fadab0a54549c43df7c33d130",
     "engineering-core/references/verification-review.md": "5763e58825720f8bfbb96db3ff4352b315aaae06c2002b26fbdf7a8188c236eb"
   },
-  "candidate_manifest_sha256": "db2d2309fb7e70e39bc311832b29cd8fa8d7b60a98f00d67e2b1a355651d7fb1",
+  "candidate_manifest_sha256": "d2969c0561bfed53c9c078f58b0579a88aa67ba73e059e036b53c42870a3a83e",
   "candidate_manifest": {
     ".github/CODEOWNERS": "37c7e5939f75773920cc62d771368d72e55e4df6890cc780cf6b7c8076750368",
     ".github/pull_request_template.md": "dd9b9d7cf723f2b28feb13a5fab14d945e311baec8f96a7dce4094e62cd31612",
@@ -29,7 +29,7 @@
     "CONTRIBUTING.md": "c04d113c62b7d25a3f0703ff2892bd055e8f3dba1dbab8fc7ce95df51d20c037",
     "docs/claude-router.md": "37c726993535e22b8d73adfaab10abc3a1933cc0953587d2182ccc3dc0ceded4",
     "docs/cross-model-reliability.md": "1fbee9a0805a48ad90d9e345ccfee5ed0efa05218bb5e1c7ac2c22ab1347fb9e",
-    "docs/current-status.md": "d3f69ea1e4607b4e5ad54bf10f9ab0e04dcbd2eff9c96bcca31dbb0e8085ad93",
+    "docs/current-status.md": "a945bcc7f2420759dd00dc2f8050236e01c22aca34167ee217fd572c9948931e",
     "docs/deterministic-enforcement.md": "78072282d6f1b048f1aca9f8dc3f2d5415f9fb8bd13434cff103d9c07bfd89db",
     "docs/governance.md": "abe3dfb66a8626d823b3835ca75dbe39bb360e72b149b1a0f1b85f7f26bf30ce",
     "docs/l4-evaluation.md": "88c2d667d40f6c1e398fb8e3c424b3104a0f52a23c9600048709d587ea77e602",
@@ -151,21 +151,21 @@
     "evidence/longitudinal/README.md": "6fa96a4fc48c1d51083f848bc2e46bd911655de388e44439c0d6c7c3d461502e",
     "implementation-v4.md": "e42eea509665602aafe5c5da8d186c19a96646b6850f0da55a37b39f769ae2ab",
     "implementation-v5.md": "ef9b77b3cdfcda08e64f1800234519a8be70e2cb34846215e722851704cc65bb",
-    "implementation-v6.md": "947e000ac40484bda80446ef0785b384845fc8221b3515b449a89eb10b20d3ad",
+    "implementation-v6.md": "4bbcd9dc5a36a83dc0b8c5d578b5b5dcb1fd179d9c3bafdf238f71e5651d0244",
     "implementation.md": "dcf83394e662f89946006dfeb30220a545377da65a27337a69bf601586882721",
     "LICENSE": "f7a7f9e742c0c0819c6d8b41572f84903aabe966163bfc9ad9206641d93c656b",
-    "README.md": "af0e26e642ddd8687ed0218f2411148d8a634b9841fa2c3a0494e7a45ab43d1b",
-    "scripts/build_evidence_bundle.py": "1fba59b91a16932b287cd821a69b28dd676b407a7f0738ba9c1a2c32aae38d89",
+    "README.md": "91815c01f2ea536f0b8be45a0c16ac5833d762ecfad1a74b55bd85fecda01e3f",
+    "scripts/build_evidence_bundle.py": "af30e19c794526f8e2d05c893f692ed732bf7189d87471e1af2bf18ce2816809",
     "scripts/install.ps1": "5aba097c3ad42e95d82c61592749e838daaa8f44c539912d33413546936c4b74",
     "scripts/install.py": "4d530d2b8452104ac4eef8aa4afdb539263377dc26865d3c7e6ec6ce3c6959a1",
     "scripts/install.sh": "1d31fca1dc383e19724caa14bd31e0d0f01da9db9f50e3deb3a1b52541ecade5",
     "scripts/test_install.py": "87265a56dfa1d320160d4f35846587e00cc7768b9d9d4f90b817cd16e3342e06",
-    "scripts/test_validate_repository.py": "033f491877730f1f0b219dbb17e2f663fb6d6a9b375cea8d215a129b56cd60ea",
-    "scripts/validate_repository.py": "9febb2f06d81a8205f402a0d22822fd70a9eb2d6829f9708c171de2448556f5c",
+    "scripts/test_validate_repository.py": "a8c7e1de57df8b2443851cfbe3b179b32e8e39c51d1b0b683da7a439b56e33df",
+    "scripts/validate_repository.py": "4475bd59672814d61bb1ae06022f5e8cb38164bff946b68dd7da6f0930f333d8",
     "SECURITY.md": "455db4efa5b5517fb3c163eb0c3f9edea00a05efbfb4e705ec26ed9591ace1f8",
     "VERSION": "5c9c112fc83af1a2f8c196a676c8f81d1a28aab1ffe9bacd0e8265a150e2e20e"
   },
-  "active_spec_sha256": "947e000ac40484bda80446ef0785b384845fc8221b3515b449a89eb10b20d3ad",
+  "active_spec_sha256": "4bbcd9dc5a36a83dc0b8c5d578b5b5dcb1fd179d9c3bafdf238f71e5651d0244",
   "commands": [
     {
       "command": [
@@ -184,7 +184,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "test_activation_guarantee (__main__.ValidatorTests.test_activation_guarantee) ... ok\ntest_active_mcp_config (__main__.ValidatorTests.test_active_mcp_config) ... ok\ntest_arbitrary_unknown_external_import_is_rejected (__main__.ValidatorTests.test_arbitrary_unknown_external_import_is_rejected) ... ok\ntest_broken_local_link (__main__.ValidatorTests.test_broken_local_link) ... ok\ntest_common_external_imports_are_rejected (__main__.ValidatorTests.test_common_external_imports_are_rejected) ... ok\ntest_deterministic_safety_guarantee (__main__.ValidatorTests.test_deterministic_safety_guarantee) ... ok\ntest_duplicate_policy_id_fails (__main__.ValidatorTests.test_duplicate_policy_id_fails) ... ok\ntest_eval_tree_cannot_enter_runtime_package (__main__.ValidatorTests.test_eval_tree_cannot_enter_runtime_package) ... ok\ntest_external_tool_made_mandatory (__main__.ValidatorTests.test_external_tool_made_mandatory) ... ok\ntest_future_and_builtin_imports_are_accepted (__main__.ValidatorTests.test_future_and_builtin_imports_are_accepted) ... ok\ntest_hardening_policy_ids_are_owned_and_unique (__main__.ValidatorTests.test_hardening_policy_ids_are_owned_and_unique) ... ok\ntest_hardening_policy_wrong_owner_fails (__main__.ValidatorTests.test_hardening_policy_wrong_owner_fails) ... ok\ntest_heading_rename_with_policy_id_passes (__main__.ValidatorTests.test_heading_rename_with_policy_id_passes) ... ok\ntest_invalid_frontmatter (__main__.ValidatorTests.test_invalid_frontmatter) ... ok\ntest_local_validator_import_is_accepted (__main__.ValidatorTests.test_local_validator_import_is_accepted) ... ok\ntest_malformed_policy_id_fails (__main__.ValidatorTests.test_malformed_policy_id_fails) ... ok\ntest_missing_example (__main__.ValidatorTests.test_missing_example) ... ok\ntest_missing_policy_id_fails (__main__.ValidatorTests.test_missing_policy_id_fails) ... ok\ntest_missing_reference (__main__.ValidatorTests.test_missing_reference) ... ok\ntest_missing_team_mode_policy_id_fails (__main__.ValidatorTests.test_missing_team_mode_policy_id_fails) ... ok\ntest_over_broad_frontmatter (__main__.ValidatorTests.test_over_broad_frontmatter) ... ok\ntest_oversized_entrypoint (__main__.ValidatorTests.test_oversized_entrypoint) ... ok\ntest_prose_rewrite_with_policy_id_passes (__main__.ValidatorTests.test_prose_rewrite_with_policy_id_passes) ... ok\ntest_real_package (__main__.ValidatorTests.test_real_package) ... ok\ntest_stdlib_and_nested_stdlib_imports_are_accepted (__main__.ValidatorTests.test_stdlib_and_nested_stdlib_imports_are_accepted) ... ok\ntest_team_mode_heading_and_prose_rewrite_passes (__main__.ValidatorTests.test_team_mode_heading_and_prose_rewrite_passes) ... ok\ntest_team_mode_policy_id_wrong_owner_fails (__main__.ValidatorTests.test_team_mode_policy_id_wrong_owner_fails) ... ok\ntest_unknown_extra_policy_id_is_allowed (__main__.ValidatorTests.test_unknown_extra_policy_id_is_allowed) ... ok\ntest_validator_uses_no_fuzzy_semantics (__main__.ValidatorTests.test_validator_uses_no_fuzzy_semantics) ... ok\ntest_wrong_policy_owner_fails (__main__.ValidatorTests.test_wrong_policy_owner_fails) ... ok\n\n----------------------------------------------------------------------\nRan 30 tests in 8.482s\n\nOK\n"
+      "stderr_tail": "test_activation_guarantee (__main__.ValidatorTests.test_activation_guarantee) ... ok\ntest_active_mcp_config (__main__.ValidatorTests.test_active_mcp_config) ... ok\ntest_arbitrary_unknown_external_import_is_rejected (__main__.ValidatorTests.test_arbitrary_unknown_external_import_is_rejected) ... ok\ntest_broken_local_link (__main__.ValidatorTests.test_broken_local_link) ... ok\ntest_common_external_imports_are_rejected (__main__.ValidatorTests.test_common_external_imports_are_rejected) ... ok\ntest_deterministic_safety_guarantee (__main__.ValidatorTests.test_deterministic_safety_guarantee) ... ok\ntest_duplicate_policy_id_fails (__main__.ValidatorTests.test_duplicate_policy_id_fails) ... ok\ntest_eval_tree_cannot_enter_runtime_package (__main__.ValidatorTests.test_eval_tree_cannot_enter_runtime_package) ... ok\ntest_external_tool_made_mandatory (__main__.ValidatorTests.test_external_tool_made_mandatory) ... ok\ntest_future_and_builtin_imports_are_accepted (__main__.ValidatorTests.test_future_and_builtin_imports_are_accepted) ... ok\ntest_hardening_policy_ids_are_owned_and_unique (__main__.ValidatorTests.test_hardening_policy_ids_are_owned_and_unique) ... ok\ntest_hardening_policy_wrong_owner_fails (__main__.ValidatorTests.test_hardening_policy_wrong_owner_fails) ... ok\ntest_heading_rename_with_policy_id_passes (__main__.ValidatorTests.test_heading_rename_with_policy_id_passes) ... ok\ntest_invalid_frontmatter (__main__.ValidatorTests.test_invalid_frontmatter) ... ok\ntest_local_validator_import_is_accepted (__main__.ValidatorTests.test_local_validator_import_is_accepted) ... ok\ntest_malformed_policy_id_fails (__main__.ValidatorTests.test_malformed_policy_id_fails) ... ok\ntest_missing_example (__main__.ValidatorTests.test_missing_example) ... ok\ntest_missing_policy_id_fails (__main__.ValidatorTests.test_missing_policy_id_fails) ... ok\ntest_missing_reference (__main__.ValidatorTests.test_missing_reference) ... ok\ntest_missing_team_mode_policy_id_fails (__main__.ValidatorTests.test_missing_team_mode_policy_id_fails) ... ok\ntest_over_broad_frontmatter (__main__.ValidatorTests.test_over_broad_frontmatter) ... ok\ntest_oversized_entrypoint (__main__.ValidatorTests.test_oversized_entrypoint) ... ok\ntest_prose_rewrite_with_policy_id_passes (__main__.ValidatorTests.test_prose_rewrite_with_policy_id_passes) ... ok\ntest_real_package (__main__.ValidatorTests.test_real_package) ... ok\ntest_stdlib_and_nested_stdlib_imports_are_accepted (__main__.ValidatorTests.test_stdlib_and_nested_stdlib_imports_are_accepted) ... ok\ntest_team_mode_heading_and_prose_rewrite_passes (__main__.ValidatorTests.test_team_mode_heading_and_prose_rewrite_passes) ... ok\ntest_team_mode_policy_id_wrong_owner_fails (__main__.ValidatorTests.test_team_mode_policy_id_wrong_owner_fails) ... ok\ntest_unknown_extra_policy_id_is_allowed (__main__.ValidatorTests.test_unknown_extra_policy_id_is_allowed) ... ok\ntest_validator_uses_no_fuzzy_semantics (__main__.ValidatorTests.test_validator_uses_no_fuzzy_semantics) ... ok\ntest_wrong_policy_owner_fails (__main__.ValidatorTests.test_wrong_policy_owner_fails) ... ok\n\n----------------------------------------------------------------------\nRan 30 tests in 11.350s\n\nOK\n"
     },
     {
       "command": [
@@ -199,7 +199,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": ".........................................................................\n----------------------------------------------------------------------\nRan 73 tests in 21.807s\n\nOK\n"
+      "stderr_tail": ".........................................................................\n----------------------------------------------------------------------\nRan 73 tests in 28.415s\n\nOK\n"
     },
     {
       "command": [
@@ -214,7 +214,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.022s\n\nOK\n"
+      "stderr_tail": "..............\n----------------------------------------------------------------------\nRan 14 tests in 0.019s\n\nOK\n"
     },
     {
       "command": [
@@ -229,7 +229,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "................\n----------------------------------------------------------------------\nRan 16 tests in 7.228s\n\nOK\n"
+      "stderr_tail": "................\n----------------------------------------------------------------------\nRan 16 tests in 8.812s\n\nOK\n"
     },
     {
       "command": [
@@ -244,7 +244,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "....................\n----------------------------------------------------------------------\nRan 20 tests in 0.702s\n\nOK\n"
+      "stderr_tail": "....................\n----------------------------------------------------------------------\nRan 20 tests in 1.465s\n\nOK\n"
     },
     {
       "command": [
@@ -259,7 +259,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": ".......\n----------------------------------------------------------------------\nRan 7 tests in 0.637s\n\nOK\n"
+      "stderr_tail": ".......\n----------------------------------------------------------------------\nRan 7 tests in 1.141s\n\nOK\n"
     },
     {
       "command": [
@@ -268,7 +268,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "....\n----------------------------------------------------------------------\nRan 4 tests in 14.882s\n\nOK\n"
+      "stderr_tail": "....\n----------------------------------------------------------------------\nRan 4 tests in 15.011s\n\nOK\n"
     },
     {
       "command": [
@@ -277,7 +277,7 @@
       ],
       "exit_code": 0,
       "stdout_tail": "",
-      "stderr_tail": "..........\n----------------------------------------------------------------------\nRan 10 tests in 0.028s\n\nOK\n"
+      "stderr_tail": "............\n----------------------------------------------------------------------\nRan 12 tests in 0.027s\n\nOK\n"
     },
     {
       "command": [
@@ -345,7 +345,8 @@
   "longitudinal_field": "IN_PROGRESS",
   "longitudinal_candidate_sha": "4de42795e3343c0bc0d81a32627ab3dbff17dc1a",
   "longitudinal_ledger_sha256": "0029a6ae283d4e95694ed73b1d37fb3d8976fc8dfc90c20e018ad970695ed774",
-  "github_governance": "NOT_APPLIED",
+  "github_governance": "APPLIED",
+  "github_governance_report_sha256": "18d41d9da6d89a86b068d9447ec244dab3c8a570c22fdc4c329b49baf82e576a",
   "publication": "NOT_AUTHORIZED",
   "limitations": [
     "live-model campaign is not authorized without MAX_TOTAL_SPEND_USD",

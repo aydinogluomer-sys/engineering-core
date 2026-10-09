@@ -355,7 +355,7 @@ At the current locally validated hardening stage:
 
 - deterministic implementation and adversarial validation are reconciled in the status document; fresh review remains a distinct release gate;
 - real TypeScript 7.0.2, PostgreSQL 17.6/RLS, and Chrome/Playwright integrations pass evaluator-owned baseline/fixed oracles;
-- GitHub branch protection is authorized but not yet applied/read back;
+- GitHub branch protection is applied and API-read back with the four real hosted check contexts, strict updates, administrator enforcement, and force-push/deletion blocking;
 - no tag or release has been published because the live campaign remains a release gate;
 - the paid live-model matrix is `NOT_AUTHORIZED` without an exact `MAX_TOTAL_SPEND_USD`;
 - the seven-day longitudinal protocol is `IN_PROGRESS`, never compressed or backdated.

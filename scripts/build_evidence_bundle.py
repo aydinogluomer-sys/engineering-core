@@ -86,6 +86,8 @@ def build(output: Path) -> int:
     }
     longitudinal_path = ROOT / "evidence/longitudinal/current-run.json"
     longitudinal = json.loads(longitudinal_path.read_text(encoding="utf-8")) if longitudinal_path.is_file() else None
+    governance_path = output / "governance.json"
+    governance = json.loads(governance_path.read_text(encoding="utf-8")) if governance_path.is_file() else None
     evidence = {
         "schema_version": 1,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -116,7 +118,8 @@ def build(output: Path) -> int:
         "longitudinal_field": longitudinal["state"] if longitudinal else "NOT_RUN",
         "longitudinal_candidate_sha": longitudinal.get("candidate_sha") if longitudinal else None,
         "longitudinal_ledger_sha256": sha256(longitudinal_path) if longitudinal else None,
-        "github_governance": "NOT_APPLIED",
+        "github_governance": governance["status"] if governance else "NOT_APPLIED",
+        "github_governance_report_sha256": sha256(governance_path) if governance else None,
         "publication": "NOT_AUTHORIZED",
         "limitations": ["live-model campaign is not authorized without MAX_TOTAL_SPEND_USD", "hashes prove integrity, not semantic correctness", "seven-day L5 field evidence is in progress"],
     }
