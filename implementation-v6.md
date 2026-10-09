@@ -60,7 +60,7 @@ Gate: the canonical local suite passes, secret/cache scan is clean, and generate
 - [x] Run the complete canonical validation command set and all three real integrations.
 - [x] Inspect `git diff`, generated evidence, ignored/untracked files, and tracked content for secrets, binaries, caches, database files, and transcripts.
 - [x] Commit deterministic implementation and evidence schema changes, record the candidate SHA, and ensure a clean worktree.
-- [ ] Push the candidate to `main` and require the four hosted OS/Python jobs to pass for that exact SHA.
+- [x] Push the candidate to `main` and require the four hosted OS/Python jobs to pass for that exact SHA.
 
 Gate: expensive/live evidence may only attach to the frozen candidate SHA. Runtime-policy changes invalidate affected evidence.
 
@@ -79,10 +79,10 @@ Gate: Sonnet, Opus, and Fable meet all mandatory current gates; Haiku is reporte
 
 ## Phase 5 — Governance
 
-- [ ] Read and save the current `main` branch-protection configuration before mutation.
-- [ ] Derive required status-check contexts from the successful hosted workflow.
-- [ ] Apply strict required checks, block force pushes and deletion, and enable administrator enforcement only when it does not create lockout; do not require reviews for a solo-maintainer flow.
-- [ ] Read back the effective configuration and retain sanitized evidence.
+- [x] Read and save the current `main` branch-protection configuration before mutation.
+- [x] Derive required status-check contexts from the successful hosted workflow.
+- [x] Apply strict required checks, block force pushes and deletion, and enable administrator enforcement only when it does not create lockout; do not require reviews for a solo-maintainer flow.
+- [x] Read back the effective configuration and retain sanitized evidence.
 
 Gate: the observed GitHub configuration matches the intended policy. Governance evidence is separate from behavioral skill policy and local checks.
 
@@ -121,3 +121,5 @@ Gate: no tag or release exists unless every mandatory current gate is supported 
 | 2026-10-08 | 3 | Deterministic candidate committed as `4de42795e3343c0bc0d81a32627ab3dbff17dc1a`; real integrations rerun against its clean checkout | PASS |
 | 2026-10-08T17:27:27.790565Z | 2 | L5 ledger started for candidate `4de42795e3343c0bc0d81a32627ab3dbff17dc1a`; earliest possible seven-day completion `2026-10-15T17:27:27.790565Z`; zero post-freeze tasks captured | IN_PROGRESS |
 | 2026-10-08 | 3 | Hosted run `37817095051`: Ubuntu/Python 3.14 passed; three cells exposed CRLF-sensitive protected hashes and Python 3.10 rejection of seven-digit fractional timestamps | FAIL — environment/scorer portability |
+| 2026-10-09 | 3 | Hosted run `37817693386` on commit `295e452986a5c4d9afae3d1d01083eb539092579`: Ubuntu/Windows × Python 3.10/3.14 | PASS |
+| 2026-10-09 | 5 | Pre-state 404 unprotected; applied strict four-context checks, admin enforcement, linear history, force-push/deletion blocks, no required reviews; API read-back matched | APPLIED |

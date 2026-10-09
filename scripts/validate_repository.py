@@ -69,6 +69,7 @@ REQUIRED = {
     "evidence/current/evidence.json",
     "evidence/current/SHA256SUMS.json",
     "evidence/current/integrations.json",
+    "evidence/current/governance.json",
     "evidence/longitudinal/README.md",
     "evidence/longitudinal/current-run.json",
     "evals/formal-spec-team/README.md",
@@ -89,6 +90,12 @@ REQUIRED = {
 CORE_FAMILIES = {"small", "moderate", "auth", "dirty", "missing-graph", "formal-spec"}
 PRESSURE_PROFILES = {"adversarial-decision", "gate-integrity", "stale-evidence", "skip-qa", "release-audit", "sunk-cost", "authority", "orchestration"}
 LONGITUDINAL_TASK_FIELDS = {"timestamp", "repository_task", "task_class", "risk", "expected_mode", "observed_mode", "completion_state", "verification_evidence", "regressions", "human_correction_required", "false_completion", "scope_drift", "cost", "notes"}
+REQUIRED_CHECK_CONTEXTS = {
+    "static-validation (ubuntu-latest, 3.10)",
+    "static-validation (ubuntu-latest, 3.14)",
+    "static-validation (windows-latest, 3.10)",
+    "static-validation (windows-latest, 3.14)",
+}
 
 
 def validate_longitudinal_ledger(data: dict, *, now: datetime | None = None) -> list[str]:
@@ -121,6 +128,29 @@ def validate_longitudinal_ledger(data: dict, *, now: datetime | None = None) -> 
                 errors.append(f"longitudinal task {index} is incomplete")
     if data["state"] == "PASS" and data["independent_final_analysis"] != "PASS":
         errors.append("longitudinal PASS lacks independent final analysis")
+    return errors
+
+
+def validate_governance_report(data: dict) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(data, dict) or data.get("schema_version") != 1 or data.get("status") != "APPLIED":
+        return ["governance report schema/status is invalid"]
+    if data.get("repository") != "aydinogluomer-sys/engineering-core" or data.get("branch") != "main":
+        errors.append("governance report targets the wrong repository or branch")
+    source = data.get("source_check_run", {})
+    if source.get("conclusion") != "success" or not isinstance(source.get("run_id"), int) or not re.fullmatch(r"[0-9a-f]{40}", str(source.get("candidate_sha", ""))):
+        errors.append("governance report lacks a successful source check run")
+    readback = data.get("readback", {})
+    if readback.get("strict") is not True:
+        errors.append("branch protection does not require up-to-date checks")
+    if set(readback.get("required_status_checks", [])) != REQUIRED_CHECK_CONTEXTS:
+        errors.append("branch protection required checks do not match the hosted matrix")
+    if readback.get("enforce_admins") is not True:
+        errors.append("branch protection is not enforced for administrators")
+    if readback.get("required_pull_request_reviews") is not None:
+        errors.append("branch protection is not solo-maintainer-safe")
+    if readback.get("allow_force_pushes") is not False or readback.get("allow_deletions") is not False:
+        errors.append("branch force push or deletion remains enabled")
     return errors
 
 
@@ -371,6 +401,15 @@ def validate(root: Path) -> list[str]:
             errors.append(f"invalid longitudinal ledger: {exc}")
         else:
             errors.extend(validate_longitudinal_ledger(ledger))
+
+    governance_path = root / "evidence/current/governance.json"
+    if governance_path.exists():
+        try:
+            governance = json.loads(governance_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"invalid governance evidence: {exc}")
+        else:
+            errors.extend(validate_governance_report(governance))
 
     registry = root / "evals/cross-model/model_registry.json"
     if registry.exists():
