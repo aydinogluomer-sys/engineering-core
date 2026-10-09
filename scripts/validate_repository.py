@@ -70,6 +70,7 @@ REQUIRED = {
     "evidence/current/SHA256SUMS.json",
     "evidence/current/integrations.json",
     "evidence/current/governance.json",
+    "evidence/current/live-campaign-preflight.json",
     "evidence/longitudinal/README.md",
     "evidence/longitudinal/current-run.json",
     "evals/formal-spec-team/README.md",
@@ -151,6 +152,27 @@ def validate_governance_report(data: dict) -> list[str]:
         errors.append("branch protection is not solo-maintainer-safe")
     if readback.get("allow_force_pushes") is not False or readback.get("allow_deletions") is not False:
         errors.append("branch force push or deletion remains enabled")
+    return errors
+
+
+def validate_live_preflight(data: dict) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(data, dict) or data.get("schema_version") != 1:
+        return ["live campaign preflight schema is invalid"]
+    controls = data.get("cost_controls", {})
+    if controls.get("max_total_spend_usd") is None:
+        if data.get("status") != "NOT_AUTHORIZED" or data.get("paid_calls_executed") != 0:
+            errors.append("unset spend cap must prohibit all paid calls")
+        if controls.get("worst_case_within_user_cap") != "UNDETERMINED_CAP_UNSET":
+            errors.append("unset spend cap cannot have a budget comparison result")
+    elif not isinstance(controls.get("max_total_spend_usd"), (int, float)) or controls["max_total_spend_usd"] <= 0:
+        errors.append("live campaign spend cap must be a positive number")
+    if controls.get("automatic_retries") != 0 or controls.get("cli_max_budget_flag_observed") is not True:
+        errors.append("live campaign cost controls are incomplete")
+    if not data.get("claude_code", {}).get("version"):
+        errors.append("Claude Code version was not observed")
+    if set(data.get("alias_discovery", {}).get("registry_required", [])) != {"haiku", "sonnet", "opus", "fable"}:
+        errors.append("live campaign registry aliases are incomplete")
     return errors
 
 
@@ -410,6 +432,15 @@ def validate(root: Path) -> list[str]:
             errors.append(f"invalid governance evidence: {exc}")
         else:
             errors.extend(validate_governance_report(governance))
+
+    live_preflight_path = root / "evidence/current/live-campaign-preflight.json"
+    if live_preflight_path.exists():
+        try:
+            live_preflight = json.loads(live_preflight_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"invalid live campaign preflight: {exc}")
+        else:
+            errors.extend(validate_live_preflight(live_preflight))
 
     registry = root / "evals/cross-model/model_registry.json"
     if registry.exists():
