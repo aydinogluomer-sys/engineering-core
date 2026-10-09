@@ -123,3 +123,4 @@ Gate: no tag or release exists unless every mandatory current gate is supported 
 | 2026-10-08 | 3 | Hosted run `37817095051`: Ubuntu/Python 3.14 passed; three cells exposed CRLF-sensitive protected hashes and Python 3.10 rejection of seven-digit fractional timestamps | FAIL — environment/scorer portability |
 | 2026-10-09 | 3 | Hosted run `37817693386` on commit `295e452986a5c4d9afae3d1d01083eb539092579`: Ubuntu/Windows × Python 3.10/3.14 | PASS |
 | 2026-10-09 | 5 | Pre-state 404 unprotected; applied strict four-context checks, admin enforcement, linear history, force-push/deletion blocks, no required reviews; API read-back matched | APPLIED |
+| 2026-10-09 | 4 | Claude Code 2.1.289/auth capability and `--max-budget-usd` observed without model invocation; manifest worst-case `$250.00`; numeric user cap remains unset; paid calls/spend remain zero | NOT_AUTHORIZED |

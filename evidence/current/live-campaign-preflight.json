@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-09T05:05:05.548744Z",
+  "status": "NOT_AUTHORIZED",
+  "claude_code": {
+    "version": "2.1.289",
+    "provision": "existing global npm native executable",
+    "logged_in": true,
+    "auth_method": "claude.ai",
+    "api_provider": "firstParty",
+    "subscription_type": "max"
+  },
+  "alias_discovery": {
+    "cli_help_advertised": ["fable", "opus", "sonnet"],
+    "registry_required": ["haiku", "sonnet", "opus", "fable"],
+    "haiku_availability": "UNVERIFIED_NO_MODEL_INVOCATION",
+    "effective_model_identity": "UNOBSERVED_NO_LIVE_RUN"
+  },
+  "cost_controls": {
+    "cli_max_budget_flag_observed": true,
+    "automatic_retries": 0,
+    "template_estimated_max_invocations": 500,
+    "template_per_call_budget_usd": 0.5,
+    "template_worst_case_total_usd": 250.0,
+    "max_total_spend_usd": null,
+    "worst_case_within_user_cap": "UNDETERMINED_CAP_UNSET"
+  },
+  "paid_calls_executed": 0,
+  "observed_spend_usd": 0.0,
+  "reserved_or_unobserved_spend_usd": 0.0,
+  "blocking_reason": "The user has not supplied a numeric MAX_TOTAL_SPEND_USD. No live-model invocation is permitted."
+}

@@ -88,6 +88,8 @@ def build(output: Path) -> int:
     longitudinal = json.loads(longitudinal_path.read_text(encoding="utf-8")) if longitudinal_path.is_file() else None
     governance_path = output / "governance.json"
     governance = json.loads(governance_path.read_text(encoding="utf-8")) if governance_path.is_file() else None
+    live_preflight_path = output / "live-campaign-preflight.json"
+    live_preflight = json.loads(live_preflight_path.read_text(encoding="utf-8")) if live_preflight_path.is_file() else None
     evidence = {
         "schema_version": 1,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -112,9 +114,10 @@ def build(output: Path) -> int:
         } if integration_report and not integration_errors else capability_matrix()),
         "stack_integration_report_sha256": sha256(integration_path) if integration_path.is_file() else None,
         "stack_integration_validation_errors": integration_errors,
-        "live_model_matrix": "NOT_RUN",
+        "live_model_matrix": live_preflight["status"] if live_preflight else "NOT_RUN",
+        "live_campaign_preflight_sha256": sha256(live_preflight_path) if live_preflight else None,
         "pressure_harness_static": "PASS" if cells["core_harness"] else "FAIL",
-        "pressure_live": "NOT_RUN",
+        "pressure_live": live_preflight["status"] if live_preflight else "NOT_RUN",
         "longitudinal_field": longitudinal["state"] if longitudinal else "NOT_RUN",
         "longitudinal_candidate_sha": longitudinal.get("candidate_sha") if longitudinal else None,
         "longitudinal_ledger_sha256": sha256(longitudinal_path) if longitudinal else None,

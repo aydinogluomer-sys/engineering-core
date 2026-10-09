@@ -36,6 +36,6 @@ L5 longitudinal reliability remains unclaimed.
 
 ## Current v6 campaign boundary
 
-No current Haiku/Sonnet/Opus/Fable call has been made for the v6 candidate. `MAX_TOTAL_SPEND_USD` has not been supplied, so activation, mode-selection, Core L4, Team L4, and pressure results remain `NOT_AUTHORIZED`/`NOT_RUN`. Historical tables above remain historical and cannot satisfy the current release gate.
+No current Haiku/Sonnet/Opus/Fable call has been made for the v6 candidate. Claude Code 2.1.289 is installed and authenticated; its help advertises the Fable, Opus, and Sonnet aliases, while Haiku availability and every effective served identity remain unobserved without an invocation. The frozen manifest exposes per-call/total caps, zero automatic retries, and a `$250.00` template worst-case reservation. `MAX_TOTAL_SPEND_USD` has not been supplied, so no comparison to a user cap is possible and activation, mode-selection, Core L4, Team L4, and pressure results remain `NOT_AUTHORIZED`. Historical tables above cannot satisfy the current release gate.
 
 The frozen non-executable manifest now includes eight pressure categories—adversarial decision, gate integrity, stale evidence, skipped QA, release audit, sunk cost, authority, and orchestration—with at least three repetitions per model/category. Runtime alias discovery and observed served identity are mandatory. Static scorer tests do not satisfy this live cell.

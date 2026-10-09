@@ -5,7 +5,7 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from validate_repository import validate_governance_report, validate_longitudinal_ledger, validate_readme, validate_workflow
+from validate_repository import validate_governance_report, validate_live_preflight, validate_longitudinal_ledger, validate_readme, validate_workflow
 from build_evidence_bundle import candidate_manifest
 
 
@@ -128,6 +128,19 @@ class GovernanceReportTests(unittest.TestCase):
         errors = validate_governance_report(report)
         self.assertTrue(any("required checks" in error for error in errors))
         self.assertTrue(any("force push" in error for error in errors))
+
+
+class LivePreflightTests(unittest.TestCase):
+    def test_unset_cap_prohibits_calls(self):
+        report = {
+            "schema_version": 1, "status": "NOT_AUTHORIZED", "paid_calls_executed": 0,
+            "claude_code": {"version": "2.1.289"},
+            "alias_discovery": {"registry_required": ["haiku", "sonnet", "opus", "fable"]},
+            "cost_controls": {"max_total_spend_usd": None, "worst_case_within_user_cap": "UNDETERMINED_CAP_UNSET", "automatic_retries": 0, "cli_max_budget_flag_observed": True},
+        }
+        self.assertEqual(validate_live_preflight(report), [])
+        report["paid_calls_executed"] = 1
+        self.assertTrue(any("prohibit" in error for error in validate_live_preflight(report)))
 
 
 if __name__ == "__main__":
