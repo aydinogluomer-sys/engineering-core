@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / "evals"))
 from harness_core import redact, tracked_secret_findings  # noqa: E402
 sys.path.insert(0, str(ROOT / "evals/failure-resistance"))
 from failure_resistance import capability_matrix, protected_stack_hash, validate_stack_report  # noqa: E402
+from validate_repository import validate_integration_candidate_binding  # noqa: E402
 
 COMMANDS = [
     [sys.executable, "engineering-core/scripts/validate_skill.py", "engineering-core"],
@@ -71,6 +72,7 @@ def build(output: Path) -> int:
             integration_errors = validate_stack_report(integration_report)
             if integration_report.get("protected_inputs_sha256") != protected_stack_hash(ROOT):
                 integration_errors.append("integration report does not match current protected fixtures/oracles")
+            integration_errors.extend(validate_integration_candidate_binding(ROOT, integration_report))
     cells = {
         "skill_structure": command_rows[0]["exit_code"] == 0 and command_rows[1]["exit_code"] == 0,
         "core_harness": command_rows[2]["exit_code"] == 0,

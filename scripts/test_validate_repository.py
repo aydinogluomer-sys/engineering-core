@@ -5,7 +5,7 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from validate_repository import validate_governance_report, validate_live_preflight, validate_longitudinal_ledger, validate_readme, validate_workflow
+from validate_repository import integration_binding_scope_errors, validate_governance_report, validate_live_preflight, validate_longitudinal_ledger, validate_readme, validate_workflow
 from build_evidence_bundle import candidate_manifest
 
 
@@ -141,6 +141,14 @@ class LivePreflightTests(unittest.TestCase):
         self.assertEqual(validate_live_preflight(report), [])
         report["paid_calls_executed"] = 1
         self.assertTrue(any("prohibit" in error for error in validate_live_preflight(report)))
+
+
+class IntegrationBindingTests(unittest.TestCase):
+    def test_only_evidence_and_reconciliation_paths_may_follow_candidate(self):
+        allowed = ["evidence/current/integrations.json", "docs/current-status.md", "README.md", "implementation-v6.md", "scripts/validate_repository.py"]
+        self.assertEqual(integration_binding_scope_errors(allowed), [])
+        changed = [*allowed, "engineering-core/SKILL.md", "evals/failure-resistance/browser_oracle.mjs"]
+        self.assertEqual(integration_binding_scope_errors(changed), ["engineering-core/SKILL.md", "evals/failure-resistance/browser_oracle.mjs"])
 
 
 if __name__ == "__main__":
